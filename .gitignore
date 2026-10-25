@@ -10,3 +10,6 @@ Desktop.ini
 
 # Logs
 *.log
+
+# Research downloads, notes, and device backups
+/tmp/
