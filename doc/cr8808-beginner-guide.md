@@ -499,4 +499,4 @@ C:\cr8808\
 
 实机执行的原始步骤和结果见[实操记录](cr8808-openwrt-hands-on.md)，候选项目、其他硬件分流和恢复资料见[完整调研](cr8808-openwrt-flashing-research.md)。关于按住 Reset 上电后通过浏览器救援的功能，见[网页恢复 U-Boot 项目与本机支持判断](cr8808-web-uboot-research.md)：本次没有更换原厂 U-Boot，现有候选包也尚未完成本机适配验证。
 
-备份、身份数据、密码和原始日志留在本地，GitHub 只保存教程与脚本源代码。
+备份、身份数据、密码和原始日志留在本地。GitHub 保存教程与脚本源代码，以及后续按用户要求整理、标记为待验证的[历史 WebUBoot 候选包](../firmware/webuboot/cr880x-20221214/README.md)；该候选包不属于本教程已验证的安装步骤。

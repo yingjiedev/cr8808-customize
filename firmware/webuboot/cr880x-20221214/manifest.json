@@ -1,0 +1,38 @@
+{
+  "format_version": 1,
+  "package_id": "cr880x-webuboot-20221214",
+  "status": "unverified-candidate",
+  "reviewed_on": "2026-10-26",
+  "binary_patches_applied": false,
+  "device_boot_test_passed": false,
+  "flash_script_included": false,
+  "source": {
+    "user_directory": "tmp/02-不死引导-WebUBoot",
+    "matching_public_repository": "Lenoud/cr8809-miwifi-openwrt",
+    "matching_public_commit": "52e90d5b08f47f3e5d7519795e0b4d6cdd1cc3a8",
+    "original_instructions_sha256": "7a651ac6e92a334ceb1fe1d236536b50da031aadfa54b78299991fc0be2ed89b"
+  },
+  "files": [
+    {
+      "name": "MIBIB.bin",
+      "bytes": 524288,
+      "sha256": "c56efb1b07051d2c799b20cec147ac5ba672a72c5bad4529ec7de865ac54becd",
+      "partition_name": "0:MIBIB",
+      "observation": "Byte-identical to this project's original device MIBIB backup; no rewrite needed for this device."
+    },
+    {
+      "name": "APPSBL.bin",
+      "bytes": 1310720,
+      "sha256": "a92f08878499bb697e67cfb5f597bb5757e48b4846f4f250fbc612ea166ad4f3",
+      "partition_name": "0:APPSBL",
+      "observation": "Web-capable candidate; this device's boot and slot behavior has not been tested."
+    },
+    {
+      "name": "APPSBL1.bin",
+      "bytes": 1310720,
+      "sha256": "c399dcae6af94e8067532c64f3bc7b137169fbbe80b539f952d9c468fa075cb5",
+      "partition_name": "0:APPSBL_1",
+      "observation": "Different from the primary candidate and this device's original bootloader; not a verified rescue copy."
+    }
+  ]
+}

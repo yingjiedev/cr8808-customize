@@ -178,7 +178,7 @@ fw_printenv flag_boot_rootfs flag_last_success
 
 后续若实施，优先做“串口和硬件参数确认 → 开源 CR8808 专用配置 → 保留双槽位的网页恢复验证”，再决定是否另行扩容。不能把本调研的候选文件表理解为已批准使用的刷写清单。
 
-中间资料位于 `tmp/web-uboot-research/`，包括下载的二进制、`binary-inspection.json`、`mibib-partitions.json` 和 `sources/`。它们受 Git 忽略；GitHub 保存本报告和文档入口。
+中间资料位于 `tmp/web-uboot-research/`，包括原始下载、`binary-inspection.json`、`mibib-partitions.json` 和 `sources/`，受 Git 忽略。后续按用户要求整理的[历史候选包](../firmware/webuboot/cr880x-20221214/README.md)另存于项目 `firmware/webuboot/`，随文档提交；二进制未修改，仍未通过本机启动验证。
 
 ## 来源
 

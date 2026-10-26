@@ -4,6 +4,8 @@
 
 输入目录：`tmp/02-不死引导-WebUBoot/`。本次读取本地文件、与原厂备份比较、解析 ELF 和分区表；未执行包中的命令，也未操作路由器。
 
+后续更新：用户已授权修正并开始测试。[修正包](../firmware/webuboot/cr880x-20221214/README.md)已纳入项目，用户目录内 TXT 更新为修正版，旧 TXT 已另存；三份二进制未修改。实际引导写入因串口未接、候选启动行为未验证及网页 IP 冲突而未开始，见[测试状态](cr8808-webuboot-test-status.md)。
+
 ## 1. 是否支持本机
 
 **这是一份有旧版 CR880x 适配线索的历史网页 U-Boot 包，可以继续验证；目前不能确认它适合直接替换本机引导，也不能确认替换后能保留现有双系统启动方式。不要照附带 TXT 直接刷写。**
@@ -63,7 +65,7 @@ data       起始 0x07180000   大小 0x00d80000   13.5 MiB
 
 ## 3. 附带 TXT 有什么问题
 
-TXT 是有效 UTF-8 文件，可正常读取，未修改原文件。其内容要求先通过 TTL 中断进入 U-Boot，再传文件刷写；因此它本身就不是一个只在 LuCI 或 SSH 里操作的教程。
+初次收到的 TXT 是有效 UTF-8 文件，要求先通过 TTL 中断进入 U-Boot，再传文件刷写；因此它本身就不是一个只在 LuCI 或 SSH 里操作的教程。下面记录原文问题；后续修正版已经更正名称并补充前置条件。
 
 最明确的错误是这行中的目标名称：
 
@@ -107,9 +109,9 @@ TXT 还称安装后 TTL 命令入口会关闭，并描述 Reset 上电、DHCP �
 
 ## 6. 核查材料位置
 
-- 用户原文件：`tmp/02-不死引导-WebUBoot/`，未修改。
+- 用户目录：`tmp/02-不死引导-WebUBoot/`，三份二进制未修改，TXT 已更新为修正版；原 TXT 另存 `tmp/web-uboot-research/user-package/original-instructions-7a651ac6.txt`。
 - 三文件比较：`tmp/web-uboot-research/user-package-comparison.json`。
 - 分区表、TXT、文件哈希与判断依据：`tmp/web-uboot-research/user-package/review-evidence.json`。
 - 两个 ELF 的段信息、启动标记及相关字符串：同目录 `APPSBL.bin.static.json`、`APPSBL1.bin.static.json`。
 
-上述中间文件均在 Git 忽略的 `tmp/` 内，GitHub 只保存本报告和入口链接。历史公开包的固定来源、项目源码与后续支持工作见[网页 U-Boot 调研](cr8808-web-uboot-research.md)。
+上述中间文件均在 Git 忽略的 `tmp/` 内。后续按用户要求将三份来源公开的候选文件、修正说明和校验值另存至项目 [firmware/webuboot](../firmware/webuboot/cr880x-20221214/README.md)，不包含本机备份、密码或身份分区。历史公开包的固定来源、项目源码与后续支持工作见[网页 U-Boot 调研](cr8808-web-uboot-research.md)。
