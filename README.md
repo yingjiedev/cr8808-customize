@@ -5,6 +5,7 @@ CR8808 定制项目。
 ## 文档
 
 - [Windows 新手完整教程：工具下载、固件下载、命令、典型返回与判断](doc/cr8808-beginner-guide.md)
+- [网页恢复 U-Boot 调研：候选项目、文件校验与本机支持路线](doc/cr8808-web-uboot-research.md)
 - [CR8808 刷机实操记录（已刷入并完成重启验证，附命令与实际返回）](doc/cr8808-openwrt-hands-on.md)
 - [CR8808 刷入 OpenWrt 调研与操作路线](doc/cr8808-openwrt-flashing-research.md)
 

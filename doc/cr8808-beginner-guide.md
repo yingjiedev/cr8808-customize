@@ -497,4 +497,6 @@ C:\cr8808\
 
 配套脚本：[电脑准备工具](../scripts/prepare-cr8808-flash.ps1)、[刷写模板](../scripts/flash-cr8808-stock.template.sh)。模板沿用本次成功的写入与数据页读回流程，新增专用脚本生成、清晰的失败提示及检查模式；生成器已用实机备份在 PowerShell 5.1 中验证，并检查了错误布局、缺失/截断备份及未填模板的拒绝行为。没有为编写教程重新刷写设备。
 
-实机执行的原始步骤和结果见[实操记录](cr8808-openwrt-hands-on.md)，候选项目、其他硬件分流和恢复资料见[完整调研](cr8808-openwrt-flashing-research.md)。备份、身份数据、密码和原始日志留在本地，GitHub 只保存教程与脚本源代码。
+实机执行的原始步骤和结果见[实操记录](cr8808-openwrt-hands-on.md)，候选项目、其他硬件分流和恢复资料见[完整调研](cr8808-openwrt-flashing-research.md)。关于按住 Reset 上电后通过浏览器救援的功能，见[网页恢复 U-Boot 项目与本机支持判断](cr8808-web-uboot-research.md)：本次没有更换原厂 U-Boot，现有候选包也尚未完成本机适配验证。
+
+备份、身份数据、密码和原始日志留在本地，GitHub 只保存教程与脚本源代码。
