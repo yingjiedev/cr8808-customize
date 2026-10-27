@@ -13,6 +13,9 @@
 | `patch-homeproxy-rpc.py` | 对经校验的固定压缩内核直接返回版本与功能，避免页面查询额外启动 Go 进程 |
 | `cr8808-proxy-wan.init` | 依据 WAN 状态及 `homeproxy.config.cr8808_autostart` 控制代理启动 |
 | `cr8808-proxy-wan.hotplug` | 响应 WAN `ifup` / `ifdown` 事件 |
+| `export-homeproxy-test-nodes.uc` | 从本机 HomeProxy 生成器导出节点到临时私有文件，保持运行配置 |
+| `homeproxy-test-bypass.sh` | 为测试电脑临时绕过 TCP/UDP 透明代理，按唯一标签清理并提供 watchdog |
+| `test-homeproxy-nodes.py` | 电脑端串行 HTTPS 延迟检测、按 ID 复测及 HTML/JSON/CSV 报告 |
 
 其他已有刷机、候选 WebUBoot 检查脚本的说明仍以相应专项手册为准。
 
@@ -67,3 +70,5 @@ python .\scripts\patch-homeproxy-rpc.py `
 WAN 事件脚本在本机分别安装为 `/etc/init.d/cr8808-proxy-wan`、`/etc/hotplug.d/iface/95-cr8808-proxy-wan`；具体启停与验收步骤见配置手册。
 
 仓库保存可复用脚本和脱敏手册。凭据、节点配置、设备备份、一次性登录控制工具及下载的二进制保存在本机忽略目录。
+
+节点检测的核心校验、导出、临时规则及完整运行步骤见[节点可用性与延迟检测](../doc/cr8808-node-latency-test.md)。电脑端检测使用同版本原生核心，并需让该电脑的测试连接直接经家庭 WAN 出站；启用前核对当前电脑 IPv4，完成后检查临时规则已清理。

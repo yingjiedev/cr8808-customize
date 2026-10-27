@@ -5,6 +5,7 @@ CR8808 定制项目。
 ## 文档
 
 - [主路由、双频 Wi-Fi 与订阅配置手册（已联网，含页面超时修复）](doc/cr8808-main-router-configuration-manual.md)
+- [节点可用性与延迟检测（42 个节点实测、复测及重测脚本）](doc/cr8808-node-latency-test.md)
 - [主路由、Clash/通用订阅与分流配置调研（含本机容量限制）](doc/cr8808-subscription-main-router-research.md)
 - [Windows 新手完整教程：工具下载、固件下载、命令、典型返回与判断](doc/cr8808-beginner-guide.md)
 - [网页恢复 U-Boot 调研：候选项目、文件校验与本机支持路线](doc/cr8808-web-uboot-research.md)
