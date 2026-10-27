@@ -45,6 +45,9 @@ def main():
         button = "o=s.option(form.Button,'_cr8808_latency','HTTPS 延迟');o.editable=true;o.modalonly=false;o.inputtitle='测试延迟';o.inputstyle='action';o.onclick=cr8808TestNode;"
         node = node.replace(anchor, button + anchor, 1)
         node = node.replace("m=new form.Map('homeproxy',_('Edit nodes'));", "m=new form.Map('homeproxy',_('Edit nodes'),'点击节点的“测试延迟”逐个检测，HTTPS 探测 5 秒超时，首轮可能更久。请先保存应用节点变更。');", 1)
+        if node.count('return m.render();') != 1:
+            raise ValueError('Unexpected node map render anchor')
+        node = node.replace('return m.render();', 'return m.render().then(cr8808NodeTools);', 1)
     except ValueError as error:
         raise SystemExit(str(error)) from error
     args.output.mkdir(parents=True, exist_ok=False)

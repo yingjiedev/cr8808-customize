@@ -77,4 +77,4 @@ WAN 事件脚本在本机分别安装为 `/etc/init.d/cr8808-proxy-wan`、`/etc/
 
 节点检测的核心校验、导出、临时规则及完整运行步骤见[节点可用性与延迟检测](../doc/cr8808-node-latency-test.md)。电脑端检测使用同版本原生核心，并需让该电脑的测试连接直接经家庭 WAN 出站；启用前核对当前电脑 IPv4，完成后检查临时规则已清理。
 
-当前节点页按钮直接复用路由器核心，使用另一条按需路径，不需要临时绕过电脑。补丁构建、部署、串行限制与版本边界见[资源优化手册](../doc/cr8808-low-memory-homeproxy.md)。前端行为测试：`node --test tests/homeproxy-node-ui.test.cjs`。
+当前节点页按钮直接复用路由器核心，不需要临时绕过电脑；支持单测或一键全部排队测速，固定并发 1、间隔 1 秒，可停止并显示进度。队列在网页中运行，不增加路由器常驻服务。补丁构建、部署、串行限制与版本边界见[资源优化手册](../doc/cr8808-low-memory-homeproxy.md)。前端行为测试：`node --test tests/homeproxy-node-ui.test.cjs`。
