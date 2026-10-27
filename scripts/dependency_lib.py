@@ -49,7 +49,7 @@ def load_lock(path=LOCK):
             raise ValueError('Unknown artifact storage')
         if not re.fullmatch('[0-9a-f]{64}', entry['sha256']) or entry['bytes'] <= 0:
             raise ValueError('Invalid artifact digest or size')
-        if any(not url.startswith('https://') for url in entry.get('urls', [])):
+        if any(not url.startswith('https://') for key in ('urls', 'upstream_urls') for url in entry.get(key, [])):
             raise ValueError('Downloads require HTTPS')
     for tree in lock['trees']:
         relative_path(tree['path'])
@@ -162,7 +162,7 @@ def dependency_closure(lock, root):
             'direct_base_dependencies': sorted(used_base), 'kernel_abi': expected_kernel}
 
 
-def verify(lock, root=ROOT):
+def verify(lock, root=ROOT, downloads=False):
     count, total = 0, 0
     for entry in lock['artifacts']:
         if entry['storage'] == 'vendored':
@@ -177,22 +177,30 @@ def verify(lock, root=ROOT):
                              if actual.get(name) != tree['files'].get(name))
             raise ValueError(f"Upstream tree drift: {tree['path']}: {', '.join(changed[:8])}")
     closure = dependency_closure(lock, root)
-    return {'verified_artifacts': count, 'vendored_bytes': total,
-            'source_trees': len(lock['trees']), **closure}
+    report = {'verified_artifacts': count, 'vendored_bytes': total,
+              'source_trees': len(lock['trees']), **closure}
+    if downloads:
+        cached = [entry for entry in lock['artifacts'] if entry['storage'] == 'download']
+        for entry in cached:
+            check_bytes(inside(root, entry['path']).read_bytes(), entry)
+        report['verified_downloads'] = len(cached)
+        report['download_bytes'] = sum(entry['bytes'] for entry in cached)
+    return report
 
 
-def fetch(entry, root=ROOT):
+def fetch(entry, root=ROOT, upstream_only=False):
     """Only fetch an explicitly selected locked item; validate before atomic rename."""
     target = inside(root, entry['path'])
     if target.is_file():
         check_bytes(target.read_bytes(), entry)
         return target
-    if not entry.get('urls'):
+    urls = entry.get('upstream_urls', entry.get('urls', [])) if upstream_only else entry.get('urls', [])
+    if not urls:
         raise ValueError(f"No download URL: {entry['id']}")
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_name(target.name + '.part')
     errors = []
-    for url in entry['urls']:
+    for url in urls:
         try:
             request = urllib.request.Request(url, headers={'User-Agent': 'cr8808-customize/1'})
             hasher, count = hashlib.sha256(), 0
@@ -297,6 +305,8 @@ def build(lock, output, root=ROOT, candidate=False):
             source = repacked if entry['id'] == 'sing-box-squashfs' else inside(root, entry['path'])
             bundle_files['packages/' + Path(entry['path']).name] = source.read_bytes()
     for source, target in [
+        ('LICENSE', 'LICENSE'),
+        ('LICENSING.md', 'LICENSING.md'),
         ('dependencies/lock.json', 'dependencies.lock.json'),
         ('dependencies/baseline/firmware.manifest', 'firmware.manifest'),
         ('scripts/check-cr8808-baseline.sh', 'check-device.sh'),

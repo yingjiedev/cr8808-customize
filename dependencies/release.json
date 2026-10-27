@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "repository": "yingjiedev/cr8808-customize",
+  "tag": "v0.1.0",
+  "title": "v0.1.0 — CR8808 依赖归档与维护基线",
+  "notes": "doc/releases/v0.1.0.md",
+  "license": "GPL-2.0-or-later",
+  "large_artifact_ids": [
+    "firmware-sdk",
+    "firmware-imagebuilder",
+    "firmware-toolchain",
+    "firmware-sysupgrade",
+    "firmware-initramfs"
+  ]
+}

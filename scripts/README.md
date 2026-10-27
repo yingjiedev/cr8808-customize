@@ -8,6 +8,7 @@
 | --- | --- |
 | `manage-dependencies.py` / `dependency_lib.py` | 离线核对公开依赖、内核 ABI 与源码；构建基线/候选应用包，按需下载锁定 SDK |
 | `check-cr8808-baseline.sh` | 只读检查板名、固件版本、完整内核 ABI 与基础运行条件 |
+| `manage-release.py` / `release_lib.py` | 准备公开 Release 附件，核对本机与 GitHub 附件哈希后发布；支持草稿断点续传 |
 | `build-sing-box-squashfs-ipk.py` | 校验输入哈希，打包包含压缩应用镜像、挂载服务及占位入口的 IPK |
 | `sing-box-squashfs/etc/init.d/sing-box-squashfs` | 开机校验镜像/内核，进行只读 loop 挂载和可执行文件 bind mount |
 | `sing-box-squashfs/usr/bin/sing-box` | 挂载前的占位入口，准备挂载后执行真正的内核 |

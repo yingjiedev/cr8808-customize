@@ -2,6 +2,8 @@
 
 CR8808 定制项目。
 
+[下载 v0.1.0 维护基线](https://github.com/yingjiedev/cr8808-customize/releases/tag/v0.1.0)：含应用包、SDK、ImageBuilder、工具链、原始镜像及校验清单。仓库原创部分采用 [GPL-2.0-or-later](LICENSE)，第三方组件许可见 [LICENSING.md](LICENSING.md)。
+
 ## 文档
 
 - [依赖归档、离线构建与持续维护](doc/cr8808-dependency-maintenance.md)

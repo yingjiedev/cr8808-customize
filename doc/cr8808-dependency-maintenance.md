@@ -15,7 +15,7 @@
 | ucode digest | 2025.07.18~3f64c808-r1 | IPK、对应源码与固件内配方；其余 ucode 运行时随原始固件保存 |
 | 自定义功能 | 内存参数、功能缓存、WAN 启停、逐个及一键排队测速、日志下载权限 | `scripts/` 作为维护入口，构建时生成完整覆盖文件 |
 | 电脑辅助工具 | sing-box Windows 1.12.25、squashfs-tools-ng 1.3.2 | 官方发行包入库，版本与哈希固定 |
-| SDK / ImageBuilder / 交叉工具链 | 当前固件同一 Release | 锁定下载 URL、大小与 SHA256，显式下载到本机缓存 |
+| SDK / ImageBuilder / 交叉工具链 | 当前固件同一 Release | 在本仓库 Release 镜像，锁定大小与 SHA256，显式下载到本机缓存 |
 
 基础系统里的 libc、BusyBox、dnsmasq、firewall4、rpcd、LuCI、无线驱动等由完整原始固件和 `dependencies/baseline/firmware.manifest` 保存，不把后来软件源里的同名包视作替代品。`verify` 会检查增量 IPK 的每条包依赖能由归档包或该基础清单满足，并核对内核 ABI。
 
@@ -85,11 +85,37 @@ python scripts/manage-dependencies.py fetch firmware-imagebuilder
 python scripts/manage-dependencies.py fetch firmware-toolchain
 ```
 
-下载后先核对锁定大小和 SHA256，成功才更名为最终文件。默认构建不会自动下载或运行它们。只有来源链接和校验值的大文件，不能算作已经完成离线镜像；若上游删除文件，需从已验证的本地缓存补到仓库 Release 资产，再把镜像 URL 加进锁清单。
+这些大文件随 [v0.1.0](https://github.com/yingjiedev/cr8808-customize/releases/tag/v0.1.0) 发布为独立附件。依赖锁优先指向本仓库 Release，保留上游备用 URL；二进制内容不变，仍使用原发布者的哈希。下载后核对锁定大小和 SHA256，成功才更名为最终文件。默认应用构建不会自动下载或运行它们，下载后可用 `python scripts/manage-dependencies.py verify --downloads` 核对全部缓存。
 
-重编固件需在 Linux/WSL 的 Linux 文件系统内准备环境，展开固定固件与 feeds，依据固定配方补齐源码下载缓存，再编译与设备验收。本次没有把 SDK、所有 Linux 上游源码包或 Go 模块缓存全部提交 Git，也没有完成一次新固件编译。SDK 用于交叉编译用户态软件，不代表能不经核对地生成相同 ABI 的内核模块。
+Release 还包含应用基线 ZIP、原始 factory 镜像、公开仓库完整快照、构建报告、依赖锁、逐附件 SHA256 和许可说明。发版从已提交的 Git 快照取文件，只复制清单指定的大文件，不扫描其他本机缓存。SDK、ImageBuilder 与工具链用于 Linux x86_64 构建环境，不是在路由器上运行的包。
 
-## 6. CI、回滚与凭据
+重编固件需在 Linux/WSL 的 Linux 文件系统内准备环境，展开固定固件与 feeds，依据固定配方补齐源码下载缓存，再编译与设备验收。SDK 已作为 Release 附件归档，但不进入 Git；所有 Linux 上游源码包、Go 模块缓存仍未完整镜像，也未完成一次新固件编译。SDK 用于交叉编译用户态软件，不代表能不经核对地生成相同 ABI 的内核模块。
+
+## 6. 发布流程与许可
+
+仓库原创代码、脚本及文档采用 GPL-2.0-or-later；HomeProxy、sing-box、ucode、固件与工具链等第三方组件保留原有许可，详见根目录 `LICENSE` 与 `LICENSING.md`。
+
+发版配置为 `dependencies/release.json`，说明为 `doc/releases/版本号.md`。维护者先完成改动和验收，更新版本配置并提交，然后推送匹配的版本标签，例如：
+
+```powershell
+git tag -a v0.1.0 -m "CR8808 maintenance baseline v0.1.0"
+git push origin main v0.1.0
+```
+
+标签仅创建一次；已发布的版本不得覆盖或移动。Release workflow 会运行测试、从上游下载五个锁定大文件并校验、离线构建应用包，生成公开快照及校验清单。全部准备好后先创建草稿，逐个上传，要求 GitHub 返回的附件大小和 SHA256 与本机清单一致，才公开发布。只给发布任务 `contents: write`，令牌留在 Actions 中。
+
+若上传中断，可在 Actions 的 `Publish verified Release` 中对同一标签重新运行。脚本复用内容完全相同的草稿附件；遇到同名不同内容会停止，不覆盖。已公开版本仅允许完整一致时直接返回成功。新内容应使用新版本。
+
+手工准备和发布入口如下，发布需要 GitHub CLI 及该仓库写权限：
+
+```powershell
+python scripts/manage-release.py prepare --tag v0.1.0 --output tmp/release --download
+python scripts/manage-release.py publish --tag v0.1.0 --assets tmp/release/assets
+```
+
+首次准备使用依赖锁的 `upstream_urls`，避免依赖尚未发布的自身镜像。正常用户下载继续使用 `fetch ID`，优先本仓库镜像。
+
+## 7. CI、回滚与凭据
 
 GitHub Actions 在 Linux 和 Windows 上校验依赖、运行 Python/前端测试、离线构建应用包，再上传构建产物供审阅。它不接触家庭路由器，不自动升级依赖、不部署候选，也不把未经实机验收的更新标为稳定。Actions 的外部步骤按提交 SHA 固定。
 
