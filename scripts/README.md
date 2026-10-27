@@ -6,6 +6,8 @@
 
 | 文件 | 用途 |
 | --- | --- |
+| `manage-dependencies.py` / `dependency_lib.py` | 离线核对公开依赖、内核 ABI 与源码；构建基线/候选应用包，按需下载锁定 SDK |
+| `check-cr8808-baseline.sh` | 只读检查板名、固件版本、完整内核 ABI 与基础运行条件 |
 | `build-sing-box-squashfs-ipk.py` | 校验输入哈希，打包包含压缩应用镜像、挂载服务及占位入口的 IPK |
 | `sing-box-squashfs/etc/init.d/sing-box-squashfs` | 开机校验镜像/内核，进行只读 loop 挂载和可执行文件 bind mount |
 | `sing-box-squashfs/usr/bin/sing-box` | 挂载前的占位入口，准备挂载后执行真正的内核 |
@@ -23,7 +25,9 @@
 
 ## 本地构建
 
-Python 工具只使用标准库。先准备经过校验的原始 `sing-box-tiny` IPK、提取出的 ELF，以及通过 `gensquashfs` 创建的应用镜像。原始下载来源及校验值见配置手册；工具、下载文件和构建输出放在 Git 忽略的 `tmp/`。
+Python 工具只使用标准库。当前推荐执行 `python scripts/manage-dependencies.py build --output tmp/builds/baseline-1`，直接从仓库归档离线重建 r3 应用包和当前补丁，见[依赖维护手册](../doc/cr8808-dependency-maintenance.md)。
+
+下面保留手动构建的历史说明：准备经过校验的原始 `sing-box-tiny` IPK、提取出的 ELF，以及通过 `gensquashfs` 创建的应用镜像。归档输入现已在 `vendor/`，来源及校验值见依赖锁；提取文件与构建输出放在 Git 忽略的 `tmp/`。
 
 初次 r2 镜像使用 squashfs-tools-ng `1.3.2` 生成，压缩方式为 XZ，块大小为 1 MiB；当前 r3 使用相同 ELF、64 KiB 块，见[资源优化手册](../doc/cr8808-low-memory-homeproxy.md)。下面保留初次构建示例，构建 r3 时使用新镜像路径/哈希及版本。打包列表如下，源文件路径相对于列表文件：
 
@@ -73,7 +77,7 @@ python .\scripts\patch-homeproxy-rpc.py `
 
 WAN 事件脚本在本机分别安装为 `/etc/init.d/cr8808-proxy-wan`、`/etc/hotplug.d/iface/95-cr8808-proxy-wan`；具体启停与验收步骤见配置手册。
 
-仓库保存可复用脚本和脱敏手册。凭据、节点配置、设备备份、一次性登录控制工具及下载的二进制保存在本机忽略目录。
+仓库保存可复用脚本、脱敏手册，以及依赖清单明确管理的公开二进制和源码。凭据、节点配置、设备备份、一次性登录控制工具及其他临时下载继续保存在本机忽略目录。当前默认使用 r3；新的完整构建入口见[依赖维护手册](../doc/cr8808-dependency-maintenance.md)。
 
 节点检测的核心校验、导出、临时规则及完整运行步骤见[节点可用性与延迟检测](../doc/cr8808-node-latency-test.md)。电脑端检测使用同版本原生核心，并需让该电脑的测试连接直接经家庭 WAN 出站；启用前核对当前电脑 IPv4，完成后检查临时规则已清理。
 

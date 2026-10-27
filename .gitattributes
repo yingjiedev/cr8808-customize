@@ -1,10 +1,22 @@
+* text=auto
 .gitattributes text eol=lf
+.gitignore text eol=lf
 SHA256SUMS text eol=lf
-*.sh text eol=lf
 *.ps1 text eol=lf
-*.md text eol=lf
 *.txt text eol=lf
 *.bin binary
-/scripts/cr8808-proxy-wan.init text eol=lf
-/scripts/cr8808-proxy-wan.hotplug text eol=lf
+*.py text eol=lf
+*.js text eol=lf
+*.cjs text eol=lf
+*.uc text eol=lf
+*.sh text eol=lf
+*.init text eol=lf
+*.hotplug text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+vendor/** -text
+upstream/** -text
+dependencies/baseline/** -text
+dependencies/licenses/** -text
 /scripts/sing-box-squashfs/** text eol=lf

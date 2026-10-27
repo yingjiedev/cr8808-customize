@@ -1,0 +1,778 @@
+{
+  "schema_version": 1,
+  "baseline_date": "2026-10-27",
+  "target": {
+    "board": "redmi,ax3000",
+    "architecture": "aarch64_cortex-a53",
+    "firmware": "24.10-SNAPSHOT",
+    "revision": "r0-9a11bb8",
+    "firmware_source_commit": "9a11bb83d22efd5879439427cd222b957f6f7019",
+    "release_tag": "ci-redmi_ax3000-24.10-20260716-145815-UTC",
+    "kernel": "6.6.137",
+    "kernel_abi": "6.6.137~20a052f3c3e98b3a9ba1a095f81e2725-r1"
+  },
+  "artifacts": [
+    {
+      "id": "kmod-inet-diag",
+      "path": "vendor/packages/kmod-inet-diag_6.6.137-r1_aarch64_cortex-a53.ipk",
+      "role": "runtime",
+      "storage": "vendored",
+      "bytes": 13753,
+      "sha256": "4ea267d31fadb6af456173eade84a88fdbdf0d0f1a647cb0c3681f3b2fa86b35",
+      "license": "GPL-2.0-only",
+      "urls": [
+        "https://raw.githubusercontent.com/kmiit/Redmi_AX3000_immortalwrt/8840214a3582c29a1243677a0feabe2d8f459a5a/redmi_ax3000-24.10/r0-9a11bb8/kmod-inet-diag_6.6.137-r1_aarch64_cortex-a53.ipk"
+      ],
+      "package": {
+        "Package": "kmod-inet-diag",
+        "Version": "6.6.137-r1",
+        "Depends": "kernel (=6.6.137~20a052f3c3e98b3a9ba1a095f81e2725-r1)",
+        "Source": "feeds/base/kernel/linux",
+        "SourceName": "kernel",
+        "License": "GPL-2.0-only",
+        "LicenseFiles": "COPYING",
+        "Section": "kernel",
+        "SourceDateEpoch": "1784213887",
+        "CPE-ID": "cpe:/o:linux:linux_kernel",
+        "Architecture": "aarch64_cortex-a53",
+        "Installed-Size": "51200",
+        "Description": "Support for INET (TCP, DCCP, etc) socket monitoring interface used by"
+      }
+    },
+    {
+      "id": "kmod-nf-socket",
+      "path": "vendor/packages/kmod-nf-socket_6.6.137-r1_aarch64_cortex-a53.ipk",
+      "role": "runtime",
+      "storage": "vendored",
+      "bytes": 3417,
+      "sha256": "0dc5f50943fdfec4aad7b9f32f8d36a80878245dd9b308bc7da9a70efc291d04",
+      "license": "GPL-2.0-only",
+      "urls": [
+        "https://raw.githubusercontent.com/kmiit/Redmi_AX3000_immortalwrt/8840214a3582c29a1243677a0feabe2d8f459a5a/redmi_ax3000-24.10/r0-9a11bb8/kmod-nf-socket_6.6.137-r1_aarch64_cortex-a53.ipk"
+      ],
+      "package": {
+        "Package": "kmod-nf-socket",
+        "Version": "6.6.137-r1",
+        "Depends": "kernel (=6.6.137~20a052f3c3e98b3a9ba1a095f81e2725-r1)",
+        "Source": "feeds/base/kernel/linux",
+        "SourceName": "kernel",
+        "License": "GPL-2.0-only",
+        "LicenseFiles": "COPYING",
+        "Section": "kernel",
+        "SourceDateEpoch": "1784213887",
+        "CPE-ID": "cpe:/o:linux:linux_kernel",
+        "Architecture": "aarch64_cortex-a53",
+        "Installed-Size": "20480",
+        "Description": "Netfilter socket lookup support"
+      }
+    },
+    {
+      "id": "kmod-nf-tproxy",
+      "path": "vendor/packages/kmod-nf-tproxy_6.6.137-r1_aarch64_cortex-a53.ipk",
+      "role": "runtime",
+      "storage": "vendored",
+      "bytes": 4058,
+      "sha256": "739e4b4cd26042ca39c626f7728ea4cbe9d99d630a14a17b31e01df7f6d24ee1",
+      "license": "GPL-2.0-only",
+      "urls": [
+        "https://raw.githubusercontent.com/kmiit/Redmi_AX3000_immortalwrt/8840214a3582c29a1243677a0feabe2d8f459a5a/redmi_ax3000-24.10/r0-9a11bb8/kmod-nf-tproxy_6.6.137-r1_aarch64_cortex-a53.ipk"
+      ],
+      "package": {
+        "Package": "kmod-nf-tproxy",
+        "Version": "6.6.137-r1",
+        "Depends": "kernel (=6.6.137~20a052f3c3e98b3a9ba1a095f81e2725-r1)",
+        "Source": "feeds/base/kernel/linux",
+        "SourceName": "kernel",
+        "License": "GPL-2.0-only",
+        "LicenseFiles": "COPYING",
+        "Section": "kernel",
+        "SourceDateEpoch": "1784213887",
+        "CPE-ID": "cpe:/o:linux:linux_kernel",
+        "Architecture": "aarch64_cortex-a53",
+        "Installed-Size": "20480",
+        "Description": "Netfilter tproxy support"
+      }
+    },
+    {
+      "id": "kmod-nft-socket",
+      "path": "vendor/packages/kmod-nft-socket_6.6.137-r1_aarch64_cortex-a53.ipk",
+      "role": "runtime",
+      "storage": "vendored",
+      "bytes": 3536,
+      "sha256": "fbd76a671c60bcd5d0fb43fa4d466553c6f9cb8e24a80113e6ad2ad6eccb8c29",
+      "license": "GPL-2.0-only",
+      "urls": [
+        "https://raw.githubusercontent.com/kmiit/Redmi_AX3000_immortalwrt/8840214a3582c29a1243677a0feabe2d8f459a5a/redmi_ax3000-24.10/r0-9a11bb8/kmod-nft-socket_6.6.137-r1_aarch64_cortex-a53.ipk"
+      ],
+      "package": {
+        "Package": "kmod-nft-socket",
+        "Version": "6.6.137-r1",
+        "Depends": "kernel (=6.6.137~20a052f3c3e98b3a9ba1a095f81e2725-r1), kmod-nft-core, kmod-nf-socket",
+        "Source": "feeds/base/kernel/linux",
+        "SourceName": "kernel",
+        "License": "GPL-2.0-only",
+        "LicenseFiles": "COPYING",
+        "Section": "kernel",
+        "SourceDateEpoch": "1784213887",
+        "CPE-ID": "cpe:/o:linux:linux_kernel",
+        "Architecture": "aarch64_cortex-a53",
+        "Installed-Size": "20480",
+        "Description": "Netfilter nf_tables socket support"
+      }
+    },
+    {
+      "id": "kmod-nft-tproxy",
+      "path": "vendor/packages/kmod-nft-tproxy_6.6.137-r1_aarch64_cortex-a53.ipk",
+      "role": "runtime",
+      "storage": "vendored",
+      "bytes": 3792,
+      "sha256": "7b432fe6f3954037fca28f746d67bd008ce89706782df794846d18a89bae48b1",
+      "license": "GPL-2.0-only",
+      "urls": [
+        "https://raw.githubusercontent.com/kmiit/Redmi_AX3000_immortalwrt/8840214a3582c29a1243677a0feabe2d8f459a5a/redmi_ax3000-24.10/r0-9a11bb8/kmod-nft-tproxy_6.6.137-r1_aarch64_cortex-a53.ipk"
+      ],
+      "package": {
+        "Package": "kmod-nft-tproxy",
+        "Version": "6.6.137-r1",
+        "Depends": "kernel (=6.6.137~20a052f3c3e98b3a9ba1a095f81e2725-r1), kmod-nft-core, kmod-nf-tproxy, kmod-nf-conntrack",
+        "Source": "feeds/base/kernel/linux",
+        "SourceName": "kernel",
+        "License": "GPL-2.0-only",
+        "LicenseFiles": "COPYING",
+        "Section": "kernel",
+        "SourceDateEpoch": "1784213887",
+        "CPE-ID": "cpe:/o:linux:linux_kernel",
+        "Architecture": "aarch64_cortex-a53",
+        "Installed-Size": "20480",
+        "Description": "Netfilter nf_tables tproxy support"
+      }
+    },
+    {
+      "id": "kmod-tun",
+      "path": "vendor/packages/kmod-tun_6.6.137-r1_aarch64_cortex-a53.ipk",
+      "role": "runtime",
+      "storage": "vendored",
+      "bytes": 26818,
+      "sha256": "76d35b808e1ed65af439fb8612b82017ef56933689692d0ae16b0945c233601a",
+      "license": "GPL-2.0-only",
+      "urls": [
+        "https://raw.githubusercontent.com/kmiit/Redmi_AX3000_immortalwrt/8840214a3582c29a1243677a0feabe2d8f459a5a/redmi_ax3000-24.10/r0-9a11bb8/kmod-tun_6.6.137-r1_aarch64_cortex-a53.ipk"
+      ],
+      "package": {
+        "Package": "kmod-tun",
+        "Version": "6.6.137-r1",
+        "Depends": "kernel (=6.6.137~20a052f3c3e98b3a9ba1a095f81e2725-r1)",
+        "Source": "feeds/base/kernel/linux",
+        "SourceName": "kernel",
+        "License": "GPL-2.0-only",
+        "LicenseFiles": "COPYING",
+        "Section": "kernel",
+        "SourceDateEpoch": "1784213887",
+        "CPE-ID": "cpe:/o:linux:linux_kernel",
+        "Architecture": "aarch64_cortex-a53",
+        "Installed-Size": "81920",
+        "Description": "Kernel support for the TUN/TAP tunneling device"
+      }
+    },
+    {
+      "id": "homeproxy",
+      "path": "vendor/packages/luci-app-homeproxy_26.236.50592~9b8ee64_all.ipk",
+      "role": "runtime",
+      "storage": "vendored",
+      "bytes": 574095,
+      "sha256": "027543880f8bab9daa3dc7a8c502d95ca59b5f48fad48876bde4c3849c33cdf7",
+      "license": "GPL-2.0-only",
+      "urls": [
+        "https://downloads.immortalwrt.org/releases/packages-24.10/aarch64_cortex-a53/luci/luci-app-homeproxy_26.236.50592~9b8ee64_all.ipk"
+      ],
+      "package": {
+        "Package": "luci-app-homeproxy",
+        "Version": "26.236.50592~9b8ee64",
+        "Depends": "libc, sing-box, firewall4, kmod-nft-tproxy, ucode-mod-digest",
+        "Source": "feeds/luci/applications/luci-app-homeproxy",
+        "SourceName": "luci-app-homeproxy",
+        "Section": "luci",
+        "SourceDateEpoch": "1787580192",
+        "URL": "https://github.com/openwrt/luci",
+        "Maintainer": "OpenWrt LuCI community",
+        "Architecture": "all",
+        "Installed-Size": "1853440",
+        "Description": "The modern ImmortalWrt proxy platform for ARM64/AMD64"
+      }
+    },
+    {
+      "id": "homeproxy-zh-cn",
+      "path": "vendor/packages/luci-i18n-homeproxy-zh-cn_26.236.50592~9b8ee64_all.ipk",
+      "role": "runtime",
+      "storage": "vendored",
+      "bytes": 13641,
+      "sha256": "5945de0e40429a92e2974c5b4e8de0f024468ce8640b1f59208a23194b83be9c",
+      "license": "GPL-2.0-only",
+      "urls": [
+        "https://downloads.immortalwrt.org/releases/packages-24.10/aarch64_cortex-a53/luci/luci-i18n-homeproxy-zh-cn_26.236.50592~9b8ee64_all.ipk"
+      ],
+      "package": {
+        "Package": "luci-i18n-homeproxy-zh-cn",
+        "Version": "26.236.50592~9b8ee64",
+        "Depends": "libc, luci-app-homeproxy",
+        "Source": "feeds/luci/applications/luci-app-homeproxy",
+        "SourceName": "luci-app-homeproxy",
+        "Section": "luci",
+        "SourceDateEpoch": "1787580192",
+        "Architecture": "all",
+        "Installed-Size": "40960",
+        "Description": "Translation for luci-app-homeproxy - 简体中文 (Simplified Chinese)"
+      }
+    },
+    {
+      "id": "sing-box-squashfs-rollback",
+      "path": "vendor/packages/sing-box-squashfs_1.12.25-r2_aarch64_cortex-a53.ipk",
+      "role": "rollback",
+      "storage": "vendored",
+      "bytes": 7694339,
+      "sha256": "433e0f36d867f6934f3f50b9bafd179967dfbb0d30d8e6088d633261d13907a5",
+      "license": "GPL-3.0-or-later",
+      "urls": [],
+      "package": {
+        "Package": "sing-box-squashfs",
+        "Version": "1.12.25-r2",
+        "Architecture": "aarch64_cortex-a53",
+        "Depends": "libc, ca-bundle, kmod-inet-diag",
+        "Provides": "sing-box",
+        "Require-User": "sing-box=5566:sing-box=5566",
+        "Section": "net",
+        "Maintainer": "cr8808-customize local build",
+        "License": "GPL-3.0-or-later",
+        "Installed-Size": "7690528",
+        "Description": "Verified sing-box core in a read-only loop-mounted SquashFS image"
+      }
+    },
+    {
+      "id": "sing-box-squashfs",
+      "path": "vendor/packages/sing-box-squashfs_1.12.25-r3_aarch64_cortex-a53.ipk",
+      "role": "runtime",
+      "storage": "vendored",
+      "bytes": 8656578,
+      "sha256": "4e8bb53e19fe7c17da67828907edcd6a624b7797b7185dff3f492d8439a03af6",
+      "license": "GPL-3.0-or-later",
+      "urls": [],
+      "package": {
+        "Package": "sing-box-squashfs",
+        "Version": "1.12.25-r3",
+        "Architecture": "aarch64_cortex-a53",
+        "Depends": "libc, ca-bundle, kmod-inet-diag",
+        "Provides": "sing-box",
+        "Require-User": "sing-box=5566:sing-box=5566",
+        "Section": "net",
+        "Maintainer": "cr8808-customize local build",
+        "License": "GPL-3.0-or-later",
+        "Installed-Size": "8653088",
+        "Description": "Verified sing-box core in a read-only loop-mounted SquashFS image"
+      }
+    },
+    {
+      "id": "sing-box-tiny-input",
+      "path": "vendor/packages/sing-box-tiny_1.12.25-r1_aarch64_cortex-a53.ipk",
+      "role": "core-input",
+      "storage": "vendored",
+      "bytes": 10540047,
+      "sha256": "bdd93e62ef2d4351fa9a5f9e8a8b6101e7178b0343853e1705bf2ef08b3e5a6d",
+      "license": "GPL-3.0-or-later",
+      "urls": [
+        "https://downloads.immortalwrt.org/releases/packages-24.10/aarch64_cortex-a53/packages/sing-box-tiny_1.12.25-r1_aarch64_cortex-a53.ipk"
+      ],
+      "package": {
+        "Package": "sing-box-tiny",
+        "Version": "1.12.25-r1",
+        "Depends": "libc, ca-bundle, kmod-inet-diag",
+        "Provides": "sing-box",
+        "Source": "feeds/packages/net/sing-box",
+        "SourceName": "sing-box",
+        "License": "GPL-3.0-or-later",
+        "LicenseFiles": "LICENSE",
+        "Section": "net",
+        "Require-User": "sing-box=5566:sing-box=5566",
+        "SourceDateEpoch": "1778299247",
+        "URL": "https://sing-box.sagernet.org/",
+        "Maintainer": "Tianling Shen <cnsztl@immortalwrt.org>",
+        "Architecture": "aarch64_cortex-a53",
+        "Installed-Size": "29706240",
+        "Description": "Sing-box is a universal proxy platform which supports hysteria, SOCKS, Shadowsocks,"
+      }
+    },
+    {
+      "id": "ucode-mod-digest",
+      "path": "vendor/packages/ucode-mod-digest_2025.07.18~3f64c808-r1_aarch64_cortex-a53.ipk",
+      "role": "runtime",
+      "storage": "vendored",
+      "bytes": 17660,
+      "sha256": "71e7bb5f583024b73bc2a45e1f529707a1522870f96e9405316559c54bc942d6",
+      "license": "ISC",
+      "urls": [
+        "https://downloads.immortalwrt.org/releases/packages-24.10/aarch64_cortex-a53/base/ucode-mod-digest_2025.07.18~3f64c808-r1_aarch64_cortex-a53.ipk"
+      ],
+      "package": {
+        "Package": "ucode-mod-digest",
+        "Version": "2025.07.18~3f64c808-r1",
+        "Depends": "libc, ucode",
+        "Source": "feeds/base/utils/ucode",
+        "SourceName": "ucode",
+        "License": "ISC",
+        "Section": "lang",
+        "SourceDateEpoch": "1753265954",
+        "Maintainer": "Jo-Philipp Wich <jo@mein.io>",
+        "Architecture": "aarch64_cortex-a53",
+        "Installed-Size": "71680",
+        "Description": "The digest module allows ucode scripts to use libmd digests."
+      }
+    },
+    {
+      "id": "source-firmware-9a11bb83d22efd5879439427cd222b957f6f7019",
+      "path": "vendor/sources/firmware-9a11bb83d22efd5879439427cd222b957f6f7019.tar.gz",
+      "role": "source",
+      "storage": "vendored",
+      "bytes": 12977658,
+      "sha256": "42d513fb009b57bd5f0803d264189153723b39a8ab5435690bf00c0f4faf12ad",
+      "license": "GPL-2.0-only AND LicenseRef-Upstream-Mixed",
+      "urls": [
+        "https://codeload.github.com/kmiit/Redmi_AX3000_immortalwrt/tar.gz/9a11bb83d22efd5879439427cd222b957f6f7019"
+      ]
+    },
+    {
+      "id": "source-firmware-feed-packages-48334811e5c7da56027e61f3d52fd2a142b726fa",
+      "path": "vendor/sources/firmware-feed-packages-48334811e5c7da56027e61f3d52fd2a142b726fa.tar.gz",
+      "role": "source",
+      "storage": "vendored",
+      "bytes": 4603404,
+      "sha256": "a96d2f8e71c7aca757f8ca57793412455bbcee2cc627d16e873c02b0a6d1fec1",
+      "license": "LicenseRef-Upstream-Mixed",
+      "urls": [
+        "https://codeload.github.com/immortalwrt/packages/tar.gz/48334811e5c7da56027e61f3d52fd2a142b726fa"
+      ]
+    },
+    {
+      "id": "source-firmware-feed-luci-668cdc69a79c59ec8018180f94221f92136d9902",
+      "path": "vendor/sources/firmware-feed-luci-668cdc69a79c59ec8018180f94221f92136d9902.tar.gz",
+      "role": "source",
+      "storage": "vendored",
+      "bytes": 26452461,
+      "sha256": "c7d44b012ba4e042bad6416123dd8117f6679ed4a2664e0ffe0441a04f369f31",
+      "license": "LicenseRef-Upstream-Mixed",
+      "urls": [
+        "https://codeload.github.com/immortalwrt/luci/tar.gz/668cdc69a79c59ec8018180f94221f92136d9902"
+      ]
+    },
+    {
+      "id": "source-firmware-feed-routing-51ad619e8835494f958eb87c5a84ec365f2e6745",
+      "path": "vendor/sources/firmware-feed-routing-51ad619e8835494f958eb87c5a84ec365f2e6745.tar.gz",
+      "role": "source",
+      "storage": "vendored",
+      "bytes": 153890,
+      "sha256": "0b5da0c8729cc94f8e9597d03bf31f6ae51d3df0b0801ad0accb662c5d26db2c",
+      "license": "LicenseRef-Upstream-Mixed",
+      "urls": [
+        "https://codeload.github.com/openwrt/routing/tar.gz/51ad619e8835494f958eb87c5a84ec365f2e6745"
+      ]
+    },
+    {
+      "id": "source-firmware-feed-telephony-92892fa285360b8981f62bf4e0a097e6449e7e33",
+      "path": "vendor/sources/firmware-feed-telephony-92892fa285360b8981f62bf4e0a097e6449e7e33.tar.gz",
+      "role": "source",
+      "storage": "vendored",
+      "bytes": 191283,
+      "sha256": "e2e771b8d8c2fd5e9204a9a24383eab59e64af8b49cb270ed786b8d0807016b1",
+      "license": "LicenseRef-Upstream-Mixed",
+      "urls": [
+        "https://codeload.github.com/openwrt/telephony/tar.gz/92892fa285360b8981f62bf4e0a097e6449e7e33"
+      ]
+    },
+    {
+      "id": "source-sing-box-1.12.25",
+      "path": "vendor/sources/sing-box-1.12.25.tar.gz",
+      "role": "source",
+      "storage": "vendored",
+      "bytes": 710647,
+      "sha256": "881435f07b5ab8170ccf3cb69e87130759521dc0ed1ae4bfeacbe7772a93a158",
+      "license": "GPL-3.0-or-later",
+      "urls": [
+        "https://codeload.github.com/SagerNet/sing-box/tar.gz/v1.12.25"
+      ]
+    },
+    {
+      "id": "source-ucode-3f64c8089bf3ea4847c96b91df09fbfcaec19e1d",
+      "path": "vendor/sources/ucode-3f64c8089bf3ea4847c96b91df09fbfcaec19e1d.tar.gz",
+      "role": "source",
+      "storage": "vendored",
+      "bytes": 535626,
+      "sha256": "888139a6d2f770e78a6ac88c28e2397c0c64f0017aca216f9f6a5d52de31f5c8",
+      "license": "ISC",
+      "urls": [
+        "https://codeload.github.com/jow-/ucode/tar.gz/3f64c8089bf3ea4847c96b91df09fbfcaec19e1d"
+      ]
+    },
+    {
+      "id": "source-squashfs-tools-ng-1.3.2",
+      "path": "vendor/sources/squashfs-tools-ng-1.3.2.tar.xz",
+      "role": "source",
+      "storage": "vendored",
+      "bytes": 585380,
+      "sha256": "0d907ac3e735c351e47c867fb51d94bffa3b05fb95bec01f31e848b7c44215a9",
+      "license": "GPL-3.0-or-later AND LGPL-3.0-or-later AND LicenseRef-Upstream-Mixed",
+      "urls": [
+        "https://infraroot.at/pub/squashfs/squashfs-tools-ng-1.3.2.tar.xz"
+      ]
+    },
+    {
+      "id": "sing-box-windows",
+      "path": "vendor/tools/sing-box-1.12.25-windows-amd64.zip",
+      "role": "desktop-tool",
+      "storage": "vendored",
+      "bytes": 14059294,
+      "sha256": "492df6eb97c4c749d45350d792ecece71278d83c4979149ba6a142765b8fc1d4",
+      "license": "GPL-3.0-or-later",
+      "urls": [
+        "https://github.com/SagerNet/sing-box/releases/download/v1.12.25/sing-box-1.12.25-windows-amd64.zip"
+      ]
+    },
+    {
+      "id": "squashfs-windows",
+      "path": "vendor/tools/squashfs-tools-ng-1.3.2-mingw64.zip",
+      "role": "desktop-tool",
+      "storage": "vendored",
+      "bytes": 1650187,
+      "sha256": "891b1ed46dd856d05e429b01de2c7d86175a4c22478b5a6770f94b9c2100d0f6",
+      "license": "GPL-3.0-or-later AND LGPL-3.0-or-later AND LicenseRef-Upstream-Mixed",
+      "urls": [
+        "https://infraroot.at/pub/squashfs/windows/squashfs-tools-ng-1.3.2-mingw64.zip"
+      ]
+    },
+    {
+      "id": "firmware-factory",
+      "path": "vendor/firmware/immortalwrt-qualcommax-ipq50xx-redmi_ax3000-squashfs-factory.ubi",
+      "role": "firmware",
+      "storage": "vendored",
+      "bytes": 17694720,
+      "sha256": "897fd05dd6584e820aeb99905191dd8532564758c12db486e8041625d00797e7",
+      "license": "LicenseRef-Upstream-Mixed",
+      "urls": [
+        "https://github.com/kmiit/Redmi_AX3000_immortalwrt/releases/download/ci-redmi_ax3000-24.10-20260716-145815-UTC/immortalwrt-qualcommax-ipq50xx-redmi_ax3000-squashfs-factory.ubi"
+      ]
+    },
+    {
+      "id": "record-config.buildinfo",
+      "path": "dependencies/baseline/config.buildinfo",
+      "role": "provenance",
+      "storage": "vendored",
+      "bytes": 275,
+      "sha256": "d56013d4951f124235b54d3bc978b1cadc263e951cdb100b975b9f003fc20b17",
+      "license": "LicenseRef-Upstream-Metadata",
+      "urls": [
+        "https://github.com/kmiit/Redmi_AX3000_immortalwrt/releases/download/ci-redmi_ax3000-24.10-20260716-145815-UTC/config.buildinfo"
+      ]
+    },
+    {
+      "id": "record-feeds.buildinfo",
+      "path": "dependencies/baseline/feeds.buildinfo",
+      "role": "provenance",
+      "storage": "vendored",
+      "bytes": 392,
+      "sha256": "2a479eb2ae7a48f2c29636353076abb1f5b8cd220dda81f746083d433458e85e",
+      "license": "LicenseRef-Upstream-Metadata",
+      "urls": [
+        "https://github.com/kmiit/Redmi_AX3000_immortalwrt/releases/download/ci-redmi_ax3000-24.10-20260716-145815-UTC/feeds.buildinfo"
+      ]
+    },
+    {
+      "id": "record-firmware.manifest",
+      "path": "dependencies/baseline/firmware.manifest",
+      "role": "provenance",
+      "storage": "vendored",
+      "bytes": 6901,
+      "sha256": "c2f2c184a85fd3993a37d068b2fa312ecdd041cde25a3b0d1794fe50b7baf5ba",
+      "license": "LicenseRef-Upstream-Metadata",
+      "urls": [
+        "https://github.com/kmiit/Redmi_AX3000_immortalwrt/releases/download/ci-redmi_ax3000-24.10-20260716-145815-UTC/immortalwrt-qualcommax-ipq50xx-redmi_ax3000.manifest"
+      ]
+    },
+    {
+      "id": "record-profiles.json",
+      "path": "dependencies/baseline/profiles.json",
+      "role": "provenance",
+      "storage": "vendored",
+      "bytes": 2208,
+      "sha256": "74e4e7e4d307d14134e776f1ab5a40b228b92271f93b164963b3d397d846f34d",
+      "license": "LicenseRef-Upstream-Metadata",
+      "urls": [
+        "https://github.com/kmiit/Redmi_AX3000_immortalwrt/releases/download/ci-redmi_ax3000-24.10-20260716-145815-UTC/profiles.json"
+      ]
+    },
+    {
+      "id": "record-runtime-package-index.json",
+      "path": "dependencies/baseline/runtime-package-index.json",
+      "role": "provenance",
+      "storage": "vendored",
+      "bytes": 5666,
+      "sha256": "654d111f0257d00eb43aae28d0a923f412774dd630a71e9cdacb2a07fbc39ef6",
+      "license": "LicenseRef-Upstream-Metadata",
+      "urls": []
+    },
+    {
+      "id": "record-sha256sums",
+      "path": "dependencies/baseline/sha256sums",
+      "role": "provenance",
+      "storage": "vendored",
+      "bytes": 1257,
+      "sha256": "93d5b1ccf63f2d95079345c9932ee928d140defad9f7abe79fa5f17a59548687",
+      "license": "LicenseRef-Upstream-Metadata",
+      "urls": [
+        "https://github.com/kmiit/Redmi_AX3000_immortalwrt/releases/download/ci-redmi_ax3000-24.10-20260716-145815-UTC/sha256sums"
+      ]
+    },
+    {
+      "id": "record-version.buildinfo",
+      "path": "dependencies/baseline/version.buildinfo",
+      "role": "provenance",
+      "storage": "vendored",
+      "bytes": 11,
+      "sha256": "a044526b36bcd61a169a6d1d1db236f93ddfd178b1f25cf55c95dfce12928d5f",
+      "license": "LicenseRef-Upstream-Metadata",
+      "urls": [
+        "https://github.com/kmiit/Redmi_AX3000_immortalwrt/releases/download/ci-redmi_ax3000-24.10-20260716-145815-UTC/version.buildinfo"
+      ]
+    },
+    {
+      "id": "license-GPL-2.0",
+      "path": "dependencies/licenses/GPL-2.0.txt",
+      "role": "license",
+      "storage": "vendored",
+      "bytes": 18644,
+      "sha256": "4a4d5c03ac503d809243f9d8de5517601e345990a85b6a59666c3f1caca02474",
+      "license": "LicenseRef-Upstream-License-Text",
+      "urls": []
+    },
+    {
+      "id": "license-GPL-3.0",
+      "path": "dependencies/licenses/GPL-3.0.txt",
+      "role": "license",
+      "storage": "vendored",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "license": "LicenseRef-Upstream-License-Text",
+      "urls": []
+    },
+    {
+      "id": "license-LGPL-3.0",
+      "path": "dependencies/licenses/LGPL-3.0.txt",
+      "role": "license",
+      "storage": "vendored",
+      "bytes": 7652,
+      "sha256": "e3a994d82e644b03a792a930f574002658412f62407f5fee083f2555c5f23118",
+      "license": "LicenseRef-Upstream-License-Text",
+      "urls": []
+    },
+    {
+      "id": "license-LuCI-Apache-2.0",
+      "path": "dependencies/licenses/LuCI-Apache-2.0.txt",
+      "role": "license",
+      "storage": "vendored",
+      "bytes": 11356,
+      "sha256": "43070e2d4e532684de521b885f385d0841030efa2b1a20bafb76133a5e1379c1",
+      "license": "LicenseRef-Upstream-License-Text",
+      "urls": []
+    },
+    {
+      "id": "license-sing-box-GPL-3.0",
+      "path": "dependencies/licenses/sing-box-GPL-3.0.txt",
+      "role": "license",
+      "storage": "vendored",
+      "bytes": 791,
+      "sha256": "650d5e3b99a446fb38e820fa87a49562e0c79eab868fff58618ac487a58e554c",
+      "license": "LicenseRef-Upstream-License-Text",
+      "urls": []
+    },
+    {
+      "id": "license-squashfs-tools-ng",
+      "path": "dependencies/licenses/squashfs-tools-ng.txt",
+      "role": "license",
+      "storage": "vendored",
+      "bytes": 4635,
+      "sha256": "4437656011206fc9dcc150ba3fb7af2b91bb73d440d9b0637df675e6e7e532a9",
+      "license": "LicenseRef-Upstream-License-Text",
+      "urls": []
+    },
+    {
+      "id": "license-ucode-ISC",
+      "path": "dependencies/licenses/ucode-ISC.txt",
+      "role": "license",
+      "storage": "vendored",
+      "bytes": 759,
+      "sha256": "c4957033b46cc769409cb422ba058f3da2e000b685793bab2b2a76275b8d90db",
+      "license": "LicenseRef-Upstream-License-Text",
+      "urls": []
+    },
+    {
+      "id": "firmware-sdk",
+      "path": "tmp/dependencies/immortalwrt-sdk-qualcommax-ipq50xx_gcc-13.3.0_musl.Linux-x86_64.tar.zst",
+      "role": "optional-build-or-recovery",
+      "storage": "download",
+      "bytes": 227778047,
+      "sha256": "ecf1b2b2837bf4e7315b77181d3731382e26ad78f50d1341b703799c474b917a",
+      "license": "LicenseRef-Upstream-Mixed",
+      "urls": [
+        "https://github.com/kmiit/Redmi_AX3000_immortalwrt/releases/download/ci-redmi_ax3000-24.10-20260716-145815-UTC/immortalwrt-sdk-qualcommax-ipq50xx_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
+      ]
+    },
+    {
+      "id": "firmware-imagebuilder",
+      "path": "tmp/dependencies/immortalwrt-imagebuilder-qualcommax-ipq50xx.Linux-x86_64.tar.zst",
+      "role": "optional-build-or-recovery",
+      "storage": "download",
+      "bytes": 75761599,
+      "sha256": "5831906efea1dfb67a51eab7d6077bfb96867ff4c93555a6aaaaa8a7466c4fc9",
+      "license": "LicenseRef-Upstream-Mixed",
+      "urls": [
+        "https://github.com/kmiit/Redmi_AX3000_immortalwrt/releases/download/ci-redmi_ax3000-24.10-20260716-145815-UTC/immortalwrt-imagebuilder-qualcommax-ipq50xx.Linux-x86_64.tar.zst"
+      ]
+    },
+    {
+      "id": "firmware-toolchain",
+      "path": "tmp/dependencies/immortalwrt-toolchain-qualcommax-ipq50xx_gcc-13.3.0_musl.Linux-x86_64.tar.zst",
+      "role": "optional-build-or-recovery",
+      "storage": "download",
+      "bytes": 63698123,
+      "sha256": "c5ca3f5c43723a549a0edd638f07339ef8f8ce85174e1ddc04557d0bd09db0e1",
+      "license": "LicenseRef-Upstream-Mixed",
+      "urls": [
+        "https://github.com/kmiit/Redmi_AX3000_immortalwrt/releases/download/ci-redmi_ax3000-24.10-20260716-145815-UTC/immortalwrt-toolchain-qualcommax-ipq50xx_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
+      ]
+    },
+    {
+      "id": "firmware-sysupgrade",
+      "path": "tmp/dependencies/immortalwrt-qualcommax-ipq50xx-redmi_ax3000-squashfs-sysupgrade.bin",
+      "role": "optional-build-or-recovery",
+      "storage": "download",
+      "bytes": 16835362,
+      "sha256": "bbd385217b4c07b374bfbcf6f324c2c162a58038bf9f33482d13a6f05eb8efd5",
+      "license": "LicenseRef-Upstream-Mixed",
+      "urls": [
+        "https://github.com/kmiit/Redmi_AX3000_immortalwrt/releases/download/ci-redmi_ax3000-24.10-20260716-145815-UTC/immortalwrt-qualcommax-ipq50xx-redmi_ax3000-squashfs-sysupgrade.bin"
+      ]
+    },
+    {
+      "id": "firmware-initramfs",
+      "path": "tmp/dependencies/immortalwrt-qualcommax-ipq50xx-redmi_ax3000-initramfs-uImage.itb",
+      "role": "optional-build-or-recovery",
+      "storage": "download",
+      "bytes": 16596268,
+      "sha256": "c555a531bb5bdda9c6110257b180af1a37331d0f1167f802794a2e2c45435e6f",
+      "license": "LicenseRef-Upstream-Mixed",
+      "urls": [
+        "https://github.com/kmiit/Redmi_AX3000_immortalwrt/releases/download/ci-redmi_ax3000-24.10-20260716-145815-UTC/immortalwrt-qualcommax-ipq50xx-redmi_ax3000-initramfs-uImage.itb"
+      ]
+    }
+  ],
+  "trees": [
+    {
+      "path": "upstream/homeproxy",
+      "repository": "https://github.com/immortalwrt/luci",
+      "commit": "9b8ee6470c5eb1e5189f1a7f25bc8ee958e2a7c3",
+      "subdirectory": "applications/luci-app-homeproxy",
+      "files": {
+        "htdocs/luci-static/resources/homeproxy.js": "783c3fcd503458a2be6a66147370678c325e2253ad565592ee9278aa58644749",
+        "htdocs/luci-static/resources/view/homeproxy/client.js": "532fa635a2050e5f15298af4fe5504cff9a5ff4b2d8b6bd866239dab48148736",
+        "htdocs/luci-static/resources/view/homeproxy/node.js": "a5135da237de391ef30ad195424164ad80451b9039030d99c20e31c23d696a7b",
+        "htdocs/luci-static/resources/view/homeproxy/server.js": "08e64a479c224485ce9794094a56cbff3485937339aa65998103b2185e05348c",
+        "htdocs/luci-static/resources/view/homeproxy/status.js": "343e544b2be5b76cb8f55242dbf1e0214deb01e22c70d7b7414ce5919bd59ef7",
+        "Makefile": "e83360f1bc98979d4850c73014a7c5e31f4767dfd0dbe6f2b0c8414bf66943c5",
+        "po/templates/homeproxy.pot": "90a5e976cec3072406bb1256dfc8dca5726623f1e7d327b8cbbfbdb6d75c4132",
+        "po/zh_Hans/homeproxy.po": "409e456058a3dc60528139cd5cc004495d48178f10a6fc6c2bb8e9f4d316368f",
+        "root/etc/capabilities/homeproxy.json": "375226a5c6798068edfbfe9656a314512fdd79047e7e22c92a5a90764903809b",
+        "root/etc/config/homeproxy": "5baa0691fe222386c3ee626edb75c5891739df8c936d837e6b026c0aeb0a3f99",
+        "root/etc/homeproxy/resources/china_ip4.txt": "2002d6b06705e8b7ccfb66e1132afaaba7aced3778db94137c2d98f5ca69e433",
+        "root/etc/homeproxy/resources/china_ip4.ver": "c4655bedc45538b871402db856c9285aa3c4da220c29af78be8d0b83fac5e7c7",
+        "root/etc/homeproxy/resources/china_ip6.txt": "aaf9a87f47660e73b03fa4c17603f0a515c76fc6538faadc47a77cac35286e4b",
+        "root/etc/homeproxy/resources/china_ip6.ver": "c4655bedc45538b871402db856c9285aa3c4da220c29af78be8d0b83fac5e7c7",
+        "root/etc/homeproxy/resources/china_list.txt": "73b8225eab93787f381a47a128c9f44e3146a3f9af0766d149149602d0b21eef",
+        "root/etc/homeproxy/resources/china_list.ver": "5f34d68b02def21e79c9a006eff78c09b6e9fee7271c603561cad39d774727f9",
+        "root/etc/homeproxy/resources/gfw_list.txt": "82722b369ec0553e8d44d51439d52f3269c96ada107993954b8835c6a86bcb5c",
+        "root/etc/homeproxy/resources/gfw_list.ver": "5f34d68b02def21e79c9a006eff78c09b6e9fee7271c603561cad39d774727f9",
+        "root/etc/homeproxy/scripts/clean_log.sh": "8ad6e775892d0956479c8ca1d210dea9ec314c7fd1cca3725fed3f49e0cbd2f3",
+        "root/etc/homeproxy/scripts/firewall_post.ut": "731a1e34deeeb742839f800f1fcc9b3e73f6df9ba594355f43ff39fcd1fd2c8e",
+        "root/etc/homeproxy/scripts/firewall_pre.uc": "d49e1769460faa884a9e6a003f08aecbd3e9cdf73cf46a88a0ba6839db35b887",
+        "root/etc/homeproxy/scripts/generate_client.uc": "7545f12f2af648ab09c64bea943257ed5c768f8689d910d3beb9aed15b069812",
+        "root/etc/homeproxy/scripts/generate_server.uc": "c8c788215e185785ac34ae6942a5ee67cdde0f6a455bc868063bfc94fce560a8",
+        "root/etc/homeproxy/scripts/homeproxy.uc": "61717729573c38c025302384f0e604707024d5333b6de991b71c098aa90f09d9",
+        "root/etc/homeproxy/scripts/migrate_config.uc": "bb56410eed07cd771f0ea417be68662669e4aaff98fe8963e3035ce21554b286",
+        "root/etc/homeproxy/scripts/update_crond.sh": "6aed3a056ee03ea34502c311d9fc599ffd7c2aeaaaa08064aa44e6f17cd0a9e8",
+        "root/etc/homeproxy/scripts/update_resources.sh": "9b9fa854a59de3c617457af7722664752e235f1855ae7ce732581600d2e49347",
+        "root/etc/homeproxy/scripts/update_subscriptions.uc": "05f90db1ab8ccd8f41906ffa7b3b1d40ae9e2cd552590e720fdd7a88d33120a7",
+        "root/etc/init.d/homeproxy": "47e624476a7a409209496de47cd64f73fed7dc86698cf6d6ec2b286c25c88340",
+        "root/etc/uci-defaults/luci-homeproxy": "fc8820173e841850de3aac4e721f483100bbad7dc4769f083120727e5f985e9c",
+        "root/etc/uci-defaults/luci-homeproxy-migration": "ddb9a162a1e1f9de161d272751d30263b4ed4f227c3e0fcc25d6d7ecb77b6e6b",
+        "root/usr/share/luci/menu.d/luci-app-homeproxy.json": "4b1738f2c382cb3bfb4dde3dedda55b97da121e76b989691c78973fbd8943d78",
+        "root/usr/share/rpcd/acl.d/luci-app-homeproxy.json": "4d275bb87e71c2755b7c8eef785bc27e6f8e6907ab8b0293f7174d0ca4466d2d",
+        "root/usr/share/rpcd/ucode/luci.homeproxy": "9085d4f67735e549c7b0a636f6d23f56de46fc6bc3e6acfc56026679f96da3e3"
+      }
+    },
+    {
+      "path": "upstream/recipes/sing-box",
+      "repository": "https://github.com/immortalwrt/packages",
+      "commit": "27a0f631a93f63bff9865526a9b4a74a10ca82f5",
+      "subdirectory": "net/sing-box",
+      "files": {
+        "files/sing-box.conf": "33cc035ac8c8a478b5605f979f6b5eca687be81b316fee5dd53695c956c8e647",
+        "files/sing-box.init": "292824721e5cbac4303be1b075255ccefcdfdf4a9f89b2f8066a4a7433d96d4f",
+        "Makefile": "81fbc52a64c659db58aa97017ff134a7d94610df7b90aa50ae868af10d6cf0e0"
+      }
+    },
+    {
+      "path": "upstream/recipes/ucode",
+      "repository": "https://github.com/kmiit/Redmi_AX3000_immortalwrt",
+      "commit": "9a11bb83d22efd5879439427cd222b957f6f7019",
+      "subdirectory": "package/utils/ucode",
+      "files": {
+        "Makefile": "48debb0b71d51275c110bb3964d5598de9a5e4f6f6ae39887d644acfb01ed6be"
+      }
+    }
+  ],
+  "build": {
+    "python": "3.13",
+    "inputs": {
+      "homeproxy.init": "47e624476a7a409209496de47cd64f73fed7dc86698cf6d6ec2b286c25c88340",
+      "generate_client.uc": "7545f12f2af648ab09c64bea943257ed5c768f8689d910d3beb9aed15b069812",
+      "luci.homeproxy": "9085d4f67735e549c7b0a636f6d23f56de46fc6bc3e6acfc56026679f96da3e3",
+      "node.js": "88e7e4bb10f1d44e184ff3f6ebb96851ccf5c6a6aed5a50ee4600e415e312872"
+    },
+    "outputs": {
+      "etc/init.d/homeproxy": "3991382e60a6859f22a3f2100715827762af85578317523ed45f70a1919dfc97",
+      "etc/homeproxy/scripts/generate_client.uc": "b21416e9bfb5cf52e0d367c8ec48dfdb48c58aad2243c09d12c29415dfc6c434",
+      "usr/share/rpcd/ucode/luci.homeproxy": "b0516f0af98d52e6a79e6466b3768c6b0bbbedc99d7d0890eeb035cccb39469d",
+      "etc/homeproxy/scripts/cr8808-node-test-worker.uc": "1c5a0e70eb822a2459e564e942da3140b9acf9ed1a2ad688304e512b370e7414",
+      "www/luci-static/resources/view/homeproxy/node.js": "d153aff615847a21620092da9ebd10bcbc5c01f700e30489ed1ee99ff0258b66",
+      "etc/init.d/cr8808-proxy-wan": "67ba7763344bc2fe6fc81e9b565da96112c280ebdfae7c006ddca1d9f88b58d9",
+      "etc/hotplug.d/iface/95-cr8808-proxy-wan": "6e2aa2da25edaf0bec71fe925ac726f6912ee8e9f544372530c762774cce4d4a"
+    },
+    "core_binary_sha256": "c3faeded3104bf8c581d2050b5786425b8a7862cea42c1ae19f0e2b98d582af5",
+    "core_image_sha256": "53675e18be3838bd190e63ba4da5480c8aa5ce6459f38c6b950fd1e166594c2c",
+    "core_tags": [
+      "with_clash_api",
+      "with_gvisor",
+      "with_quic",
+      "with_utls",
+      "with_wireguard"
+    ],
+    "image_block_bytes": 65536,
+    "memory_limit": "24MiB",
+    "gogc": 100,
+    "routing_mode": "gfwlist",
+    "dns_cache_capacity": 256,
+    "node_test_concurrency": 1,
+    "node_test_gap_ms": 1000
+  },
+  "limitations": [
+    "Optional SDK/ImageBuilder/toolchain are pinned downloads, not vendored.",
+    "Go transitive modules are pinned by upstream go.mod/go.sum, not all cached offline.",
+    "Firmware external source tarballs and build host packages are not all mirrored.",
+    "Bit-identical source rebuild of the firmware/ELF has not been verified."
+  ]
+}
