@@ -38,6 +38,13 @@ class ReleaseTests(unittest.TestCase):
         return [{'name': name, 'state': 'uploaded', 'size': record['bytes'],
                  'digest': 'sha256:' + record['sha256']} for name, record in records.items()]
 
+    def api_response(self, args, remote):
+        if '/commits/' in args[1]:
+            return json.dumps({'sha': self.commit})
+        if '/releases?' in args[1]:
+            return json.dumps([[{'id': 123, 'tag_name': 'v0.1.0', **remote}]])
+        return json.dumps(remote)
+
     def test_staging_refuses_unlisted_private_file(self):
         (self.assets / 'private-backup.zip').write_bytes(b'not authorized')
         with self.assertRaisesRegex(ValueError, 'Unexpected'):
@@ -81,7 +88,7 @@ class ReleaseTests(unittest.TestCase):
         def gh(*args, **kwargs):
             if args[0] != 'api':
                 mutations.append(args)
-            return json.dumps({'sha': self.commit} if '/commits/' in args[1] else remote)
+            return self.api_response(args, remote)
         with patch.object(release, 'git', return_value=self.commit), patch.object(release, 'gh', side_effect=gh):
             result = release.publish('v0.1.0', self.assets, self.root)
         self.assertTrue(result['already_published'])
@@ -91,7 +98,7 @@ class ReleaseTests(unittest.TestCase):
         self.finalize()
         remote = {'draft': False, 'assets': []}
         with patch.object(release, 'git', return_value=self.commit), patch.object(release, 'gh') as gh:
-            gh.side_effect = lambda *_args, **_kwargs: json.dumps({'sha': self.commit} if '/commits/' in _args[1] else remote)
+            gh.side_effect = lambda *_args, **_kwargs: self.api_response(_args, remote)
             with self.assertRaisesRegex(ValueError, 'refusing to modify'):
                 release.publish('v0.1.0', self.assets, self.root)
             self.assertTrue(all(call.args[0] == 'api' for call in gh.call_args_list))
@@ -106,7 +113,7 @@ class ReleaseTests(unittest.TestCase):
                 self.assertEqual(args[1], 'edit')
                 remote['draft'] = False
                 return ''
-            return json.dumps({'sha': self.commit} if '/commits/' in args[1] else remote)
+            return self.api_response(args, remote)
         with patch.object(release, 'git', return_value=self.commit), patch.object(release, 'gh', side_effect=gh):
             result = release.publish('v0.1.0', self.assets, self.root)
         self.assertFalse(result['already_published'])
@@ -117,7 +124,7 @@ class ReleaseTests(unittest.TestCase):
         remote = {'draft': True, 'assets': self.remote(records)}
         remote['assets'][0]['digest'] = 'sha256:' + '0' * 64
         with patch.object(release, 'git', return_value=self.commit), patch.object(release, 'gh') as gh:
-            gh.side_effect = lambda *_args, **_kwargs: json.dumps({'sha': self.commit} if '/commits/' in _args[1] else remote)
+            gh.side_effect = lambda *_args, **_kwargs: self.api_response(_args, remote)
             with self.assertRaisesRegex(ValueError, 'differs'):
                 release.publish('v0.1.0', self.assets, self.root)
             self.assertTrue(all(call.args[0] == 'api' for call in gh.call_args_list))
@@ -132,7 +139,7 @@ class ReleaseTests(unittest.TestCase):
             if args[0] == 'api':
                 if '/commits/' in args[1]:
                     return json.dumps({'sha': self.commit})
-                return json.dumps(remote) if exists else None
+                return self.api_response(args, remote) if exists else json.dumps([])
             mutations.append(args)
             if args[1] == 'create':
                 exists = True
@@ -157,7 +164,7 @@ class ReleaseTests(unittest.TestCase):
         uploads = []
         def gh(*args, **kwargs):
             if args[0] == 'api':
-                return json.dumps({'sha': self.commit} if '/commits/' in args[1] else remote)
+                return self.api_response(args, remote)
             if args[1] == 'upload':
                 uploads.append(Path(args[3]).name)
                 remote['assets'].append(uploaded[-1])
@@ -182,6 +189,18 @@ class ReleaseTests(unittest.TestCase):
         release.write_json(self.root / 'dependencies/release.json', self.settings)
         with self.assertRaisesRegex(ValueError, 'Invalid release'):
             release.config(self.root)
+
+    def test_authenticated_collection_finds_draft_on_a_later_page(self):
+        draft = {'id': 123, 'tag_name': 'v0.1.0', 'draft': True}
+        with patch.object(release, 'gh', return_value=json.dumps([[], [draft]])) as gh:
+            self.assertEqual(release.find_release('owner/repo', 'v0.1.0'), draft)
+        self.assertIn('--paginate', gh.call_args.args)
+
+    def test_duplicate_release_tag_is_rejected(self):
+        draft = {'id': 123, 'tag_name': 'v0.1.0', 'draft': True}
+        with patch.object(release, 'gh', return_value=json.dumps([[draft, draft]])):
+            with self.assertRaisesRegex(ValueError, 'More than one'):
+                release.find_release('owner/repo', 'v0.1.0')
 
 
 class MirrorTests(unittest.TestCase):

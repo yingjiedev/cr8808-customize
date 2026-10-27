@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 
 from release_lib import prepare, publish
+from dependency_lib import ROOT
 
 
 def main():
@@ -18,12 +19,14 @@ def main():
     upload = commands.add_parser('publish')
     upload.add_argument('--tag', required=True)
     upload.add_argument('--assets', required=True, type=Path)
+    upload.add_argument('--repository-root', type=Path, default=ROOT,
+                        help='Tagged source checkout; allows a corrected publisher without moving the tag')
     args = parser.parse_args()
     try:
         if args.command == 'prepare':
             result = prepare(args.tag, args.output, args.download)
         else:
-            result = publish(args.tag, args.assets)
+            result = publish(args.tag, args.assets, root=args.repository_root.resolve())
         print(json.dumps(result, indent=2, ensure_ascii=False))
     except (OSError, ValueError, KeyError, subprocess.CalledProcessError) as error:
         raise SystemExit(f'Release operation failed: {error}') from error

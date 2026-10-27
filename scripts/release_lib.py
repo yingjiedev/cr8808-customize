@@ -161,7 +161,7 @@ def gh(*args, optional=False):
     if process.returncode:
         if optional and 'HTTP 404' in process.stderr:
             return None
-        raise ValueError(f'GitHub CLI failed: {process.stderr.strip()}')
+        raise ValueError(f'GitHub CLI {args[0]} {args[1]} failed: {process.stderr.strip()}')
     return process.stdout.strip()
 
 
@@ -182,6 +182,16 @@ def check_remote_assets(remote, records, complete=False):
     return set(records) - set(actual)
 
 
+def find_release(repo, tag):
+    # The /releases/tags endpoint may omit a draft. The authenticated collection
+    # includes it, and subsequent reads use the stable release ID.
+    pages = json.loads(gh('api', f'repos/{repo}/releases?per_page=100', '--paginate', '--slurp'))
+    matches = [item for page in pages for item in page if item['tag_name'] == tag]
+    if len(matches) > 1:
+        raise ValueError('More than one Release has the requested tag')
+    return matches[0] if matches else None
+
+
 def publish(tag, assets, root=ROOT):
     settings = config(root)
     manifest, records = staged_assets(assets)
@@ -194,11 +204,14 @@ def publish(tag, assets, root=ROOT):
     remote_commit = json.loads(gh('api', f'repos/{repo}/commits/{tag}'))['sha']
     if remote_commit != commit:
         raise ValueError('Remote tag does not match prepared commit')
-    endpoint = f'repos/{repo}/releases/tags/{tag}'
-    existing = gh('api', endpoint, optional=True)
+    existing = find_release(repo, tag)
     if existing is None:
         gh('release', 'create', tag, '--repo', repo, '--verify-tag', '--draft', '--title', settings['title'],
            '--notes-file', str(assets / 'RELEASE-NOTES.md'))
+        existing = find_release(repo, tag)
+    if existing is None:
+        raise ValueError('Created draft was not found in authenticated Release collection')
+    endpoint = f"repos/{repo}/releases/{existing['id']}"
     release = json.loads(gh('api', endpoint))
     missing = check_remote_assets(release.get('assets', []), records)
     if not release['draft']:
