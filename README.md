@@ -5,6 +5,7 @@ CR8808 定制项目。
 ## 文档
 
 - [主路由、双频 Wi-Fi 与订阅配置手册（已联网，含页面超时修复）](doc/cr8808-main-router-configuration-manual.md)
+- [当前资源优化、GFWList 网站分流与节点页逐个测速](doc/cr8808-low-memory-homeproxy.md)
 - [节点可用性与延迟检测（42 个节点实测、复测及重测脚本）](doc/cr8808-node-latency-test.md)
 - [主路由、Clash/通用订阅与分流配置调研（含本机容量限制）](doc/cr8808-subscription-main-router-research.md)
 - [Windows 新手完整教程：工具下载、固件下载、命令、典型返回与判断](doc/cr8808-beginner-guide.md)
@@ -21,5 +22,7 @@ CR8808 定制项目。
 本机已安装 ImmortalWrt 24.10-SNAPSHOT，并通过管理员登录和额外重启验证。新手教程只覆盖文中已核对的原厂 CR8808/xpa/ap-mp02.1 双槽位路线；其他硬件或改过引导/分区的机器需要独立核查。
 
 2026-10-27 已在现有系统完成 DHCP 主路由、双频加密 Wi-Fi 和 HomeProxy/sing-box 配置，采用压缩只读应用镜像容纳代理内核。主路由接线已修正，WAN DHCP、电脑基本外网访问和 HomeProxy 页面加载接口已验证；页面功能查询已适配，避免额外启动 sing-box 版本查询进程。具体设置、验收范围、接线排障、操作和恢复方法见配置手册。
+
+同日按用户选择改用 GFWList，升级为同一 ELF 的 64 KiB 压缩块 r3 应用包，并在 HomeProxy 节点页增加按需串行 HTTPS 延迟按钮；用户已确认页面按钮正常。脚本、资源采样、分流方式及恢复说明见资源优化手册。
 
 `scripts/prepare-cr8808-flash.ps1` 只检查本地备份并生成设备专用脚本；生成脚本默认只检查，实际写入需要显式传入 `--flash`。当前已刷好的设备无需重复刷写。

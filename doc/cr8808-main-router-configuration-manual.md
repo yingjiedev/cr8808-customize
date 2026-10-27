@@ -2,6 +2,8 @@
 
 配置日期：2026-10-27。状态：**已修正主路由接线并安装 HomeProxy 页面超时补丁；WAN DHCP、电脑基本外网访问和页面加载接口验证通过，持续负载等项目待验收。**
 
+同日后续已按用户选择改用 **GFWList**，安装同一内核的 **r3 / 64 KiB 压缩块**应用包，并增加节点页逐个 HTTPS 测速按钮，用户已确认正常。当前资源采样、部署与恢复方法见[资源优化手册](cr8808-low-memory-homeproxy.md)；本文保留首次配置及历史备份记录。
+
 本次在现有 ImmortalWrt 上配置 DHCP 主路由、双频无线、HomeProxy 和 sing-box。操作前已备份；没有刷写固件、修改分区或重启设备。管理员密码、Wi-Fi 密码、订阅地址及节点凭据不写入本手册。
 
 ## 1. 现在怎样使用
@@ -36,11 +38,11 @@
 | 无线加密 | `sae-mixed`：WPA2/WPA3 混合，PMF 可选 |
 | IPv6 | 暂停 WAN6 自动启动；LAN RA、DHCPv6、NDP 通告关闭 |
 | 代理界面 | HomeProxy `26.236.50592~9b8ee64`，已安装中文翻译 |
-| 代理内核 | sing-box `1.12.25`；本地包 `sing-box-squashfs 1.12.25-r2` |
-| 分流 | 中国大陆流量绕过代理；其余按 HomeProxy 规则处理 |
+| 代理内核 | sing-box `1.12.25`；本地包 `sing-box-squashfs 1.12.25-r3`，64 KiB XZ 块 |
+| 分流 | GFWList：名单内走代理，其余默认直连，可补充代理域名 |
 | 接管 | TCP Redirect + UDP TPROXY，目标端口不设筛选 |
-| DNS | 代理侧 `https://1.1.1.1/dns-query`；中国大陆侧 `223.5.5.5` |
-| 主出口 | 3 个 VLESS 候选自动选择；每 600 秒检测，容差 50 ms |
+| DNS | 名单内交给代理侧 `https://1.1.1.1/dns-query`，普通解析沿用 WAN DNS |
+| 主出口 | 当前单个 VLESS，本次优化保持该选择；原 3 个自动选择候选设置仍保留 |
 | UDP 出口 | 跟随主出口 |
 | 流量分载 | 软件、硬件 flow offloading 均关闭 |
 | 订阅定时更新 | 暂未开启；先完成联网验收，再在订阅页设置 |
@@ -58,7 +60,7 @@
 | 下载内容统计 | 54 条 URI：20 条 Hysteria2、34 条 VLESS |
 | HomeProxy 解析/去重后保存 | 42 个节点：12 个 Hysteria2、30 个 VLESS |
 | 原生导入日志 | 成功更新；记录了 9 次重复节点跳过 |
-| 当前自动选择候选 | 3 个 VLESS 节点 |
+| 保留的自动选择候选 | 3 个 VLESS 节点；当前使用单节点 |
 
 上表不是对全部节点连通性的验证。HomeProxy 未保留的条目不计入可用节点；本次也没有通过 WAN 测试任一出口。
 
@@ -75,7 +77,7 @@ Wi-Fi 密码和订阅 URL 保存在本机受限输入目录及路由器配置中
 本机 `/overlay` 总计约 12.8 MiB，常规安装完整插件和展开的代理内核不合适。本次采用 **HomeProxy + 压缩只读 sing-box 应用镜像**。
 
 ```text
-/usr/share/sing-box-squashfs/core.squashfs  （持久保存，约 7.33 MiB）
+/usr/share/sing-box-squashfs/core.squashfs  （持久保存，r3 约 8.25 MiB）
                  │ loop + SquashFS 只读挂载
                  ▼
 /tmp/sing-box-squashfs/sing-box
@@ -90,8 +92,10 @@ Wi-Fi 密码和订阅 URL 保存在本机受限输入目录及路由器配置中
 | --- | --- |
 | 原始 `sing-box-tiny` IPK | `bdd93e62ef2d4351fa9a5f9e8a8b6101e7178b0343853e1705bf2ef08b3e5a6d` |
 | 未修改的内核 ELF | `c3faeded3104bf8c581d2050b5786425b8a7862cea42c1ae19f0e2b98d582af5` |
-| SquashFS 镜像，7,688,192 字节 | `62e279ef5795bf546112530e73537495d1d0ef6d87fc4c86d35f8acff0e45da5` |
-| 本地 r2 IPK | `433e0f36d867f6934f3f50b9bafd179967dfbb0d30d8e6088d633261d13907a5` |
+| 历史 r2 镜像，7,688,192 字节 | `62e279ef5795bf546112530e73537495d1d0ef6d87fc4c86d35f8acff0e45da5` |
+| 历史 r2 IPK | `433e0f36d867f6934f3f50b9bafd179967dfbb0d30d8e6088d633261d13907a5` |
+| 当前 r3 镜像，8,650,752 字节 | `53675e18be3838bd190e63ba4da5480c8aa5ce6459f38c6b950fd1e166594c2c` |
+| 当前 r3 IPK | `4e8bb53e19fe7c17da67828907edcd6a624b7797b7185dff3f492d8439a03af6` |
 
 原内核来自 [ImmortalWrt 24.10 对应架构软件仓库](https://downloads.immortalwrt.org/releases/packages-24.10/aarch64_cortex-a53/packages/)。已校验下载清单；匹配的内核模块来自本机固件发布者保留的 [r0-9a11bb8 软件源](https://kmiit.github.io/Redmi_AX3000_immortalwrt/redmi_ax3000-24.10/r0-9a11bb8/Packages)。没有绕过内核 ABI 依赖检查。
 
@@ -99,7 +103,7 @@ Wi-Fi 密码和订阅 URL 保存在本机受限输入目录及路由器配置中
 
 HomeProxy 另有两项本机调整，由 [patch-homeproxy-init.py](../scripts/patch-homeproxy-init.py) 生成：
 
-- 为代理进程设置 `GOMEMLIMIT=24MiB`、`GOGC=50`。前者是 Go 的软内存目标，不是整个进程的硬上限。
+- 为代理进程设置 `GOMEMLIMIT=24MiB`；初次 `GOGC=50`，当前 GFWList 使用 100，配置检查进程也使用相同参数。前者是 Go 的软内存目标，不是整个进程的硬上限。
 - 清理 TUN 时先检查接口是否存在，避免 Redirect/TPROXY 模式下停止服务返回无意义的失败。
 
 直接升级内核或 HomeProxy 包可能覆盖这些调整。后续升级需复核镜像体积、内核功能、HomeProxy 配置兼容性和补丁；原始完整内核包不能替代本机的压缩挂载包直接安装。
@@ -226,7 +230,7 @@ uci commit homeproxy
 
 - 修改前：`private/cr8808-before-config-20261027.tar.gz`。
 - 配置后：`private/cr8808-configured-20261027.tar.gz`，含网络配置及本机启动脚本。
-- 依赖和修正版内核包：`packages/`，使用 **r2** 压缩内核包。
+- 依赖和修正版内核包：`packages/`，当前使用 **r3**；历史 r2 保留用于回滚。
 - 测试结果：`evidence/`。
 - 恢复包及第二份本地副本的位置、哈希见 `evidence/restore-bundle.json`。
 - 本次页面修复前：`private/cr8808-before-xhr-fix-20261027.tar.gz`，含原始 RPC 文件及当时配置，SHA256 为 `76b35d1566d8760f6e0b450ad7558d79b9d63567d5cbcbd0c6ba65b06684327d`。
@@ -235,6 +239,8 @@ uci commit homeproxy
 恢复包文件名为 `cr8808-main-router-restore-20261027.zip`，主副本在项目的 `tmp/router-config/private/`；第二份位于 `C:\Users\yingj\cr8808-backups\2026-10-27-main-router\`。两份已逐字节校验，均包含配置凭据。
 
 页面修复后另存新恢复包 `cr8808-homeproxy-xhr-fixed-restore-20261027.zip`，同样保存在上述两个目录，包含原有离线软件包、新旧配置快照、RPC 补丁和更新后的手册。新包校验报告为 `evidence/homeproxy-xhr-fix-restore-bundle.json`；需要恢复本次修复后的状态时使用新快照。原恢复包保留用于追溯预配置状态。
+
+后续 GFWList/r3/节点页测速的当前恢复包为 `cr8808-homeproxy-gfw-node-test-restore-20261027.zip`，同样保存在这两个目录。当前快照及校验记录见[资源优化手册](cr8808-low-memory-homeproxy.md)，恢复最新配置时使用该包。
 
 修改前备份 SHA256 为 `957786e41834591f4f0d8fd428f1ee7149643c8ebef45b19da17ec4ccb383657`。生成时 `sysupgrade -b` 的引导环境钩子曾提示权限错误；已另外打开归档核对关键配置文件，因此这里把它作为**配置备份**，不作为引导或全分区备份。
 
