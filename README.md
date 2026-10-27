@@ -26,6 +26,8 @@ CR8808 定制项目。
 
 同日按用户选择改用 GFWList，升级为同一 ELF 的 64 KiB 压缩块 r3 应用包，并在 HomeProxy 节点页增加单测与一键全部排队测速：并发 1、间隔 1 秒，可停止并查看进度。脚本、资源采样、分流方式及恢复说明见资源优化手册。
 
+服务状态页的 `PermissionError: Download permission denied` 已补充日志下载 ACL 并完成实机验证；离线构建同时包含该修复。GFW 列表更新查询还受 GitHub 匿名 API 额度影响，见[日志权限修复记录](doc/cr8808-low-memory-homeproxy.md#服务状态页日志权限修复)。
+
 当前固件分支已归档。本仓库保存该基线的公开固件、运行增量依赖、源码与定制构建流程；`python scripts/manage-dependencies.py verify` 可离线校验，`build --output tmp/builds/baseline-1` 可重新生成应用补丁与公开包。固件内核/驱动更新仍需单独适配和实机验收。
 
 `scripts/prepare-cr8808-flash.ps1` 只检查本地备份并生成设备专用脚本；生成脚本默认只检查，实际写入需要显式传入 `--flash`。当前已刷好的设备无需重复刷写。

@@ -13,7 +13,7 @@
 | HomeProxy 与中文包 | 26.236.50592~9b8ee64 | 原始 IPK、完整源码、固定输入补丁、行为测试 |
 | sing-box | tiny 1.12.25；本地 squashfs 1.12.25-r3 | 原始 IPK、源码、配方、64 KiB 镜像与挂载服务；r2 可回滚 |
 | ucode digest | 2025.07.18~3f64c808-r1 | IPK、对应源码与固件内配方；其余 ucode 运行时随原始固件保存 |
-| 自定义功能 | 内存参数、功能缓存、WAN 启停、逐个及一键排队测速 | `scripts/` 作为维护入口，构建时生成完整覆盖文件 |
+| 自定义功能 | 内存参数、功能缓存、WAN 启停、逐个及一键排队测速、日志下载权限 | `scripts/` 作为维护入口，构建时生成完整覆盖文件 |
 | 电脑辅助工具 | sing-box Windows 1.12.25、squashfs-tools-ng 1.3.2 | 官方发行包入库，版本与哈希固定 |
 | SDK / ImageBuilder / 交叉工具链 | 当前固件同一 Release | 锁定下载 URL、大小与 SHA256，显式下载到本机缓存 |
 
@@ -53,7 +53,7 @@ python scripts/manage-dependencies.py build --output tmp/builds/baseline-1
 3. 从原始 HomeProxy IPK 取出真正交付的 init、生成器、RPC 与页面，依次应用定制补丁。默认要求输出哈希与当前已验收基线一致。
 4. 生成 `overlay/`、公开依赖包与源码 ZIP、`SHA256SUMS` 和 `build-report.json`。
 
-ZIP 名称为 `cr8808-homeproxy-baseline.zip`，含十个当前运行增量包、七个覆盖文件、源码与许可。它不含个人配置，不能代替本机私有恢复备份；也不是可直接刷写的固件。Windows 解压可能不保留执行权限，部署时必须设置 init/hotplug 为 `0755`、ucode/JS 为 `0644`。
+ZIP 名称为 `cr8808-homeproxy-baseline.zip`，含十个当前运行增量包、八个覆盖文件、源码与许可（增加已实机验证的 HomeProxy 日志下载 ACL）。它不含个人配置，不能代替本机私有恢复备份；也不是可直接刷写的固件。Windows 解压可能不保留执行权限，部署时必须设置 init/hotplug 为 `0755`、ucode/JS/ACL JSON 为 `0644`。
 
 这里验证的是现有应用包的离线重打和补丁重建。未声称新编译的 ELF 与官方 ELF 相同，也未声称重新生成 SquashFS 镜像或整套固件可以逐字节一致。镜像重建使用归档的 gensquashfs、相同 ELF、XZ 和 65536 字节块，按[脚本说明](../scripts/README.md)操作并重新登记哈希。
 

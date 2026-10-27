@@ -13,6 +13,7 @@
 | `sing-box-squashfs/usr/bin/sing-box` | 挂载前的占位入口，准备挂载后执行真正的内核 |
 | `patch-homeproxy-init.py` | 为固定版本 HomeProxy 添加 Go 内存参数和条件 TUN 清理，支持重复执行 |
 | `patch-homeproxy-rpc.py` | 对经校验的固定压缩内核直接返回版本与功能，避免页面查询额外启动 Go 进程 |
+| `patch-homeproxy-acl.py` | 为固定 HomeProxy ACL 补充日志下载接口权限，保留原有文件读取白名单 |
 | `patch-homeproxy-node-ui.py` | 校验固定原文件并生成节点页、RPC 与同核心测速配置补丁 |
 | `homeproxy-low-memory/` | 按需测速的生成器、RPC、轻量本机请求 worker 与前端片段 |
 | `cr8808-proxy-wan.init` | 依据 WAN 状态及 `homeproxy.config.cr8808_autostart` 控制代理启动 |
@@ -74,6 +75,8 @@ python .\scripts\patch-homeproxy-rpc.py `
 补丁只在两个路径指向同一份已挂载 ELF、文件长度吻合，且包清单记录的 ELF SHA256 与本次固定内核一致时使用预先核对的版本及功能列表。内核模块能力仍实时检测；其他内核保留 HomeProxy 原来的查询方式。初次安装时核对本机内核哈希和功能来源，不从其他版本复制功能列表。
 
 将结果先上传路由器 `/tmp`，执行 `ucode -c -o /tmp/homeproxy-rpc-check.bin /tmp/luci.homeproxy.patched` 检查语法，再以 `0644` 权限安装到 `/usr/share/rpcd/ucode/luci.homeproxy`，执行 `/etc/init.d/rpcd restart` 加载。该操作可能需要重新登录管理页。保留原件用于回滚；升级 HomeProxy 后需重新核对并应用适配。
+
+服务状态页通过 `fs.read_direct()` 读取日志，还需要 `read` 下的 `"cgi-io": [ "download" ]`。固定原始 IPK 缺少这项权限，会显示 `PermissionError: Download permission denied`。离线构建现已自动运行 `patch-homeproxy-acl.py` 并输出 `/usr/share/rpcd/acl.d/luci-app-homeproxy.json`；单独部署时先备份原 ACL，检查生成 JSON，再以 `0644` 安装并执行 `/etc/init.d/rpcd reload`。补丁不增加可读文件路径。实机验证见[日志权限修复记录](../doc/cr8808-low-memory-homeproxy.md#服务状态页日志权限修复)。
 
 WAN 事件脚本在本机分别安装为 `/etc/init.d/cr8808-proxy-wan`、`/etc/hotplug.d/iface/95-cr8808-proxy-wan`；具体启停与验收步骤见配置手册。
 

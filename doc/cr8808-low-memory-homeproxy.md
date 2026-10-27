@@ -135,3 +135,15 @@ chmod 600 /etc/homeproxy/node-test.secret
 | 核心与 OOM | 核心 PID 全程不变；OOM 计数无新增 |
 
 这轮未测 2–3 路并发；采用 1 路是根据已有内存余量和完整串行实测作出的保守选择，不声称多路并发已通过验证。结果仍只代表对 gstatic 的一次 HTTPS 探测，不等同于永久可用性。脱敏汇总在 `evidence/node-queue-live-summary.json`，完整结果在 `private/node-queue-live-results.json`。
+
+## 服务状态页日志权限修复
+
+2026-10-27，服务状态页的 HomeProxy 日志显示 `未知错误：PermissionError: Download permission denied`。页面用 `fs.read_direct()` 向 `/cgi-bin/cgi-download` 请求日志；该接口先检查 `cgi-io/download/read`，再检查文件读取白名单。固定 HomeProxy 原始 ACL 已允许三个日志路径，却缺少前一项权限。报错中的 Download 是浏览器取日志，与路由器下载 GFW 列表是两个请求。
+
+已通过 `scripts/patch-homeproxy-acl.py` 为 `/usr/share/rpcd/acl.d/luci-app-homeproxy.json` 的 `read` 添加 `"cgi-io": [ "download" ]`，保留原文件白名单。脚本校验固定输入 SHA256，支持重复执行，遇到其他版本拒绝套用；源码快照和原始 IPK 保持归档字节。构建入口已生成第八个覆盖文件，输入与实机输出哈希已登记依赖锁。
+
+部署前备份位于 `tmp/router-config/private/status-log-fix/luci-app-homeproxy.before.json`；安装 JSON 为 `0644`，执行 `/etc/init.d/rpcd reload`。代理核心 PID 前后均为 17019，无需重启代理或路由器。回滚时仅恢复该 ACL 备份并 reload rpcd；恢复较早的整套应用备份后，需要再应用此补丁。
+
+实机验证先用原始 ACL 复现 HTTP 403 `Download permission denied`，再以同一文件白名单验证补丁：HomeProxy 和 sing-box 客户端日志均返回 HTTP 200；未启用的服务端没有日志文件，正确返回 404；白名单外文件仍返回 403 `Access to path denied by ACL`。另用已有的真实 root LuCI 登录会话复测日志接口，返回 HTTP 200。脱敏记录为 `evidence/status-log-http-before.json`、`evidence/status-log-http-after.json`、`evidence/status-log-real-luci-session.json`，均相对于 `tmp/router-config/`。
+
+同次核查确认 GFW 列表已在本日 20:05 成功更新，设备版本为 `202610262207`，4443 条。21:40 再次调用 `resources_update(gfw_list)` 返回状态 1，GitHub API 返回 HTTP 403；电脑经当前网络访问该 API 也返回匿名额度耗尽信息，`X-RateLimit-Remaining: 0`。当次响应标示的额度重置时间为北京时间 22:02:37，脱敏证据为 `evidence/status-github-rate-limit.json`；这是本次响应的时间，不是固定恢复时刻。这是另一项上游查询限制，等待额度恢复或在页面保存自己的 GitHub token 后重试；本次没有添加 token，也没有因查询失败改写已安装列表。匿名 API 限额行为见 [GitHub 官方说明](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api)，日志下载接口检查见 [OpenWrt cgi-io 源码](https://github.com/openwrt/cgi-io/blob/master/main.c)。

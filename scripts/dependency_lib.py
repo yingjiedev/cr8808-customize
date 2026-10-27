@@ -262,6 +262,7 @@ def build(lock, output, root=ROOT, candidate=False):
     originals = {'homeproxy.init': 'etc/init.d/homeproxy',
                  'generate_client.uc': 'etc/homeproxy/scripts/generate_client.uc',
                  'luci.homeproxy': 'usr/share/rpcd/ucode/luci.homeproxy',
+                 'luci-app-homeproxy.json': 'usr/share/rpcd/acl.d/luci-app-homeproxy.json',
                  'node.js': 'www/luci-static/resources/view/homeproxy/node.js'}
     for name, path in originals.items():
         data = files[path]
@@ -269,6 +270,7 @@ def build(lock, output, root=ROOT, candidate=False):
             raise ValueError(f'Unexpected HomeProxy input: {name}')
         write_file(work, name, data)
     run_script(root, 'patch-homeproxy-rpc.py', work / 'luci.homeproxy', work / 'rpc-cached')
+    run_script(root, 'patch-homeproxy-acl.py', work / 'luci-app-homeproxy.json', work / 'acl-patched')
     run_script(root, 'patch-homeproxy-init.py', work / 'homeproxy.init', work / 'init-patched', '--gogc', '100')
     run_script(root, 'patch-homeproxy-node-ui.py', '--generator', work / 'generate_client.uc',
                '--rpc', work / 'rpc-cached', '--node-js', work / 'node.js', '--output', work / 'node-patched')
@@ -276,6 +278,7 @@ def build(lock, output, root=ROOT, candidate=False):
     outputs = {'etc/init.d/homeproxy': work / 'init-patched',
                'etc/homeproxy/scripts/generate_client.uc': work / 'node-patched/generate_client.uc',
                'usr/share/rpcd/ucode/luci.homeproxy': work / 'node-patched/luci.homeproxy',
+               'usr/share/rpcd/acl.d/luci-app-homeproxy.json': work / 'acl-patched',
                'etc/homeproxy/scripts/cr8808-node-test-worker.uc': work / 'node-patched/cr8808-node-test-worker.uc',
                'www/luci-static/resources/view/homeproxy/node.js': work / 'node-patched/node.js',
                'etc/init.d/cr8808-proxy-wan': root / 'scripts/cr8808-proxy-wan.init',

@@ -741,12 +741,14 @@
       "homeproxy.init": "47e624476a7a409209496de47cd64f73fed7dc86698cf6d6ec2b286c25c88340",
       "generate_client.uc": "7545f12f2af648ab09c64bea943257ed5c768f8689d910d3beb9aed15b069812",
       "luci.homeproxy": "9085d4f67735e549c7b0a636f6d23f56de46fc6bc3e6acfc56026679f96da3e3",
+      "luci-app-homeproxy.json": "4d275bb87e71c2755b7c8eef785bc27e6f8e6907ab8b0293f7174d0ca4466d2d",
       "node.js": "88e7e4bb10f1d44e184ff3f6ebb96851ccf5c6a6aed5a50ee4600e415e312872"
     },
     "outputs": {
       "etc/init.d/homeproxy": "3991382e60a6859f22a3f2100715827762af85578317523ed45f70a1919dfc97",
       "etc/homeproxy/scripts/generate_client.uc": "b21416e9bfb5cf52e0d367c8ec48dfdb48c58aad2243c09d12c29415dfc6c434",
       "usr/share/rpcd/ucode/luci.homeproxy": "b0516f0af98d52e6a79e6466b3768c6b0bbbedc99d7d0890eeb035cccb39469d",
+      "usr/share/rpcd/acl.d/luci-app-homeproxy.json": "63982ea86439ccc40ecb5d02dbe5b3d28c51b8e06d43f791c25a43fb97ed33d9",
       "etc/homeproxy/scripts/cr8808-node-test-worker.uc": "1c5a0e70eb822a2459e564e942da3140b9acf9ed1a2ad688304e512b370e7414",
       "www/luci-static/resources/view/homeproxy/node.js": "d153aff615847a21620092da9ebd10bcbc5c01f700e30489ed1ee99ff0258b66",
       "etc/init.d/cr8808-proxy-wan": "67ba7763344bc2fe6fc81e9b565da96112c280ebdfae7c006ddca1d9f88b58d9",
