@@ -10,6 +10,7 @@
 | `sing-box-squashfs/etc/init.d/sing-box-squashfs` | 开机校验镜像/内核，进行只读 loop 挂载和可执行文件 bind mount |
 | `sing-box-squashfs/usr/bin/sing-box` | 挂载前的占位入口，准备挂载后执行真正的内核 |
 | `patch-homeproxy-init.py` | 为固定版本 HomeProxy 添加 Go 内存参数和条件 TUN 清理，支持重复执行 |
+| `patch-homeproxy-rpc.py` | 对经校验的固定压缩内核直接返回版本与功能，避免页面查询额外启动 Go 进程 |
 | `cr8808-proxy-wan.init` | 依据 WAN 状态及 `homeproxy.config.cr8808_autostart` 控制代理启动 |
 | `cr8808-proxy-wan.hotplug` | 响应 WAN `ifup` / `ifdown` 事件 |
 
@@ -17,7 +18,7 @@
 
 ## 本地构建
 
-两个 Python 工具只使用标准库。先准备经过校验的原始 `sing-box-tiny` IPK、提取出的 ELF，以及通过 `gensquashfs` 创建的应用镜像。原始下载来源及校验值见配置手册；工具、下载文件和构建输出放在 Git 忽略的 `tmp/`。
+Python 工具只使用标准库。先准备经过校验的原始 `sing-box-tiny` IPK、提取出的 ELF，以及通过 `gensquashfs` 创建的应用镜像。原始下载来源及校验值见配置手册；工具、下载文件和构建输出放在 Git 忽略的 `tmp/`。
 
 本次镜像使用 squashfs-tools-ng `1.3.2` 生成，压缩方式为 XZ，块大小为 1 MiB。打包列表如下，源文件路径相对于列表文件：
 
@@ -51,6 +52,17 @@ python .\scripts\patch-homeproxy-init.py `
 ```
 
 脚本针对 HomeProxy `26.236.50592~9b8ee64` 的已知代码结构。匹配结构不符时退出；新版本应重新核对，不能强行替换。生成的文件需在路由器上用 `sh -n` 检查，再安装为 `/etc/init.d/homeproxy` 并设置执行权限。
+
+本机联网后还需应用 RPC 补丁。先保存路由器原始 `/usr/share/rpcd/ucode/luci.homeproxy`，然后在电脑生成补丁文件：
+
+```powershell
+python .\scripts\patch-homeproxy-rpc.py `
+  .\tmp\luci.homeproxy.original .\tmp\luci.homeproxy.patched
+```
+
+补丁只在两个路径指向同一份已挂载 ELF、文件长度吻合，且包清单记录的 ELF SHA256 与本次固定内核一致时使用预先核对的版本及功能列表。内核模块能力仍实时检测；其他内核保留 HomeProxy 原来的查询方式。初次安装时核对本机内核哈希和功能来源，不从其他版本复制功能列表。
+
+将结果先上传路由器 `/tmp`，执行 `ucode -c -o /tmp/homeproxy-rpc-check.bin /tmp/luci.homeproxy.patched` 检查语法，再以 `0644` 权限安装到 `/usr/share/rpcd/ucode/luci.homeproxy`，执行 `/etc/init.d/rpcd restart` 加载。该操作可能需要重新登录管理页。保留原件用于回滚；升级 HomeProxy 后需重新核对并应用适配。
 
 WAN 事件脚本在本机分别安装为 `/etc/init.d/cr8808-proxy-wan`、`/etc/hotplug.d/iface/95-cr8808-proxy-wan`；具体启停与验收步骤见配置手册。
 
