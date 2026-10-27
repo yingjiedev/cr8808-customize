@@ -1,0 +1,50 @@
+#!/bin/sh /etc/rc.common
+# Mount the verified compressed core before proxy services start.
+START=18
+STOP=95
+
+CORE_DIR=/usr/share/sing-box-squashfs
+MOUNT_DIR=/tmp/sing-box-squashfs
+CORE_PATH=/usr/bin/sing-box
+
+is_mounted() {
+	grep -Fq " $1 " /proc/mounts
+}
+
+start() {
+	[ -r "$CORE_DIR/checksums" ] || return 1
+	. "$CORE_DIR/checksums"
+	if is_mounted "$CORE_PATH"; then
+		return 0
+	fi
+	[ "$(sha256sum "$CORE_DIR/core.squashfs" | awk '{print $1}')" = "$IMAGE_SHA256" ] || {
+		logger -t sing-box-squashfs 'Image checksum failed; refusing to mount'
+		return 1
+	}
+	mkdir -p "$MOUNT_DIR" || return 1
+	chmod 755 "$MOUNT_DIR"
+	if ! is_mounted "$MOUNT_DIR"; then
+		mount -t squashfs -o loop,ro,nodev,nosuid "$CORE_DIR/core.squashfs" "$MOUNT_DIR" || return 1
+	fi
+	if [ "$(sha256sum "$MOUNT_DIR/sing-box" | awk '{print $1}')" != "$BINARY_SHA256" ]; then
+		logger -t sing-box-squashfs 'Core checksum failed; refusing to run'
+		umount "$MOUNT_DIR"
+		return 1
+	fi
+	mount -o bind "$MOUNT_DIR/sing-box" "$CORE_PATH" || return 1
+}
+
+stop() {
+	if is_mounted "$CORE_PATH"; then
+		umount "$CORE_PATH" || return 1
+	fi
+	if is_mounted "$MOUNT_DIR"; then
+		local loop_device
+		loop_device="$(awk -v point="$MOUNT_DIR" '$2 == point {print $1}' /proc/mounts)"
+		umount "$MOUNT_DIR" || return 1
+		case "$loop_device" in
+			/dev/loop[0-9]*) losetup -d "$loop_device" 2>/dev/null || true ;;
+		esac
+	fi
+	rmdir "$MOUNT_DIR" 2>/dev/null || true
+}

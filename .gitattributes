@@ -5,3 +5,6 @@ SHA256SUMS text eol=lf
 *.md text eol=lf
 *.txt text eol=lf
 *.bin binary
+/scripts/cr8808-proxy-wan.init text eol=lf
+/scripts/cr8808-proxy-wan.hotplug text eol=lf
+/scripts/sing-box-squashfs/** text eol=lf

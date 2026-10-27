@@ -1,0 +1,57 @@
+# CR8808 定制脚本
+
+这些脚本对应[主路由配置手册](../doc/cr8808-main-router-configuration-manual.md)中的 HomeProxy + sing-box 压缩挂载方案。已验证环境为本机 CR8808、ImmortalWrt `24.10-SNAPSHOT r0-9a11bb8`、内核 `6.6.137`。
+
+## 文件与用途
+
+| 文件 | 用途 |
+| --- | --- |
+| `build-sing-box-squashfs-ipk.py` | 校验输入哈希，打包包含压缩应用镜像、挂载服务及占位入口的 IPK |
+| `sing-box-squashfs/etc/init.d/sing-box-squashfs` | 开机校验镜像/内核，进行只读 loop 挂载和可执行文件 bind mount |
+| `sing-box-squashfs/usr/bin/sing-box` | 挂载前的占位入口，准备挂载后执行真正的内核 |
+| `patch-homeproxy-init.py` | 为固定版本 HomeProxy 添加 Go 内存参数和条件 TUN 清理，支持重复执行 |
+| `cr8808-proxy-wan.init` | 依据 WAN 状态及 `homeproxy.config.cr8808_autostart` 控制代理启动 |
+| `cr8808-proxy-wan.hotplug` | 响应 WAN `ifup` / `ifdown` 事件 |
+
+其他已有刷机、候选 WebUBoot 检查脚本的说明仍以相应专项手册为准。
+
+## 本地构建
+
+两个 Python 工具只使用标准库。先准备经过校验的原始 `sing-box-tiny` IPK、提取出的 ELF，以及通过 `gensquashfs` 创建的应用镜像。原始下载来源及校验值见配置手册；工具、下载文件和构建输出放在 Git 忽略的 `tmp/`。
+
+本次镜像使用 squashfs-tools-ng `1.3.2` 生成，压缩方式为 XZ，块大小为 1 MiB。打包列表如下，源文件路径相对于列表文件：
+
+```text
+file /sing-box 0755 0 0 sing-box-tiny
+```
+
+Windows PowerShell 构建本次使用的 r2 IPK：
+
+```powershell
+python .\scripts\build-sing-box-squashfs-ipk.py `
+  --image .\tmp\router-config\research\sing-box-core.squashfs `
+  --image-sha256 62e279ef5795bf546112530e73537495d1d0ef6d87fc4c86d35f8acff0e45da5 `
+  --binary .\tmp\router-config\research\sing-box-tiny `
+  --binary-sha256 c3faeded3104bf8c581d2050b5786425b8a7862cea42c1ae19f0e2b98d582af5 `
+  --source-package .\tmp\router-config\research\sing-box-tiny_1.12.25-r1_aarch64_cortex-a53.ipk `
+  --source-package-sha256 bdd93e62ef2d4351fa9a5f9e8a8b6101e7178b0343853e1705bf2ef08b3e5a6d `
+  --version 1.12.25-r2 `
+  --output .\tmp\router-config\packages\sing-box-squashfs_1.12.25-r2_aarch64_cortex-a53.ipk
+```
+
+构建只生成本地文件；安装 IPK 会写入系统并启用挂载服务。其安装检查仅核对板名、已有内核归属和基本挂载能力，不代替固件/分区适配验证。
+
+## HomeProxy 补丁
+
+先取得本机安装的原始 `/etc/init.d/homeproxy`，保留原件，然后在电脑执行：
+
+```powershell
+python .\scripts\patch-homeproxy-init.py `
+  .\tmp\homeproxy.original.init .\tmp\homeproxy.patched.init
+```
+
+脚本针对 HomeProxy `26.236.50592~9b8ee64` 的已知代码结构。匹配结构不符时退出；新版本应重新核对，不能强行替换。生成的文件需在路由器上用 `sh -n` 检查，再安装为 `/etc/init.d/homeproxy` 并设置执行权限。
+
+WAN 事件脚本在本机分别安装为 `/etc/init.d/cr8808-proxy-wan`、`/etc/hotplug.d/iface/95-cr8808-proxy-wan`；具体启停与验收步骤见配置手册。
+
+仓库保存可复用脚本和脱敏手册。凭据、节点配置、设备备份、一次性登录控制工具及下载的二进制保存在本机忽略目录。

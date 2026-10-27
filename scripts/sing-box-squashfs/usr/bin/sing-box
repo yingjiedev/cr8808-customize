@@ -1,0 +1,6 @@
+#!/bin/sh
+# Fallback when invoked before the early mount service has run.
+/etc/init.d/sing-box-squashfs start || exit 1
+# A successful bind mount replaces this placeholder with the actual ELF.
+grep -Fq ' /usr/bin/sing-box ' /proc/mounts || exit 1
+exec /usr/bin/sing-box "$@"
