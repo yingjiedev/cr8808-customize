@@ -115,6 +115,12 @@ def stage_packages(source, baseline):
 
     policy = source / 'package/cr8808/cr8808-nss-policy'
     shutil.copytree(NSS / 'files', policy / 'files')
+    # base-files owns this path. Override after APK installation via the
+    # image overlay, rather than making two packages claim the same file.
+    repository_list = 'etc/apk/repositories.d/distfeeds.list'
+    repository_override = policy / 'files' / repository_list
+    write(source / 'files' / repository_list, repository_override.read_bytes().replace(b'\r\n', b'\n'))
+    repository_override.unlink()
     for path in (baseline / 'overlay').rglob('*'):
         if not path.is_file():
             continue

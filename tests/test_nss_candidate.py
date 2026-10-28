@@ -80,6 +80,8 @@ class NSSCandidateTests(unittest.TestCase):
         self.assertIn('+sing-box-squashfs', (app / 'Makefile').read_text())
         self.assertIn('CR8808:', (app / 'root/usr/share/rpcd/ucode/luci.homeproxy').read_text())
         self.assertEqual(result['homeproxy_overlay_files'], 8)
+        self.assertTrue((source / 'files/etc/apk/repositories.d/distfeeds.list').is_file())
+        self.assertFalse((source / 'package/cr8808/cr8808-nss-policy/files/etc/apk/repositories.d/distfeeds.list').exists())
 
 
 if __name__ == '__main__':
