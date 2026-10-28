@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+[ "$(cat /tmp/sysinfo/board_name)" = 'xiaomi,cr8806' ] || exit 1
+if [ ! -s /etc/config/wireless ]; then
+	wifi config >/dev/null 2>&1 || true
+fi
+ucode /etc/cr8808-nss/apply-private.uc
+/etc/init.d/homeproxy disable
+exit 0

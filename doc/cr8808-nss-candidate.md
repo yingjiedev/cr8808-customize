@@ -50,9 +50,25 @@ artifact 包含 factory UBI、sysupgrade、FIT initramfs、对应 manifest、构
 
 本机原厂槽位、当前 ImmortalWrt 槽位与备份应在实际写入前重新读取并校验。旧 `flash-cr8808-stock.template.sh` 针对“从原厂 rootfs 写入另一槽”的条件，**不适用于直接从当前系统套用这次 NSS 升级**。也不应以强制 sysupgrade 绕过 `redmi,ax3000` 与 `xiaomi,cr8806` 的设备标识差异。
 
+归档 6.6 基线的 `platform.sh` 实际使用 `mi_dualboot_do_upgrade`：从当前 `rootfs_1/mtd19` 升级原始 factory UBI 会写入另一槽 `rootfs/mtd18`，覆盖机内原厂系统而保留当前 ImmortalWrt。该源码设置当前槽为 last_success、以 OTA 标志试启动另一槽。这是候选试机路线的依据，不代表自动回退已在此次 NSS 升级中验证；仍需核对实机脚本、启动环境、镜像及恢复方法，并明确批准覆盖原厂槽和断网窗口。
+
 下一阶段需要在本机私有目录准备当前配置、分区/启动环境与恢复校验记录，核对新旧引导标志和 UBI/ECC 要求，再给出针对实际状态的写入/恢复步骤。厂商同系列原厂固件可互刷，不代表新驱动、引导环境工具与所有插件已经组合验收。
 
 新驱动生成的无线硬件路径可能与旧系统不同；不能将整个旧 `/etc/config/wireless` 无检查覆盖。应保留新系统生成的硬件路径，再迁移 SSID、密钥和频段设置。公开构建不会读取或打包这些个人信息。
+
+## 本机私有配置准备
+
+`scripts/prepare-nss-migration.py` 从一份完整的私有配置/资源备份生成迁移 tar，只允许输出到 `tmp/router-config/private/` 下的新目录。它不连接路由器、不应用配置、不写分区，也不修改启动环境。
+
+当前实现针对已核对的 DHCP WAN、br-lan、两路加密 AP；额外 VLAN、访客接口、多个 SSID 或未加密 AP 会停止，要求单独核对。SSID/密钥按频段匹配，旧 radio 编号、硬件 path 和物理网络设备不写入新配置。它保留代理配置、缓存 GFW 资源、DHCP 绑定、SSH 主机密钥和 root 密码哈希；不覆盖新系统的完整 passwd/shadow、fw_env.config、内核模块或旧 init 脚本。
+
+```powershell
+python scripts/prepare-nss-migration.py --backup tmp/router-config/private/current-complete-backup.tar.gz --output tmp/router-config/private/nss-private-migration
+```
+
+仅 `sysupgrade -b` 不一定包含已下载的 GFW 资源；还需保存当前 `etc/homeproxy/resources` 和证书，再在电脑端合并、校验。准备工具不会因目录名写着“current”就将备份认定为最新；迁移报告仍要求与当前设备文件哈希、模板检查和镜像核对。
+
+私有载荷包含一次性启动脚本：先保留管理员身份、暂时关闭代理自启动，然后在新系统中按频段迁移无线与接口地址。初始有线 NSS 检查通过后，再启用 HomeProxy 并做保留日常功能的完整验收。`apply-private.uc --check <隔离配置目录> <私有设置文件>` 可在不提交 UCI、不改密码的情况下检查映射；它仍会读取私有信息，不得上传 CI。
 
 ## 设备验收
 
