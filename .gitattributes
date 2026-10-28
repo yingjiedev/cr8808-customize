@@ -20,3 +20,4 @@ upstream/** -text
 dependencies/baseline/** -text
 dependencies/licenses/** -text
 /scripts/sing-box-squashfs/** text eol=lf
+/firmware/nss/** text eol=lf

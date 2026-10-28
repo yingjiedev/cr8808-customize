@@ -44,6 +44,12 @@ class NSSCandidateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Wrong memory'):
             nss.verify_config(path)
 
+    def test_minimal_dns_variant_is_rejected(self):
+        path = self.path / '.config'
+        path.write_text((nss.NSS / 'cr8808.config').read_text() + '\nCONFIG_PACKAGE_dnsmasq=y\n')
+        with self.assertRaisesRegex(ValueError, 'dnsmasq-full'):
+            nss.verify_config(path)
+
     def test_cpu_boost_patch_requires_expected_content(self):
         patch = self.path / nss.CPU_PATCH
         patch.parent.mkdir(parents=True)

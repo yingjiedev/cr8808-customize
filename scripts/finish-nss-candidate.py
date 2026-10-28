@@ -36,10 +36,10 @@ def finish(source, output):
             raise ValueError('Initramfs is not a FIT image')
     manifest = (target / (prefix + '.manifest')).read_text(encoding='utf-8')
     required = ['sing-box-squashfs', 'luci-app-homeproxy', 'cr8808-nss-policy', 'nss-tools-dwmac',
-                'kmod-qca-nss-ecm', 'kmod-qca-dwmac-nss']
+                'kmod-qca-nss-ecm', 'kmod-qca-dwmac-nss', 'dnsmasq-full']
     installed = {line.split(' - ', 1)[0] for line in manifest.splitlines()}
     missing = set(required) - installed
-    if missing or 'sing-box' in installed:
+    if missing or 'sing-box' in installed or 'dnsmasq' in installed:
         raise ValueError('Unexpected application/driver package manifest: ' + ','.join(sorted(missing)))
     output.mkdir(parents=True, exist_ok=True)
     metadata_path = output / 'sysupgrade-metadata.json'

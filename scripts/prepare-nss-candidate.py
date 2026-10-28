@@ -45,6 +45,8 @@ def verify_config(path):
         raise ValueError('defconfig dropped requested settings: ' + ', '.join(missing))
     if 'CONFIG_PACKAGE_sing-box=y' in actual:
         raise ValueError('Unpinned sing-box must not replace the frozen core')
+    if 'CONFIG_PACKAGE_dnsmasq=y' in actual or 'CONFIG_PACKAGE_dnsmasq-dhcpv6=y' in actual:
+        raise ValueError('Use dnsmasq-full with nftset for HomeProxy GFWList')
     if 'CONFIG_NSS_MEM_PROFILE_MEDIUM=y' in actual or 'CONFIG_ATH11K_MEM_PROFILE_1G=y' in actual:
         raise ValueError('Wrong memory profile for 256 MiB')
     return {'requested_settings_verified': len(requested)}
@@ -106,7 +108,7 @@ def stage_packages(source, baseline):
     recipe = (app / 'Makefile').read_text(encoding='utf-8')
     if recipe.count('+sing-box \\') != 1 or recipe.count('include ../../luci.mk') != 1:
         raise ValueError('HomeProxy recipe changed')
-    recipe = recipe.replace('+sing-box \\', '+sing-box-squashfs \\')
+    recipe = recipe.replace('+sing-box \\', '+sing-box-squashfs \\\n\t+dnsmasq-full \\')
     recipe = recipe.replace('include ../../luci.mk', 'include $(TOPDIR)/feeds/luci/luci.mk')
     recipe = recipe.replace('LUCI_TITLE:=', 'PKG_VERSION:=26.236.50592\nPKG_RELEASE:=1\n\nLUCI_TITLE:=', 1)
     write(app / 'Makefile', recipe)
