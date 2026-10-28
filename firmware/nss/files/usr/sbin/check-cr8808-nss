@@ -1,0 +1,41 @@
+#!/bin/sh
+# Read-only checks. --require-traffic also requires actual ECM accelerated flows.
+set -u
+failed=0
+check() {
+	if "$@"; then return 0; fi
+	printf 'FAIL: %s\n' "$*"
+	failed=1
+}
+printf 'CR8808 NSS candidate: device validation is required.\n'
+check test "$(cat /tmp/sysinfo/board_name)" = xiaomi,cr8806
+check test "$(uci -q get nss.general.enabled)" = 1
+check test "$(uci -q get nss.general.wifi_offload)" = 0
+check test "$(uci -q get 'firewall.@defaults[0].flow_offloading')" = 0
+check test "$(uci -q get 'firewall.@defaults[0].flow_offloading_hw')" = 0
+for policy in /sys/devices/system/cpu/cpufreq/policy*; do
+	[ -r "$policy/scaling_max_freq" ] || continue
+	check test "$(cat "$policy/scaling_max_freq")" -le 1008000
+done
+check grep -q 'started dev=' /sys/kernel/debug/qca-dwmac-nss/status
+if nft list tables 2>/dev/null | grep -q 'inet fw4'; then
+	if nft list flowtable inet fw4 ft >/dev/null 2>&1; then
+		printf 'FAIL: nft software flowtable competes with ECM\n'; failed=1
+	fi
+fi
+printf 'Memory:\n'; grep -E '^(MemTotal|MemAvailable|Slab|SUnreclaim):' /proc/meminfo
+printf 'Core identity:\n'
+check test -r /usr/share/sing-box-squashfs/checksums
+if [ -r /usr/share/sing-box-squashfs/checksums ]; then
+	. /usr/share/sing-box-squashfs/checksums
+	check test "$(sha256sum /usr/bin/sing-box | awk '{print $1}')" = "$BINARY_SHA256"
+fi
+counter=/sys/kernel/debug/ecm/ecm_nss_ipv4/tcp_accelerated_count
+printf 'Accelerated TCP flows: '
+if [ -r "$counter" ]; then
+	count=$(cat "$counter"); printf '%s\n' "$count"
+	[ "${1:-}" != --require-traffic ] || check test "$count" -gt 0
+else
+	printf 'unavailable\n'; failed=1
+fi
+exit "$failed"

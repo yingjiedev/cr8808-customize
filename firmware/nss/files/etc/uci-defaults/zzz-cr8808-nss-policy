@@ -1,0 +1,19 @@
+#!/bin/sh
+# Run after the upstream 98/99 NSS defaults, before the first service startup.
+set -eu
+case "$(cat /tmp/sysinfo/board_name)" in
+	xiaomi,cr8806) ;;
+	*) logger -t cr8808-nss 'Unexpected board: candidate policy not applied'; exit 1 ;;
+esac
+[ "$(uci -q get nss.general)" = nss ] || uci set nss.general=nss
+uci set nss.general.enabled='1'
+uci set nss.general.wifi_offload='0'
+uci set 'firewall.@defaults[0].flow_offloading=0'
+uci set 'firewall.@defaults[0].flow_offloading_hw=0'
+uci commit nss
+uci commit firewall
+# The source patch adding 1296 MHz is removed during preparation as well.
+for policy in /sys/devices/system/cpu/cpufreq/policy*; do
+	[ ! -f "$policy/scaling_max_freq" ] || echo 1008000 > "$policy/scaling_max_freq"
+done
+exit 0

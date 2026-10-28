@@ -1,0 +1,3 @@
+# This is a pinned, locally built candidate, not an official snapshot image.
+# Matching APKs and package indexes are preserved in the CI artifact.
+# Do not mix modules or libraries from a different snapshot/kernel build.
