@@ -7,6 +7,7 @@ on:
       - '.github/workflows/nss-candidate.yml'
       - 'firmware/nss/**'
       - 'scripts/*nss-candidate.py'
+      - 'scripts/nss_candidate_image.py'
       - 'tests/test_nss_candidate.py'
   workflow_dispatch:
 

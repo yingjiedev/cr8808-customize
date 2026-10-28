@@ -12,6 +12,14 @@ import dependency_lib as deps
 ROOT = Path(__file__).resolve().parents[1]
 NSS = ROOT / 'firmware/nss'
 CPU_PATCH = 'target/linux/qualcommax/patches-6.18/0974-arm64-dts-qcom-ipq5018-let-the-CPU-boost-to-1296-MHz.patch'
+BOARD_DTS = 'target/linux/qualcommax/dts/ipq5018-cr8806.dts'
+ECC_OVERRIDE = '''		/*
+		 * The stock U-Boot uses 8-bit ECC. Without this the driver
+		 * picks 4-bit from the chip requirements and every codeword
+		 * read is misaligned (corrupted caldata, UBI read errors).
+		 */
+		nand-ecc-step-size = <512>;
+		nand-ecc-strength = <8>;'''
 
 
 def load_lock():
@@ -60,6 +68,24 @@ def remove_cpu_boost(source):
     digest = deps.sha256(path.read_bytes())
     path.unlink()
     return digest
+
+
+def configure_nand_ecc(source):
+    path = source / BOARD_DTS
+    text = path.read_text(encoding='utf-8')
+    if text.count(ECC_OVERRIDE) != 1 or text.count('nand-ecc-strength') != 1:
+        raise ValueError('NAND ECC override changed: inspect the board and driver')
+    original = deps.sha256(path.read_bytes())
+    # The pinned QPIC driver selects BCH4 for 64-byte OOB and BCH8 for
+    # >=80-byte OOB. Our unit has 64 bytes; forcing BCH8 rejects probe.
+    text = text.replace(ECC_OVERRIDE, '''		/* Let QPIC select ECC from the physical OOB size.
+		 * 64-byte OOB requires BCH4; BCH8 needs at least 80 bytes.
+		 * Preserve the layout used by the stock bootloader.
+		 */''')
+    write(path, text)
+    return {'selection': 'qpic-auto-oob', 'observed_oob_bytes': 64,
+            'expected_strength': 4, 'step_bytes': 512,
+            'original_board_dts_sha256': original}
 
 
 def package_makefile(name, title, dependencies, provides=''):
@@ -159,13 +185,14 @@ def prepare(source, output):
     if sha != lock['source']['commit']:
         raise ValueError('NSS source commit mismatch')
     subprocess.run(['git', '-C', str(source), 'diff', '--quiet', 'HEAD', '--'], check=True)
-    dts = (source / 'target/linux/qualcommax/dts/ipq5018-cr8806.dts').read_text()
+    dts = (source / BOARD_DTS).read_text()
     if dts.count('qcom,ath11k-fw-memory-mode = <2>') != 2 or 'coherent_pool=512K' not in dts or '0x800000' not in dts:
         raise ValueError('Unexpected 256 MiB board configuration')
     output.mkdir(parents=True, exist_ok=False)
     baseline = output / 'baseline'
     deps.build(deps.load_lock(), baseline)
     digest = remove_cpu_boost(source)
+    nand_ecc = configure_nand_ecc(source)
     application = stage_packages(source, baseline)
     feeds = ''.join(f"src-git {item['name']} {item['repository']}^{item['commit']}\n" for item in lock['feeds'])
     write(source / 'feeds.conf', feeds)
@@ -180,7 +207,7 @@ def prepare(source, output):
         text += '\nCONFIG_SQUASHFS_XZ=y\n'
     write(config, text)
     report = {'status': 'prepared-not-built-not-device-validated', 'source_lock': lock,
-              'removed_cpu_patch_sha256': digest, 'application': application,
+              'removed_cpu_patch_sha256': digest, 'nand_ecc': nand_ecc, 'application': application,
               'private_configuration_included': False, 'legacy_kernel_packages_included': False}
     write(source / 'package/cr8808/cr8808-nss-policy/files/etc/cr8808-nss/candidate.json', json.dumps(report, indent=2)+'\n')
     write(output / 'preparation-report.json', json.dumps(report, indent=2)+'\n')

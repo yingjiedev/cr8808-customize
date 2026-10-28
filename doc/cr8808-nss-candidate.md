@@ -13,6 +13,7 @@
 - 有线 NSS/ECM 启用；无线 NSS 编译支持保留，但运行时关闭，先使用主机无线处理路径。
 - 256 MiB ath11k 配置、NSS LOW、DTS 中 8 MiB NSS 保留内存与 512 KiB coherent_pool。
 - 从源码删除增加 1296 MHz 的设备树补丁，首次启动再设最高 1008 MHz。
+- 删除设备树强制 ECC8 的覆盖项，保留固定 QPIC 驱动按物理 OOB 大小选择 ECC；本机 2048+64 字节 NAND 使用 ECC4/512。构建完成后还检查 FIT 中的真实设备树，拒绝残留的强制设置。
 - nft 软件分载和 nft 硬件分载开关均关闭，避免与这套 ECM/NSS 抢先处理流量；这不等于关闭 NSS。
 - HomeProxy 与当前 sing-box 1.12.25 的已校验压缩镜像继续使用。功能缓存、GFWList/节点测速代码和日志下载 ACL 修复从现有维护基线重建。
 - 显式选择 dnsmasq-full 和 nftset，避免普通 DNS 变体缺少 GFWList 所需能力。
@@ -43,6 +44,14 @@ make -j2
 ```
 
 artifact 包含 factory UBI、sysupgrade、FIT initramfs、对应 manifest、构建配置、来源/准备/构建报告、SHA256、构建日志，以及保存匹配 `bin/targets` 和 `bin/packages` 的压缩包。失败构建也会保留已有配置和日志，不能将这种 artifact 当作完整镜像。
+
+### NAND ECC 复核（2026-10-29）
+
+`e250512` 的 CI 已成功，但其镜像仍带上游强制 ECC8 设置，**不适合本机，不得刷入**。本机当前系统的 `writesize=2048`、`oobsize=64`、`ecc_strength=4`、`ecc_step_size=512`；启动分区、两份 U-Boot 和 ART 的只读 SHA256 均与原厂备份一致，ECC 错误计数为零。
+
+这不是把芯片最低要求误当作运行值：归档 6.6 的 `2411-spi-spi-qpic-snand-support-BCH8.patch` 根据 OOB 是否大于 64 选择 BCH8/BCH4，并将选择写入 ECC 配置。固定 6.18 源码中的 [0421 补丁](https://github.com/kuncy7/openwrt-nss-edma/blob/c36db6321c11595dc45a160cdab36b5c2d787744/target/linux/qualcommax/patches-6.18/0421-spi-spi-qpic-snand-reject-when-no-enough-OOB-space.patch) 检查实际布局空间：BCH4 需要 64 字节 OOB，BCH8 需要至少 80 字节；强制 BCH8 会使本机 NAND 初始化返回 `EINVAL`。[0422 补丁](https://github.com/kuncy7/openwrt-nss-edma/blob/c36db6321c11595dc45a160cdab36b5c2d787744/target/linux/qualcommax/patches-6.18/0422-spi-spi-qpic-snand-pick-default-ECC-settings-based-o.patch) 在没有设备树覆盖时，已经按 OOB 大小选择正确布局。
+
+因此准备工具只移除已审查源码中的 ECC 覆盖，保留 ECC 引擎、分区和原厂布局；OOB 较大的同系列变体仍由驱动选择 BCH8，不把所有机器固定成 BCH4。修复后必须重新构建并校验产物，不能对已生成的镜像做二进制替换。
 
 候选暂不启用随时间变化的官方 snapshot 包源。完整匹配 APK 与索引保存在 artifact 中；后续模块安装须使用同一内核构建对应的包。HomeProxy 的资源更新和订阅网络请求不依赖 APK 包源。
 

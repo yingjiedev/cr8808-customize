@@ -8,6 +8,7 @@ import subprocess
 import sys
 
 import dependency_lib as deps
+from nss_candidate_image import verify_nand_fit
 
 spec = importlib.util.spec_from_file_location('nss_prepare', Path(__file__).with_name('prepare-nss-candidate.py'))
 nss = importlib.util.module_from_spec(spec)
@@ -34,6 +35,7 @@ def finish(source, output):
     with initramfs.open('rb') as stream:
         if stream.read(4) != b'\xd0\x0d\xfe\xed':
             raise ValueError('Initramfs is not a FIT image')
+    nand_report = verify_nand_fit(initramfs.read_bytes())
     manifest = (target / (prefix + '.manifest')).read_text(encoding='utf-8')
     required = ['sing-box-squashfs', 'luci-app-homeproxy', 'cr8808-nss-policy', 'nss-tools-dwmac',
                 'kmod-qca-nss-ecm', 'kmod-qca-dwmac-nss', 'dnsmasq-full']
@@ -67,6 +69,7 @@ def finish(source, output):
     nss.write(output / 'preparation-report.json', json.dumps(preparation, indent=2)+'\n')
     report = {'status': 'build-complete-device-validation-pending', 'source_lock': lock,
               'config': config_report, 'factory_bytes': factory.stat().st_size,
+              'nand_ecc': nand_report,
               'physical_slot_headroom_bytes': lock['slot_bytes']-factory.stat().st_size,
               'file_checksums': checksums, 'private_configuration_included': False,
               'automatic_flash': False, 'stable_500_mbps_validated': False}
