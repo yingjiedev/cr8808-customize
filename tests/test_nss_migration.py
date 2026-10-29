@@ -35,6 +35,21 @@ class NSSMigrationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'Private migration output'):
             m.prepare(Path('does-not-exist.tar.gz'),ROOT/'firmware/private')
 
+    def test_omitted_disabled_flags_explicitly_enable_migrated_radios_and_aps(self):
+        data=m.settings(self.fixture())
+        for radio in data['radios']:
+            self.assertEqual(radio['device_options']['disabled'],'0')
+            self.assertEqual(radio['ap_options']['disabled'],'0')
+
+    def test_explicit_disabled_flags_are_preserved(self):
+        files=self.fixture()
+        files['etc/config/wireless']=files['etc/config/wireless'].replace(
+            b"option band '5g'", b"option band '5g'\n option disabled '1'", 1).replace(
+            b"option mode 'ap'", b"option mode 'ap'\n option disabled '1'", 1)
+        radio=m.settings(files)['radios'][0]
+        self.assertEqual(radio['device_options']['disabled'],'1')
+        self.assertEqual(radio['ap_options']['disabled'],'1')
+
     def test_guest_network_is_not_silently_dropped(self):
         files=self.fixture();files['etc/config/network']+=b"config interface 'guest'\n option proto 'static'\n"
         with self.assertRaisesRegex(ValueError,'Additional network'):

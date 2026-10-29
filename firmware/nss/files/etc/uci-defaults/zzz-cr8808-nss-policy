@@ -12,6 +12,14 @@ uci set 'firewall.@defaults[0].flow_offloading=0'
 uci set 'firewall.@defaults[0].flow_offloading_hw=0'
 uci commit nss
 uci commit firewall
+# The private loopback controller needs a device-local secret before HomeProxy
+# generates its configuration. Never put a shared secret into a public image.
+if [ ! -s /etc/homeproxy/node-test.secret ]; then
+	umask 077
+	cat /proc/sys/kernel/random/uuid /proc/sys/kernel/random/uuid |
+		tr -d '\n-' > /etc/homeproxy/node-test.secret
+fi
+chmod 600 /etc/homeproxy/node-test.secret
 # The source patch adding 1296 MHz is removed during preparation as well.
 for policy in /sys/devices/system/cpu/cpufreq/policy*; do
 	[ ! -f "$policy/scaling_max_freq" ] || echo 1008000 > "$policy/scaling_max_freq"

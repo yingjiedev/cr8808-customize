@@ -14,6 +14,8 @@ check test "$(uci -q get nss.general.wifi_offload)" = 0
 check test "$(uci -q get 'firewall.@defaults[0].flow_offloading')" = 0
 check test "$(uci -q get 'firewall.@defaults[0].flow_offloading_hw')" = 0
 check sh -c 'dnsmasq --version 2>/dev/null | grep -Eq "(^|[[:space:]])nftset([[:space:]]|$)"'
+check ucode -e 'import { isnan } from "math"; if (!isnan(int("abc")) || isnan(int("123"))) die("Invalid math module\n");'
+check grep -Eq '^[a-f0-9]{64}$' /etc/homeproxy/node-test.secret
 for policy in /sys/devices/system/cpu/cpufreq/policy*; do
 	[ -r "$policy/scaling_max_freq" ] || continue
 	check test "$(cat "$policy/scaling_max_freq")" -le 1008000

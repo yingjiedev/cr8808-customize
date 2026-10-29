@@ -38,7 +38,7 @@ def finish(source, output):
     nand_report = verify_nand_fit(initramfs.read_bytes())
     manifest = (target / (prefix + '.manifest')).read_text(encoding='utf-8')
     required = ['sing-box-squashfs', 'luci-app-homeproxy', 'cr8808-nss-policy', 'nss-tools-dwmac',
-                'kmod-qca-nss-ecm', 'kmod-qca-dwmac-nss', 'dnsmasq-full']
+                'kmod-qca-nss-ecm', 'kmod-qca-dwmac-nss', 'dnsmasq-full', 'ucode-mod-math']
     installed = {line.split(' - ', 1)[0] for line in manifest.splitlines()}
     missing = set(required) - installed
     if missing or 'sing-box' in installed or 'dnsmasq' in installed:
@@ -67,7 +67,8 @@ def finish(source, output):
         shutil.copy2(path, output / path.name)
     preparation = json.loads((source / 'package/cr8808/cr8808-nss-policy/files/etc/cr8808-nss/candidate.json').read_text())
     nss.write(output / 'preparation-report.json', json.dumps(preparation, indent=2)+'\n')
-    report = {'status': 'build-complete-device-validation-pending', 'source_lock': lock,
+    report = {'status': ('build-complete-device-blocked' if lock.get('device_blockers')
+                         else 'build-complete-device-validation-pending'), 'source_lock': lock,
               'config': config_report, 'factory_bytes': factory.stat().st_size,
               'nand_ecc': nand_report,
               'physical_slot_headroom_bytes': lock['slot_bytes']-factory.stat().st_size,

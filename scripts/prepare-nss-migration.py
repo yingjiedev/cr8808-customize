@@ -64,9 +64,14 @@ def settings(files):
         ap = aps[0]['options']
         if ap.get('encryption') not in ('psk2','psk-mixed','sae','sae-mixed') or not ap.get('key'):
             raise ValueError('Only existing encrypted personal-mode APs are migrated')
+        device_options = subset(device['options'], {'channel','htmode','country','txpower','disabled','cell_density','legacy_rates'})
+        ap_options = subset(ap, {'ssid','encryption','key','disabled','hidden','isolate','ieee80211w','wpa_disable_eapol_key_retries','mode','network'})
+        # An omitted old flag means enabled. Otherwise a disabled candidate AP
+        # stays disabled even though its SSID/key have been migrated correctly.
+        device_options.setdefault('disabled', '0')
+        ap_options.setdefault('disabled', '0')
         radios.append({'band':device['options']['band'],
-                       'device_options':subset(device['options'], {'channel','htmode','country','txpower','disabled','cell_density','legacy_rates'}),
-                       'ap_options':subset(ap, {'ssid','encryption','key','disabled','hidden','isolate','ieee80211w','wpa_disable_eapol_key_retries','mode','network'})})
+                       'device_options':device_options, 'ap_options':ap_options})
     system = next(s['options'] for s in uci_sections(files['etc/config/system']) if s['type'] == 'system')
     root_shadow = next((line for line in files['etc/shadow'].decode().splitlines() if line.startswith('root:')), None)
     if root_shadow is None or not root_shadow.split(':')[1].startswith('$'):

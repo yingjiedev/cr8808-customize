@@ -62,6 +62,13 @@ class NSSCandidateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Unpinned'):
             nss.verify_config(path)
 
+    def test_missing_homeproxy_math_dependency_is_rejected(self):
+        config = (nss.NSS / 'cr8808.config').read_text()
+        path = self.path / '.config'
+        path.write_text(config.replace('CONFIG_PACKAGE_ucode-mod-math=y', '# CONFIG_PACKAGE_ucode-mod-math is not set'))
+        with self.assertRaisesRegex(ValueError, 'dropped'):
+            nss.verify_config(path)
+
     def test_wrong_memory_profile_is_rejected(self):
         path = self.path / '.config'
         path.write_text((nss.NSS / 'cr8808.config').read_text() + '\nCONFIG_NSS_MEM_PROFILE_MEDIUM=y\n')
@@ -133,6 +140,7 @@ class NSSCandidateTests(unittest.TestCase):
         acl = json.loads((app / 'root/usr/share/rpcd/acl.d/luci-app-homeproxy.json').read_text())
         self.assertIn('download', acl['luci-app-homeproxy']['read']['cgi-io'])
         self.assertIn('+sing-box-squashfs', (app / 'Makefile').read_text())
+        self.assertIn('+ucode-mod-math', (app / 'Makefile').read_text())
         self.assertIn('CR8808:', (app / 'root/usr/share/rpcd/ucode/luci.homeproxy').read_text())
         self.assertEqual(result['homeproxy_overlay_files'], 8)
         self.assertTrue((source / 'files/etc/apk/repositories.d/distfeeds.list').is_file())

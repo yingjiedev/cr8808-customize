@@ -1,6 +1,14 @@
 {
   "schema_version": 1,
-  "status": "candidate-not-device-validated",
+  "status": "candidate-blocked-wifi-client-kernel-oops",
+  "device_blockers": [
+    {
+      "id": "wifi-client-association-kernel-oops",
+      "observed_on": "2026-10-30",
+      "kernel": "6.18.55",
+      "detail": "A client associated to the enabled 2.4 GHz AP, followed by execution at address zero. The retained Linux 6.6 system was restored. Dependency and migration fixes do not resolve this kernel fault."
+    }
+  ],
   "source": {
     "repository": "https://github.com/kuncy7/openwrt-nss-edma.git",
     "commit": "c36db6321c11595dc45a160cdab36b5c2d787744"

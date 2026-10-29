@@ -134,7 +134,7 @@ def stage_packages(source, baseline):
     recipe = (app / 'Makefile').read_text(encoding='utf-8')
     if recipe.count('+sing-box \\') != 1 or recipe.count('include ../../luci.mk') != 1:
         raise ValueError('HomeProxy recipe changed')
-    recipe = recipe.replace('+sing-box \\', '+sing-box-squashfs \\\n\t+dnsmasq-full \\')
+    recipe = recipe.replace('+sing-box \\', '+sing-box-squashfs \\\n\t+dnsmasq-full \\\n\t+ucode-mod-math \\')
     recipe = recipe.replace('include ../../luci.mk', 'include $(TOPDIR)/feeds/luci/luci.mk')
     recipe = recipe.replace('LUCI_TITLE:=', 'PKG_VERSION:=26.236.50592\nPKG_RELEASE:=1\n\nLUCI_TITLE:=', 1)
     write(app / 'Makefile', recipe)
