@@ -53,6 +53,10 @@ artifact 包含 factory UBI、sysupgrade、FIT initramfs、对应 manifest、构
 
 因此准备工具只移除已审查源码中的 ECC 覆盖，保留 ECC 引擎、分区和原厂布局；OOB 较大的同系列变体仍由驱动选择 BCH8，不把所有机器固定成 BCH4。修复后必须重新构建并校验产物，不能对已生成的镜像做二进制替换。
 
+修复提交 `a7a17ef4702e377ba2b15cebff5262d42619b38a` 的[构建 40722770473](https://github.com/yingjiedev/cr8808-customize/actions/runs/40722770473) 已成功；45 项 Python 测试和 12 项前端测试通过。本机下载后的完整 ZIP SHA256 与 GitHub artifact digest 一致，内部镜像校验通过；factory 和 initramfs 的实际设备树相同，均无强制 ECC 设置，保留 512 KiB coherent_pool、1008 MHz CPU 上限与两路无线 memory mode 2。
+
+factory 为 27,394,048 字节（26.125 MiB），SHA256 为 `ec654958ec129916f62b08ada30ec17e6272e17ae7a2e49f1dfd4d85452ad16f`。解包后再次核对 sing-box 核心及压缩镜像哈希、日志下载 ACL、dnsmasq nftset、启动次序和候选策略均通过。内核及 NSS 模块对应 Linux 6.18.55。以上是构建和离线结果，尚未在本机启动或验证持续 500 Mbps。
+
 候选暂不启用随时间变化的官方 snapshot 包源。完整匹配 APK 与索引保存在 artifact 中；后续模块安装须使用同一内核构建对应的包。HomeProxy 的资源更新和订阅网络请求不依赖 APK 包源。
 
 ## 恢复与迁移边界
@@ -60,6 +64,8 @@ artifact 包含 factory UBI、sysupgrade、FIT initramfs、对应 manifest、构
 本机原厂槽位、当前 ImmortalWrt 槽位与备份应在实际写入前重新读取并校验。旧 `flash-cr8808-stock.template.sh` 针对“从原厂 rootfs 写入另一槽”的条件，**不适用于直接从当前系统套用这次 NSS 升级**。也不应以强制 sysupgrade 绕过 `redmi,ax3000` 与 `xiaomi,cr8806` 的设备标识差异。
 
 归档 6.6 基线的 `platform.sh` 实际使用 `mi_dualboot_do_upgrade`：从当前 `rootfs_1/mtd19` 升级原始 factory UBI 会写入另一槽 `rootfs/mtd18`，覆盖机内原厂系统而保留当前 ImmortalWrt。该源码设置当前槽为 last_success、以 OTA 标志试启动另一槽。这是候选试机路线的依据，不代表自动回退已在此次 NSS 升级中验证；仍需核对实机脚本、启动环境、镜像及恢复方法，并明确批准覆盖原厂槽和断网窗口。
+
+固定 NSS 源码的 `bootcount` 没有 CR8806 的 OTA 成功确认分支。沿用上述旧系统升级路线试启动时，需要在首启基础验证通过、核对真实启动槽及新的 `fw_env.config` 后，人工确认 `flag_last_success`、`flag_ota_reboot=0`、`flag_boot_success=1`，然后受控重启验证；不能假定新系统会自动完成确认，也不应在尚未验收时提前确认。
 
 下一阶段需要在本机私有目录准备当前配置、分区/启动环境与恢复校验记录，核对新旧引导标志和 UBI/ECC 要求，再给出针对实际状态的写入/恢复步骤。厂商同系列原厂固件可互刷，不代表新驱动、引导环境工具与所有插件已经组合验收。
 
