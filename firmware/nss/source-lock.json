@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "status": "candidate-blocked-wifi-client-kernel-oops",
+  "device_blockers": [
+    {
+      "id": "wifi-client-association-kernel-oops",
+      "observed_on": "2026-10-30",
+      "kernel": "6.18.55",
+      "detail": "A client associated to the enabled 2.4 GHz AP, followed by execution at address zero. The retained Linux 6.6 system was restored. Dependency and migration fixes do not resolve this kernel fault."
+    }
+  ],
+  "source": {
+    "repository": "https://github.com/kuncy7/openwrt-nss-edma.git",
+    "commit": "c36db6321c11595dc45a160cdab36b5c2d787744"
+  },
+  "feeds": [
+    {"name": "packages", "repository": "https://github.com/openwrt/packages.git", "commit": "ebc901d05e6e96973acfa87b93800495c7855b42"},
+    {"name": "luci", "repository": "https://github.com/openwrt/luci.git", "commit": "1c67452adb01413e78feb109180bd15186612ead"},
+    {"name": "routing", "repository": "https://github.com/openwrt/routing.git", "commit": "4b9891b9136259f93294a424507ed24c5e8c1cbd"},
+    {"name": "telephony", "repository": "https://github.com/openwrt/telephony.git", "commit": "5d68d53c160a325ea9d03fce393e051573bcc736"},
+    {"name": "video", "repository": "https://github.com/openwrt/video.git", "commit": "6917907d4d6c670cf85be525d23216595655061d"},
+    {"name": "nss", "repository": "https://github.com/kuncy7/nss-packages.git", "commit": "57c0fa18f847f6cb23992ff3493c6a9131246f4c"}
+  ],
+  "feed_selection": "Five general feeds match ipq50xx-2026.10.23 feeds-256m.buildinfo; NSS feed includes subsequent IPQ5018 buffer fixes.",
+  "reference_feeds_sha256": "651cf8a96de5bcab95efc1847272bab121a8814469631ec13ce8b8b9e254279c",
+  "profile": "xiaomi_cr8806",
+  "target": "qualcommax/ipq50xx",
+  "slot_bytes": 37748736,
+  "maximum_factory_bytes": 33554432,
+  "cpu_max_khz": 1008000,
+  "wifi_offload": false,
+  "software_flow_offload": false,
+  "minimum_sustained_nat_mbps": 500,
+  "kernel_modules": "Must be rebuilt with this kernel; do not copy legacy IPKs or modules.",
+  "private_configuration": "Excluded from public sources, images and CI artifacts. Migration is a separate local step."
+}
