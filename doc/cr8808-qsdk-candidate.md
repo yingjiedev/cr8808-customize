@@ -45,7 +45,7 @@
 
 1. 校验现有公开依赖，运行 Python 测试和 shell 语法检查。
 2. 检出固定 QSDK 源码，核对工作区和受审文件摘要，再应用公开构建定制。
-3. 检出四个固定 feed，执行 `make defconfig`，检查选中的 profile、内存配置、NSS、ECM 和应用包未被静默丢弃。
+3. 检出四个固定 feed，安装后重新写入候选配置，再执行 `make defconfig`，检查选中的 profile、内存配置、NSS、ECM 和应用包未被静默丢弃。旧版 feeds 脚本会自动刷新已有配置，因此配置种子必须在安装完成后重新写入；ccache 同时要求启用 `DEVEL`。
 4. 核对并还原原始下载归档及逐文件摘要。补充来源由固定配方管理的诊断包等下载。
 5. 编译 host tools、ARM32 工具链、固件、同批软件包、SDK 和独立 ImageBuilder。失败时以串行详细日志重试，不使用 `IGNORE_ERRORS=1`。
 6. 保存同批产物，再解析实际 factory UBI、内核 FIT、编译后的设备树和 SquashFS，检查 ECC、频率、内存、ARM32 模块 ABI、无线/NSS 固件与真实开机链接。

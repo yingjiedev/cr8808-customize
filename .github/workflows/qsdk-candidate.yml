@@ -72,6 +72,8 @@ jobs:
           cd tmp/qsdk-source
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+          # Old feeds refresh .config while symbols are still being installed.
+          cp ../../firmware/qsdk/cr8808.config .config
           make defconfig
           python ../../scripts/qsdk_candidate.py verify-config .config
           ./scripts/feeds list -fs > feeds.pinned.buildinfo
