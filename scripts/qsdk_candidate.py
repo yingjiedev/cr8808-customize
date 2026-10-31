@@ -10,6 +10,9 @@ import tarfile
 
 ROOT = Path(__file__).resolve().parents[1]
 POLICY = ROOT / 'firmware/qsdk'
+KERNEL_COMPAT_OPTIONS = ('CONFIG_UBIFS_FS_ZSTD=y', 'CONFIG_ZSTD_COMPRESS=y',
+                         'CONFIG_ZSTD_DECOMPRESS=y', 'CONFIG_IKCONFIG=y',
+                         'CONFIG_IKCONFIG_PROC=y')
 
 
 def sha256(path):
@@ -129,6 +132,22 @@ def pin_cached_sources(source, lock):
     return changes
 
 
+def enable_kernel_compatibility(source):
+    path = source / 'target/linux/ipq50xx/config-5.4'
+    text = path.read_text(encoding='utf-8')
+    for line in KERNEL_COMPAT_OPTIONS:
+        name = line.split('=', 1)[0]
+        pattern = r'^(?:' + re.escape(name) + r'=.*|# ' + re.escape(name) + r' is not set)$'
+        text, count = re.subn(pattern, line, text, flags=re.M)
+        if count > 1:
+            raise ValueError('Duplicate kernel compatibility setting: ' + name)
+        if not count:
+            text = text.rstrip('\n') + '\n' + line + '\n'
+    write(path, text)
+    return {'path': path.relative_to(source).as_posix(), 'sha256': sha256(path),
+            'required_options': list(KERNEL_COMPAT_OPTIONS)}
+
+
 def stage_policy(source, lock, revision):
     package = source / 'package/cr8808/cr8808-qsdk-policy'
     if package.exists() or (source / 'files').exists():
@@ -183,6 +202,7 @@ def prepare(source, output):
     output.mkdir(parents=True, exist_ok=False)
     revision = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
     changes = pin_cached_sources(source, lock)
+    kernel_compatibility = enable_kernel_compatibility(source)
     report = stage_policy(source, lock, revision)
     feeds = ''.join('src-git {} {}^{}\n'.format(item['name'], item['repository'], item['commit'])
                     for item in lock['feeds'])
@@ -190,6 +210,7 @@ def prepare(source, output):
     write(source / '.config', (POLICY / 'cr8808.config').read_bytes().replace(b'\r\n', b'\n'))
     write(source / 'version', 'qsdk-{}-{}\n'.format(lock['source']['commit'][:8], revision[:12]))
     report['cached_source_pins'] = changes
+    report['kernel_compatibility'] = kernel_compatibility
     write_json(output / 'preparation-report.json', report)
     return report
 

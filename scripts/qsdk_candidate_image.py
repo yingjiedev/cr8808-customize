@@ -1,4 +1,4 @@
-"""Inspect QSDK UBI/FIT and SquashFS build outputs; never execute target code."""
+"""Inspect QSDK build outputs and emulate a public password-compatibility fixture."""
 import gzip
 import hashlib
 import json
@@ -260,10 +260,66 @@ def verify_rootfs(root, lock):
             'nss_firmware_sha256': lock['reference']['nss_firmware_sha256']}
 
 
+def find_built_kernel_config(source):
+    paths = [path for path in Path(source).glob('build_dir/target-*/linux-*/*/.config')
+             if path.parent.name.startswith('linux-5.4')]
+    if len(paths) != 1:
+        raise ValueError('Missing or ambiguous compiled QSDK kernel configuration')
+    path = paths[0]
+    actual = set(path.read_text(encoding='utf-8').splitlines())
+    if not set(qsdk.KERNEL_COMPAT_OPTIONS) <= actual:
+        raise ValueError('Compiled kernel lacks persistent UBIFS zstd/config compatibility')
+    release = path.parent / 'include/config/kernel.release'
+    if release.read_text(encoding='utf-8').strip() != '5.4.164':
+        raise ValueError('Unexpected compiled QSDK kernel release')
+    return path
+
+
+def verify_password_crypt(source, root, inspection):
+    # Only this repository's fixed, public test program is emulated. It uses
+    # the image's dynamic loader/libc, not the host libc or a device password.
+    import crypt
+    compilers = list(Path(source).glob('staging_dir/toolchain-*/bin/arm-openwrt-linux-muslgnueabi-gcc'))
+    if len(compilers) != 1:
+        raise ValueError('Missing or ambiguous ARM32 compatibility-test compiler')
+    program = Path(inspection) / 'crypt-compat'
+    environment = dict(os.environ, STAGING_DIR=str(Path(source) / 'staging_dir'))
+    subprocess.run([str(compilers[0]), '-O2', '-o', str(program),
+                    str(qsdk.POLICY / 'tests/crypt-compat.c'), '-lcrypt'],
+                   env=environment, check=True, timeout=60)
+    binary = program.read_bytes()
+    if not arm32_elf(binary):
+        raise ValueError('Password fixture must be a dynamically linked ARM32 program')
+    phoff = struct.unpack_from('<I', binary, 28)[0]
+    phsize, phcount = struct.unpack_from('<HH', binary, 42)
+    if phsize < 32 or phoff + phsize * phcount > len(binary):
+        raise ValueError('Invalid password fixture ELF program headers')
+    interpreters = []
+    for index in range(phcount):
+        header = phoff + phsize * index
+        if struct.unpack_from('<I', binary, header)[0] == 3:
+            offset = struct.unpack_from('<I', binary, header + 4)[0]
+            length = struct.unpack_from('<I', binary, header + 16)[0]
+            interpreters.append(binary[offset:offset + length].rstrip(b'\0').decode('ascii'))
+    if len(interpreters) != 1 or not re.fullmatch(r'/lib/ld-musl-arm(?:hf)?\.so\.1', interpreters[0]):
+        raise ValueError('Password fixture must load the image ARM musl dynamically')
+    for identifier in ['5', '6']:
+        salt = '$' + identifier + '$cr8808-qsdk-ci$'
+        expected = crypt.crypt('cr8808-qsdk-ci-password', salt)
+        if not expected or not expected.startswith(salt):
+            raise ValueError('Host cannot generate the public password-test vector')
+        subprocess.run(['qemu-arm', '-L', str(root), str(program), salt, expected],
+                       check=True, timeout=30)
+    return {'image_libc_emulated': True, 'sha256_crypt_verified': True,
+            'sha512_crypt_verified': True, 'interpreter': interpreters[0],
+            'device_password_used': False}
+
+
 def finish(source, output):
     source, output = qsdk.guarded_directory(source), qsdk.guarded_directory(output)
     lock = qsdk.load_lock()
     config = qsdk.verify_config(source / '.config')
+    kernel_config = find_built_kernel_config(source)
     downloads = qsdk.verify_downloads(source)
     target = source / 'bin/targets/ipq50xx/arm'
     prefix = 'openwrt-ipq50xx-arm-redmi_ax3000'
@@ -290,8 +346,8 @@ def finish(source, output):
                 'luci-base', 'firewall', 'swconfig', 'iperf3'}
     if not required <= installed or installed & {'dnsmasq', 'firewall4', 'luci-app-homeproxy', 'sing-box'}:
         raise ValueError('Unexpected QSDK driver/application package manifest')
-    # Inspect the built filesystem rather than assuming config selections were
-    # installed. Only trusted native host tools are run, never ARM binaries.
+    # Inspect installed files and then emulate the repository's public test
+    # fixture against the image libc; no downloaded device programs are run.
     inspection = output.parent / 'qsdk-inspection'
     inspection.mkdir(parents=True, exist_ok=False)
     squashfs = inspection / 'rootfs.squashfs'
@@ -299,9 +355,11 @@ def finish(source, output):
     root = inspection / 'root'
     # This pinned OpenWrt tree installs squashfskit as unsquashfs4.
     subprocess.run([str(source / 'staging_dir/host/bin/unsquashfs4'), '-no-progress',
-                    '-d', str(root), str(squashfs), 'etc', 'lib/modules', 'lib/firmware', 'bin/busybox'], check=True)
+                    '-d', str(root), str(squashfs), 'etc', 'lib', 'bin/busybox'], check=True)
     filesystem = verify_rootfs(root, lock)
+    password_crypt = verify_password_crypt(source, root, inspection)
     output.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(kernel_config, output / 'kernel.config')
     for path in [factory, initramfs, manifest]:
         shutil.copy2(path, output / path.name)
     for name in ['config.buildinfo', 'feeds.buildinfo', 'version.buildinfo']:
@@ -328,7 +386,10 @@ def finish(source, output):
     qsdk.write(output / 'SHA256SUMS-bin', ''.join('{}  {}\n'.format(value, key) for key, value in checksums.items()))
     report = {'status': 'build-complete-device-validation-pending', 'source_lock': lock,
               'config': config, 'downloads': downloads, 'ubi': ubi, 'device_tree': tree,
-              'filesystem': filesystem, 'factory_bytes': factory.stat().st_size,
+              'filesystem': filesystem, 'password_crypt': password_crypt,
+              'kernel_compatibility': {'required_options': list(qsdk.KERNEL_COMPAT_OPTIONS),
+                                       'ubifs_zstd_enabled': True},
+              'factory_bytes': factory.stat().st_size,
               'physical_slot_headroom_bytes': lock['slot_bytes'] - factory.stat().st_size,
               'file_checksums': checksums, 'private_configuration_included': False,
               'automatic_flash': False, 'wifi_stability_validated': False,

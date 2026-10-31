@@ -2,7 +2,9 @@
 
 本分支从主分支建立，使用来源可追溯的 hzyitc QSDK 路线重新编译。目标是在现有 36 MiB 系统槽内准备具备 NSS/ECM、双频 Wi-Fi 和 LuCI 的候选，后续分别验收稳定性和普通 NAT 的持续 500 Mbps 性能余量。
 
-**构建成功不等于本机验收通过。** 本流程只构建和检查产物，不连接路由器或执行刷写。实际家庭宽带下行为 300 Mbps、峰值约 350 Mbps；该线路的测速结果不能证明路由器具备 500 Mbps 转发能力。
+**构建成功不等于本机验收通过。** 构建工作流只构建和检查产物，不连接路由器或执行刷写。实际家庭宽带下行为 300 Mbps、峰值约 350 Mbps；该线路的测速结果不能证明路由器具备 500 Mbps 转发能力。
+
+**2026-10-31 首次试机已回退：`764a5a5` 存在 overlay 与密码算法兼容问题，不能作为日常系统。** 下述首次构建记录保留作来源和故障对照；修正构建正在另行验证，详见本页“首次实机结果”。
 
 ## 来源和固定输入
 
@@ -48,7 +50,7 @@
 3. 检出四个固定 feed，安装后重新写入候选配置，再执行 `make defconfig`，检查选中的 profile、内存配置、NSS、ECM 和应用包未被静默丢弃。旧版 feeds 脚本会自动刷新已有配置，因此配置种子必须在安装完成后重新写入；ccache 同时要求启用 `DEVEL`。
 4. 核对并还原原始下载归档及逐文件摘要。补充来源由固定配方管理的诊断包等下载。
 5. 编译 host tools、ARM32 工具链、固件、同批软件包、SDK 和独立 ImageBuilder。失败时以串行详细日志重试，不使用 `IGNORE_ERRORS=1`。
-6. 保存同批产物，再解析实际 factory UBI、内核 FIT、编译后的设备树和 SquashFS，检查 ECC、频率、内存、ARM32 模块 ABI、无线/NSS 固件与真实开机链接。
+6. 保存同批产物，再解析实际 factory UBI、内核 FIT、编译后的设备树和 SquashFS，检查 ECC、频率、内存、ARM32 模块 ABI、无线/NSS 固件与真实开机链接。核对实际内核配置包含 UBIFS zstd 支持，并用 QEMU ARM 对镜像动态加载器和 libc 执行公开固定密码样例，验证 SHA256/SHA512 crypt 实际可用。
 
 核心本地核验命令：
 
@@ -105,6 +107,19 @@ Actions 附件名为 `cr8808-qsdk-candidate-<本仓库提交>`，保留 30 天�
 完整 SHA256、文件大小、CI 和附件标识见构建核验记录。镜像大小与系统槽的差额不能直接当作首启后的 overlay 可用容量，后者还受 UBI 卷分配和坏块保留影响。
 
 本轮只完成构建与静态产物检查，未连接或刷写路由器。Wi-Fi 实机稳定性、持续 500 Mbps NAT、NAS 千兆交换和 HomeProxy 迁移仍需分别验收。
+
+## 首次实机结果
+
+2026-10-31，经用户同意，将 `764a5a5` factory 写入原有 `rootfs` 槽，保留 `rootfs_1` 的可用系统。实际启动为 `redmi,ax3000` / ARM32 / Linux 5.4.164，内嵌提交与本轮构建一致；NAND 扫描记录为 288 个正常 PEB、0 个坏块、0 个损坏 PEB。
+
+首启尚未进入无线客户端和吞吐验收，就发现两项迁移缺陷：
+
+- 现有 Linux 6.6 升级流程创建的 UBIFS 使用 zstd 压缩，而该 QSDK 内核关闭了 `CONFIG_UBIFS_FS_ZSTD`。日志明确报 `compressor "zstd" is not compiled in`，系统退回临时 RAM overlay，保存的迁移包未被正常恢复。原生 `sysupgrade -T` 只验证镜像入口，不会检查目标内核能否挂载恢复配置所用的 UBIFS。
+- 原管理员密码摘要使用 SHA256 crypt。上游 musl 默认通过 `CRYPT_SIZE_HACK` 将 SHA256/SHA512 crypt 替换成失败桩；仅复制 shadow 不足以恢复可用登录。已启用 `TOOLCHAINOPTS` 和 `MUSL_DISABLE_CRYPT_SIZE_HACK`，保留密码算法，并增加镜像 libc 的实际运算验收。
+
+目标内核配置现显式启用 UBIFS zstd 及其压缩/解压支持，并启用 `/proc/config.gz` 供实机复核。准备阶段仅修改固定、已核对摘要的内核配置；完成阶段再核对实际构建配置。私有试机回退计时器采用独立 PID 文件，避免旧 BusyBox 将其他 `/bin/sh` 进程误判为计时器已经运行。
+
+回退引导目标已设置为 `rootfs_1`，用户断电重启后已确认恢复 Linux 6.6.137，WAN、双频 AP 与 HomeProxy 进程正常。首次候选没有通过 overlay 持久化、管理员登录、Wi-Fi 稳定性或 500 Mbps NAT 验收。
 
 ## 待完成的设备验收
 

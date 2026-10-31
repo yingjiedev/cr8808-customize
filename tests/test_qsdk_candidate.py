@@ -13,7 +13,7 @@ import zlib
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 import qsdk_candidate as qsdk
-from qsdk_candidate_image import fit_device_tree, read_ubi, verify_tree, ubi_crc
+from qsdk_candidate_image import fit_device_tree, read_ubi, verify_tree, ubi_crc, find_built_kernel_config
 
 
 def encode_fdt(tree):
@@ -117,6 +117,38 @@ class QSDKCandidateTests(unittest.TestCase):
             path.write_text(config + '\n' + name + '=y\n', encoding='utf-8')
             with self.assertRaisesRegex(ValueError, 'Wrong target'):
                 qsdk.verify_config(path)
+
+    def test_password_hash_support_cannot_be_dropped_by_defconfig(self):
+        config = (qsdk.POLICY / 'cr8808.config').read_text(encoding='utf-8')
+        path = self.path / '.config'
+        for setting in ['CONFIG_TOOLCHAINOPTS=y', 'CONFIG_MUSL_DISABLE_CRYPT_SIZE_HACK=y']:
+            path.write_text(config.replace(setting, ''), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'dropped'):
+                qsdk.verify_config(path)
+
+    def test_compiled_kernel_must_read_zstd_upgrade_overlay(self):
+        kernel = self.path / 'build_dir/target-arm_test/linux-ipq50xx_arm/linux-5.4.164'
+        kernel.mkdir(parents=True)
+        config = kernel / '.config'
+        config.write_text('CONFIG_UBIFS_FS=y\n# CONFIG_UBIFS_FS_ZSTD is not set\n', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'persistent UBIFS zstd'):
+            find_built_kernel_config(self.path)
+        config.write_text('\n'.join(qsdk.KERNEL_COMPAT_OPTIONS) + '\n', encoding='utf-8')
+        release = kernel / 'include/config/kernel.release'
+        release.parent.mkdir(parents=True)
+        release.write_text('5.4.164\n', encoding='utf-8')
+        self.assertEqual(find_built_kernel_config(self.path), config)
+        release.write_text('6.6.137\n', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'kernel release'):
+            find_built_kernel_config(self.path)
+
+    def test_kernel_compatibility_preserves_other_nand_options(self):
+        config = self.path / 'target/linux/ipq50xx/config-5.4'
+        config.parent.mkdir(parents=True)
+        config.write_text('CONFIG_UBIFS_FS=y\n# CONFIG_UBIFS_FS_ZSTD is not set\nCONFIG_MTD_NAND_ECC=y\n', encoding='utf-8')
+        qsdk.enable_kernel_compatibility(self.path)
+        self.assertIn('CONFIG_MTD_NAND_ECC=y', config.read_text(encoding='utf-8'))
+        self.assertTrue(set(qsdk.KERNEL_COMPAT_OPTIONS) <= set(config.read_text(encoding='utf-8').splitlines()))
 
     def test_ecc8_in_compiled_tree_is_rejected(self):
         tree = reviewed_tree()
