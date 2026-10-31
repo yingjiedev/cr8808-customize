@@ -85,6 +85,27 @@ Actions 附件名为 `cr8808-qsdk-candidate-<本仓库提交>`，保留 30 天�
 
 源码仍以 2024 年的历史基线为基础。来源可追溯解决的是复现与审计问题，不代表已完成后续安全维护或适合长期运行；长期版本还需单独梳理维护补丁和实际使用功能。
 
+## 本仓库首个通过检查的构建
+
+2026-10-31，本仓库提交 [`764a5a5e65a5d4a5787780debd9ef9d8ede9191f`](https://github.com/yingjiedev/cr8808-customize/commit/764a5a5e65a5d4a5787780debd9ef9d8ede9191f) 的 [QSDK 完整构建](https://github.com/yingjiedev/cr8808-customize/actions/runs/41205089925) 和 [Windows / Linux 基线检查](https://github.com/yingjiedev/cr8808-customize/actions/runs/41205089932) 均成功。
+
+[下载本轮完整附件](https://github.com/yingjiedev/cr8808-customize/actions/runs/41205089925/artifacts/13044627252)，其中包含直接可核对的 factory、initramfs、构建报告，以及同批软件包、SDK 和 ImageBuilder。Actions 附件保留至 2026-11-30；维护时应同时保存附件与 [构建核验记录](cr8808-qsdk-build-764a5a5.json)。该记录固定本轮构建提交，后续仅更新文档不会改变已有镜像的来源身份。
+
+| 实际产物检查 | 结果 |
+| --- | --- |
+| factory | 13,238,272 字节，即 12.625 MiB；低于 32 MiB 候选限制和原有 36 MiB 系统槽 |
+| NAND / FIT | ECC4/512；ARM / LZMA，加载和入口地址均为 `0x41208000`，与原发布参考镜像一致 |
+| 内存 / 频率 | 256 MiB profile；Q6 保留 48 MiB、NSS 保留 8 MiB；CPU 上限 1.008 GHz |
+| 实际 rootfs | ARM32；六个 NSS、ECM 和 ath11k 模块的 ELF 与 Linux 5.4.164 vermagic 一致 |
+| NSS / 无线固件 | NSS 固件摘要与已核对的上游基础镜像一致；IPQ5018、QCN6122 无线固件齐全 |
+| 开机启动 / 软件源 | 镜像内 NSS、ECM 启动链接齐全；远程 opkg feed 已禁用 |
+| 维护产物 | 同批 SDK、独立 ImageBuilder 和软件包已生成，SDK / ImageBuilder 已解包取出并核对摘要 |
+| 独立本地复核 | 完整附件摘要与 GitHub 上传记录一致；镜像结构、文件系统、模块、固件和内嵌来源信息均通过检查 |
+
+完整 SHA256、文件大小、CI 和附件标识见构建核验记录。镜像大小与系统槽的差额不能直接当作首启后的 overlay 可用容量，后者还受 UBI 卷分配和坏块保留影响。
+
+本轮只完成构建与静态产物检查，未连接或刷写路由器。Wi-Fi 实机稳定性、持续 500 Mbps NAT、NAS 千兆交换和 HomeProxy 迁移仍需分别验收。
+
 ## 待完成的设备验收
 
 - 保持当前可用系统和恢复路径，单独核对候选镜像与实际设备，再安排有线试启。构建流程不包含刷写操作。
