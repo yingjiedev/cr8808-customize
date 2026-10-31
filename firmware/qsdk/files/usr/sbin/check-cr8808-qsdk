@@ -1,0 +1,37 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Read-only preflight. Counter values are observations, not a throughput test.
+
+. /lib/functions.sh
+failed=0
+check() {
+	if "$@"; then
+		printf 'OK: %s\n' "$*"
+	else
+		printf 'FAIL: %s\n' "$*"
+		failed=1
+	fi
+}
+
+check test "$(board_name)" = redmi,ax3000
+check test "$(uname -r)" = 5.4.164
+check test -d /sys/module/qca_nss_drv
+check test -d /sys/module/qca_nss_dp
+check test -d /sys/module/ecm
+check test "$(uci -q get ecm.global.acceleration_engine)" = nss
+check test -L /etc/rc.d/S19qca-nss-ecm
+check test -r /etc/cr8808-qsdk/candidate.json
+check swconfig dev switch1 get enable_vlan
+
+for item in /sys/kernel/debug/ecm/ecm_nss_ipv4/accelerated_count \
+	/sys/kernel/debug/ecm/ecm_nss_ipv6/accelerated_count \
+	/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq; do
+	if [ -r "$item" ]; then
+		printf '%s: ' "$item"
+		cat "$item"
+	fi
+done
+printf 'Wireless interface names: '
+iw dev | sed -n 's/^[[:space:]]*Interface / /p'
+printf 'Device stability and sustained 500 Mbps NAT remain separate acceptance tests.\n'
+exit "$failed"

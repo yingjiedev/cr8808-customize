@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "status": "candidate-device-validation-pending",
+  "source": {
+    "repository": "https://github.com/hzyitc/openwrt-redmi-ax3000.git",
+    "commit": "ab1f9ffa5b5b62f252a5e87eb23f51f4e2544511"
+  },
+  "feeds": [
+    {
+      "name": "packages",
+      "repository": "https://github.com/openwrt/packages.git",
+      "commit": "48242ee7a190db7740f7b9b3ef1debfa4d5857f6"
+    },
+    {
+      "name": "luci",
+      "repository": "https://github.com/openwrt/luci.git",
+      "commit": "e98243ef9eb838cca80cdd6d1bd0cf69a509d103"
+    },
+    {
+      "name": "routing",
+      "repository": "https://github.com/openwrt/routing.git",
+      "commit": "8071852b4556a02533cacb7a0f6a432df3507302"
+    },
+    {
+      "name": "telephony",
+      "repository": "https://github.com/openwrt/telephony.git",
+      "commit": "920fbc5c0a2e4badf51bceff42e9a1e3eb693462"
+    }
+  ],
+  "target": "ipq50xx/arm",
+  "profile": "redmi_ax3000",
+  "kernel": {
+    "release": "5.4.164",
+    "git_commit": "d5fcb18e5420670c8734c6a659873e73adab6dac"
+  },
+  "slot_bytes": 37748736,
+  "maximum_factory_bytes": 33554432,
+  "cpu_max_hz": 1008000000,
+  "nand_ecc": {
+    "strength": 4,
+    "step_bytes": 512
+  },
+  "memory_mib": 256,
+  "minimum_sustained_nat_mbps": 500,
+  "reference": {
+    "release_url": "https://github.com/hzyitc/openwrt-redmi-ax3000/releases/tag/ci-ipq50xx-qsdk-kernel-5.4-openwrt-21.02-qsdk-11.5.05.841.1029-20240727-173350-UTC",
+    "release_tag": "ci-ipq50xx-qsdk-kernel-5.4-openwrt-21.02-qsdk-11.5.05.841.1029-20240727-173350-UTC",
+    "factory_bytes": 11927552,
+    "factory_sha256": "8ec4fd5b5c2ad4d7f802ad57f356811216b75f032103c7662879aca985be9f3e",
+    "buildinfo_sha256": {
+      "config.buildinfo": "7a851e6f01670946597785b01007afbc6916f4ab81d9189e803289dac706ddf2",
+      "feeds.buildinfo": "7b33b29016047102bf6ff99282cd4e8074291c0c8848a4839c7f32b4d73ae407",
+      "version.buildinfo": "dad215de1d0a745d614fafd63edce04b0adf4cba7eb711a2741b7b1e585f856f"
+    },
+    "nss_firmware_sha256": "6ad0fac8aa102de3b414efa6d7ea1145a74022eebf4210623e6c0491a919506b",
+    "download_archive": {
+      "url": "https://github.com/hzyitc/openwrt-redmi-ax3000/releases/download/ci-ipq50xx-qsdk-kernel-5.4-openwrt-21.02-qsdk-11.5.05.841.1029-20240727-173350-UTC/dl.tar",
+      "bytes": 923668480,
+      "sha256": "e328f1994c50783f5232659887f978e71bb3da303f9dcf1f515699c737ee6c47",
+      "member_manifest_sha256": "04cb7d6dc35295591fb0065854bb02de91c49a002310c02be6cdafb81a2cfc63",
+      "digest_origin": "computed from original HTTPS release asset; no published dl.tar digest"
+    }
+  },
+  "cached_sources": [
+    {
+      "recipe": "include/kernel-build.mk",
+      "file": "linux-5.4-qsdk-11.5.0.5.tar.xz",
+      "kind": "git-kernel",
+      "sha256": "702521a538479a27b45e8bce2cca5f1db75d1a1b47170aa8d3c909862586c0cb"
+    },
+    {
+      "recipe": "package/firmware/ath11k-firmware/Makefile",
+      "file": "ath11k-firmware-2.7.0.1.tar.xz",
+      "kind": "firmware-archive",
+      "sha256": "b07e801574d3f01aebf35c745489c8feedc19338799d0fb5f38e38be88b5862c",
+      "subdir": "ath11k-firmware-2.7.0.1"
+    },
+    {
+      "recipe": "package/firmware/qca-nss-fw/Makefile",
+      "file": "qca-nss-fw-12.0.r1.tar.xz",
+      "kind": "firmware-archive",
+      "sha256": "65dce81bdebe5fcda94f2bccbd18678f847e7e7fa8d1307cf661fb47c7dc4f8c",
+      "subdir": "qca-nss-fw-12.0.r1"
+    },
+    {
+      "recipe": "package/kernel/qca/qca-nss-dp/Makefile",
+      "file": "qca-nss-dp-NHSS.QSDK.11.5.0.5.tar.xz",
+      "kind": "git-or-generated",
+      "sha256": "b268b6e4a216ef7e53986d98cc8a99d9018ee1f5fe4890ee876374050f993df2"
+    },
+    {
+      "recipe": "package/kernel/qca/qca-nss-drv/Makefile",
+      "file": "qca-nss-drv-NHSS.QSDK.11.5.0.5.tar.xz",
+      "kind": "git-or-generated",
+      "sha256": "c873ecee16981955c0b2e9c7cac3b2f6cb1fc72b5019f6e812071e18af5f1e6a"
+    },
+    {
+      "recipe": "package/kernel/qca/qca-nss-clients/Makefile",
+      "file": "qca-nss-clients-NHSS.QSDK.11.5.0.5.tar.xz",
+      "kind": "git-or-generated",
+      "sha256": "cacf3ffc4e5a7b37fcb4373973230d346230b285ee991c4365c32d7f2276e3ee"
+    },
+    {
+      "recipe": "package/kernel/qca/qca-nss-ecm/Makefile",
+      "file": "qca-nss-ecm-NHSS.QSDK.11.5.0.5.1.tar.xz",
+      "kind": "git-or-generated",
+      "sha256": "6363f353cf57d616b3a1a49393f46b45a5a574d0a6602a0095a5da16fc844552"
+    },
+    {
+      "recipe": "package/kernel/qca/qca-ssdk/Makefile",
+      "file": "qca-ssdk-NHSS.QSDK.11.5.0.5.tar.xz",
+      "kind": "git-or-generated",
+      "sha256": "c5e2165e8d885177bed1e7b2436a707dfb6ec66d9375957168d68db7e1000982"
+    },
+    {
+      "recipe": "package/kernel/mac80211/Makefile",
+      "file": "backports-20210222-5.4-qsdk-11.5.0.5.tar.xz",
+      "kind": "git-or-generated",
+      "sha256": "a21d845ee16922e768bea041dd6264b95ee35c92f7a1bf5b0e3e8f44f362fbd9"
+    }
+  ],
+  "reviewed_files": {
+    "include/kernel-build.mk": "641e5bf733c2deca148eba8c8c9540485ba5ca427476c1501f2e87c3e3dab6ad",
+    "package/firmware/ath11k-firmware/Makefile": "757bd61cebd20212049e4741a9b191d3f0a470e11d962ce41043b5a34d76e31a",
+    "package/firmware/qca-nss-fw/Makefile": "3173fccd1c0f7488c9ad22101dfcfec750fbb3c7c18256c02d4d634f8ca99170",
+    "package/kernel/qca/qca-nss-dp/Makefile": "7b8a0038edced6714d925f4407f860f9222695e61968c86f34e802971fe087fa",
+    "package/kernel/qca/qca-nss-drv/Makefile": "dceadf7528dbca29f11dd38d87be95471a4cea45e94fe00664cda0c3ec90dc27",
+    "package/kernel/qca/qca-nss-clients/Makefile": "abb57fe29bc27c944b081050afab4dbd1b090a87d8fa61c78af6530691610e72",
+    "package/kernel/qca/qca-nss-ecm/Makefile": "4fe69efbe85567cba6c06f3b26ebcd9373ed568d502b8a5328ee32a2ac2e47f2",
+    "package/kernel/qca/qca-ssdk/Makefile": "397a3183cb41e2ac09f3dd6290793212c69c233d400ba0b5efec7bacfc0c66b1",
+    "package/kernel/mac80211/Makefile": "39c908078bc274269016a5fead0e58365a8e8d6ce8651275671ef5e6560e47c2",
+    "target/linux/ipq50xx/Makefile": "2d3cfefdc5e12850848af175c97651276ed8643c4fb6ea8cd21aaa3850c30e9e",
+    "target/linux/ipq50xx/image/Makefile": "03393d47a7348f53fb1f4e94f8d251be0e624c6582208a8f665403b68803d51b",
+    "target/linux/ipq50xx/dts/ipq5000-ax3000.dts": "cdad57fbe6d12c460ae4e1b1833fec46ae102d0474fabe2d522254d985177d2e",
+    "target/linux/ipq50xx/base-files/etc/board.d/02_network": "fab588e634ca59f015b314f5fe4e3fa59fcac2dd7d111493621c5cfc3f0b5e60",
+    "target/linux/ipq50xx/base-files/lib/upgrade/mi_dualboot.sh": "0fef4af2682e46200d2b2089c99085c877a1eb933db7e3219a351591e93a25d5",
+    "package/kernel/mac80211/ath.mk": "8a315fdcd4bb3f6fa5b8526047dd1aecbb950666cc88fb0f16af960f2d9926ac",
+    "feeds.conf.default": "2329056c088f08678b551b33512046431885b090e60942a61de7ed2d9b4d171a"
+  },
+  "application_scope": "NSS/ECM NAT, dual-band Wi-Fi and LuCI; current HomeProxy/ARM64 core not included",
+  "private_configuration": "No passwords, subscriptions, Wi-Fi keys, host identity or backups in images/CI"
+}

@@ -6,6 +6,7 @@ CR8808 定制项目。
 
 ## 文档
 
+- [QSDK NSS 候选：固定来源、原分区构建与验收范围](doc/cr8808-qsdk-candidate.md)
 - [依赖归档、离线构建与持续维护](doc/cr8808-dependency-maintenance.md)
 - [主路由、双频 Wi-Fi 与订阅配置手册（已联网，含页面超时修复）](doc/cr8808-main-router-configuration-manual.md)
 - [当前资源优化、GFWList 网站分流与节点页逐个测速](doc/cr8808-low-memory-homeproxy.md)

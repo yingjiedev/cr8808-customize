@@ -19,4 +19,6 @@ vendor/** -text
 upstream/** -text
 dependencies/baseline/** -text
 dependencies/licenses/** -text
+firmware/qsdk/** text eol=lf
+firmware/qsdk/reference/** -text
 /scripts/sing-box-squashfs/** text eol=lf
