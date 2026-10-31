@@ -297,7 +297,8 @@ def finish(source, output):
     squashfs = inspection / 'rootfs.squashfs'
     squashfs.write_bytes(volumes['rootfs'])
     root = inspection / 'root'
-    subprocess.run([str(source / 'staging_dir/host/bin/unsquashfs'), '-no-progress',
+    # This pinned OpenWrt tree installs squashfskit as unsquashfs4.
+    subprocess.run([str(source / 'staging_dir/host/bin/unsquashfs4'), '-no-progress',
                     '-d', str(root), str(squashfs), 'etc', 'lib/modules', 'lib/firmware', 'bin/busybox'], check=True)
     filesystem = verify_rootfs(root, lock)
     output.mkdir(parents=True, exist_ok=True)

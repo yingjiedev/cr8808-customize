@@ -118,6 +118,7 @@ jobs:
           if ! make -j"$BUILD_JOBS" tools/install 2>&1 | tee ../qsdk-artifacts/logs/tools.txt; then
             make -j1 V=s tools/install 2>&1 | tee ../qsdk-artifacts/logs/tools-retry.txt
           fi
+          test -x staging_dir/host/bin/unsquashfs4
       - name: Compile ARM32 cross compiler
         working-directory: tmp/qsdk-source
         run: |
