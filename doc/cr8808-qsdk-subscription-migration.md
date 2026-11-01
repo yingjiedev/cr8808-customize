@@ -1,10 +1,10 @@
 # QSDK 订阅迁移与 firewall4 影响评估
 
-日期：2026-11-01。用户已授权评估并迁移订阅功能。当前实机仍运行已经确认默认启动的 QSDK 基础镜像 `1a3e589`。候选 `14badda` 的代理内核已完成 CI 和实机隔离测试；完整固件仍待编译、镜像检查和迁移验收，不能当作已完成部署。
+日期：2026-11-01。当前实机已刷入 `bbcfdb2`，完成 PassWall2 订阅迁移、默认启动接受及受控重启验证。保留 fw3/NSS，原 `rootfs_1` 的内核和只读根文件系统经刷后逐卷摘要核对保持不变。脱敏验收数据见 [实机迁移记录](validation/qsdk-subscription-bbcfdb2-20261101.json)。
 
 ## 采用的迁移路线
 
-保留 ARM32 / Linux 5.4.164 / QSDK NSS / fw3，集成 PassWall2 与一个静态 Xray 内核。透明代理、socket 匹配及其内核依赖重新纳入同次构建，不混用原 ARM64 或不同内核的软件包。普通直连流量通过 DNS 学习的 ipset 进行内核放行，实际 NSS 加速与代理接管仍须在设备上核验。
+保留 ARM32 / Linux 5.4.164 / QSDK NSS / fw3，集成 PassWall2 与一个静态 Xray 内核。透明代理、socket 匹配及其内核依赖重新纳入同次构建，不混用原 ARM64 或不同内核的软件包。普通直连流量通过 DNS 学习的 ipset 进行内核放行；实机已验证代理接管以及国内下载时 NSS 加速计数增长。
 
 - PassWall2 固定提交 `d08e7f88fcb5c7f94b870f7281db0045a0477293`，版本 26.10.29。[原始构建配置](https://github.com/Openwrt-Passwall/openwrt-passwall2/blob/d08e7f88fcb5c7f94b870f7281db0045a0477293/luci-app-passwall2/Makefile)
 - Xray 固定提交 `a4a3dff5b20c2faae567b742c172c7b95e75c083` / 26.10.31，静态 ARMv7 构建；同一内核支持原订阅使用的 VLESS、Hysteria2 与证书指纹验证。[固定源码](https://github.com/XTLS/Xray-core/tree/a4a3dff5b20c2faae567b742c172c7b95e75c083)
@@ -54,12 +54,27 @@ Xray 主服务使用 `GOGC=50`、`GOMEMLIMIT=32MiB`、`GOMAXPROCS=2`；`GOMEMLIM
 
 fw4 共享 UCI 配置格式及其依赖见 [OpenWrt 官方配方](https://github.com/openwrt/openwrt/blob/main/package/network/config/firewall4/Makefile)；HomeProxy 依赖见 [项目配方](https://github.com/immortalwrt/homeproxy/blob/master/Makefile)。本机固定 QSDK 的 [ECM 配方](https://github.com/hzyitc/openwrt-redmi-ax3000/blob/ab1f9ffa5b5b62f252a5e87eb23f51f4e2544511/package/kernel/qca/qca-nss-ecm/Makefile) 仍依赖 iptables。该依赖也不意味着装有 iptables 就必然与 fw4 冲突；关键是实际生效规则与加速路径。上述均是源代码依据，不是 fw4 在本机已通过的实测结论。
 
-两条路线都需要为当前基础镜像补齐透明代理内核模块，不能只以“需要重编译”为理由排除 fw4。fw4 的优势是与现代 OpenWrt 和 HomeProxy 使用相同的规则体系，可复用部分原应用配置与维护经验；额外工作主要是防火墙依赖回移、规则转换及 NSS 协作验证。当前继续完成 fw3 订阅迁移，缩小本轮变化范围；fw4/HomeProxy 可作为独立候选验证。
+两条路线都需要为当前基础镜像补齐透明代理内核模块，不能只以“需要重编译”为理由排除 fw4。fw4 的优势是与现代 OpenWrt 和 HomeProxy 使用相同的规则体系，可复用部分原应用配置与维护经验；额外工作主要是防火墙依赖回移、规则转换及 NSS 协作验证。本轮已完成 fw3 订阅迁移，缩小本轮变化范围；fw4/HomeProxy 可作为独立候选验证。
 
-## 部署边界与待验收项目
+## 实机验收与使用边界
 
-- 当前 QSDK 原生升级会写入另一个系统槽。本轮若需要更新镜像，应先核对备份与启动槽，安排从保留系统写回 QSDK 槽，避免覆盖保留的恢复系统。
-- 先验证启动、密码、持久化、双频和普通外网，再导入订阅、迁移原首选节点及 GFW 分流。
-- 检查定时/手动订阅更新、错误更新保留可用配置、切换节点和 DNS 恢复。
-- 重新测量国内直连 NSS 加速、NAS LAN 吞吐、代理实际出口、内存与 Wi-Fi 稳定性。现有 300–350 Mbps 宽带不能证明持续 500 Mbps NAT 上限。
-- 11:54 左右观察到一次新的启动标识，用户回复不足以确认重启原因，已继续采集；不据此宣称长期稳定性通过。
+最终镜像的 [完整 CI](https://github.com/yingjiedev/cr8808-customize/actions/runs/41289823028) 全部通过。工厂 UBI 为 23,855,104 字节，SHA256 为 `2595c264f0fbbd38f9f5fd32781cefa24bf88648e81e88ffee694f30a3f84ef2`；镜像中的 Xray 与实测 ELF 摘要一致。先切入保留系统，从该系统原生升级写回 `rootfs`；未调整分区、未写引导程序，原 `rootfs_1` 保留。
+
+- 原网络、双频 Wi-Fi、密码、SSH 主机密钥和 uhttpd 并发设置保留；重启前后 10 个配置或凭据文件的摘要全部相同。重启后双频均观察到实际客户端连接。
+- 原生导入 49 条订阅条目：29 条 VLESS、20 条 Hysteria2，包含节点别名；20 个证书指纹均保留。原首选 VLESS 和 4443 条 GFW 域名分流生效，默认直连。
+- 实际切换至 Hysteria2，通过 HTTPS 204 测试后恢复原首选 VLESS。手动更新重新导入节点并正确更新首选引用；模拟不可达订阅后，配置文件逐字节不变，代理保持运行。自动订阅更新沿用原设置关闭。
+- PassWall2 设置、节点、订阅三个认证页面均返回 200，无 Lua 异常。入口为路由器 LuCI 的「服务 → PassWall 2」。
+- 已接受为默认 `rootfs`，恢复固件原生启动脚本。受控重启后仍是该镜像、订阅与分流自动运行，无试用回退计时器；最终设置和启动环境已再次备份到本机私有目录。
+
+| 代理开启时的检查 | 实测 |
+| --- | --- |
+| 国内下载，重启前 60 秒 | 294.23 Mbps，双核平均忙碌约 11.02% |
+| 国内下载，重启后 30 秒 | 291.01 Mbps，双核平均忙碌约 8.36%，可用内存最低约 38.2 MiB |
+| 重启后下载期间 NSS 加速字节增量 | 1,211,845,248 字节，计数采样完整覆盖该次下载 |
+| NAS 大文件只读，客户端绕过文件缓存，60 秒 | 922.69 Mbps / 115.34 MB/s，客户端网卡错误和丢弃增量均为 0 |
+| NAS 重启后 30 秒复核 | 915.81 Mbps；开头同时通过电脑网卡读取了一份约 36 MiB 的路由器备份，错误和丢弃增量仍为 0 |
+| 最终空间与内存缓冲 | overlay 剩余 7040 KiB；32 MiB zram 已启用，最终交换用量 512 KiB |
+
+本次短时检查未观察到 Oops、内核 panic、OOM、Wi-Fi 固件崩溃或 NAND ECC 错误。基础镜像在 11:54 曾出现一次原因未确认的重启；本轮刷写与验收重启均由本次流程主动安排。新镜像尚未完成长期运行观察。现有宽带下行 300 Mbps、峰值约 350 Mbps，不能据此证明持续 500 Mbps NAT 或加密代理吞吐。
+
+后续 QSDK 原生升级仍会写入另一个系统槽。若要继续保留恢复系统，应沿用核对备份与活动槽、从保留系统写回 QSDK 槽的流程。
