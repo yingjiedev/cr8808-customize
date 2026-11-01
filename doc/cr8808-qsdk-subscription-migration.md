@@ -4,26 +4,34 @@
 
 ## 采用的迁移路线
 
-保留 ARM32 / Linux 5.4.164 / QSDK NSS / fw3，集成 PassWall2 与一个精简 sing-box。透明代理、socket 匹配及其内核依赖重新纳入同次构建，不混用原 ARM64 或不同内核的软件包。普通直连流量通过 DNS 学习的 ipset 进行内核放行，实际 NSS 加速与代理接管仍须在设备上核验。
+保留 ARM32 / Linux 5.4.164 / QSDK NSS / fw3，集成 PassWall2 与一个静态 Xray 内核。透明代理、socket 匹配及其内核依赖重新纳入同次构建，不混用原 ARM64 或不同内核的软件包。普通直连流量通过 DNS 学习的 ipset 进行内核放行，实际 NSS 加速与代理接管仍须在设备上核验。
 
 - PassWall2 固定提交 `d08e7f88fcb5c7f94b870f7281db0045a0477293`，版本 26.10.29。[原始构建配置](https://github.com/Openwrt-Passwall/openwrt-passwall2/blob/d08e7f88fcb5c7f94b870f7281db0045a0477293/luci-app-passwall2/Makefile)
-- sing-box 固定提交 `73bfb99ebce7923c485435e4faf8571b412065a9` / 1.12.25；静态 ARMv7 构建，只选择 QUIC、uTLS 和 Clash API，不加入 gVisor、Tailscale 等本轮不需要的功能。保留原订阅使用的 VLESS 与 Hysteria2 能力。
-- Go 工具链固定为 1.25.8，并核对官方归档完整大小和 SHA256；这是原官方 ARMv7 发布 ELF 内记录的工具链版本。Go 依赖沿用该提交的 `go.mod`、`go.sum`，构建禁止自动修改依赖。
+- Xray 固定提交 `a4a3dff5b20c2faae567b742c172c7b95e75c083` / 26.10.31，静态 ARMv7 构建；同一内核支持原订阅使用的 VLESS、Hysteria2 与证书指纹验证。[固定源码](https://github.com/XTLS/Xray-core/tree/a4a3dff5b20c2faae567b742c172c7b95e75c083)
+- Go 工具链固定为 1.27.3，并核对官方归档完整大小和 SHA256；它与实测官方 ARMv7 发布使用的工具链一致。Go 依赖沿用该提交的 `go.mod`、`go.sum`，构建禁止自动修改依赖。
 - 保留 QSDK 本身和四个 feed 的固定提交。额外 tcping 配方固定原始源码提交与镜像摘要；其余用户态和内核依赖使用本次固件同批产物。
 
-输入锁定文件见 [proxy/source-lock.json](../firmware/qsdk/proxy/source-lock.json)。CI 构建流程检查实际 ARM32 内核、模块、代理内核及 Lua 语法，使用 QEMU 执行生成的代理内核版本命令，再检查编译后的镜像与测试内核摘要一致。
+输入锁定文件见 [proxy/source-lock.json](../firmware/qsdk/proxy/source-lock.json)。CI 构建流程检查实际 ARM32 内核、模块、代理内核及 Lua 语法，使用 QEMU 执行生成内核的版本命令和实际 Xray 证书校验器的正负测试，再检查编译后的镜像与测试内核摘要一致。
+
+## 单内核选择的实机依据
+
+最初评估的 sing-box 1.12.25 ARM32 精简内核已通过首选 VLESS 的 HTTPS 测试，但首个 Hysteria2 节点被正常证书验证拒绝：证书仅有旧式 CN，订阅同时携带 `pinSHA256`。原 2026-10-27 检测记录中的 12 个 Hysteria2 节点也全部未通过。PassWall2 的 sing-box 生成器只有在 1.15 及以后才输出对应指纹选项，旧版本分支会改用 insecure；本轮没有采用该退化路径。核查时当前稳定 sing-box 为 1.14.4。
+
+改用官方固定摘要的 Xray 26.10.31 ARM32 做隔离 SOCKS 测试，同一个进程中首选 VLESS 与带正确指纹的 Hysteria2 均取得 HTTPS 204；将指纹改错或删除后，两项负控制均失败，日志分别确认指纹不匹配和 CN 校验失败。没有启用通用 insecure，没有修改运行中的防火墙接管规则，测试结束已清理临时内核。
+
+因此最终固件采用单个 Xray，从上述固定源码构建；官方发布二进制只用于前期隔离原型验证，不当作本仓库源码编译结果。CI 增加临时自签名旧式 CN 证书夹具，直接测试实际 Xray 校验器：正确叶证书指纹通过、错误指纹拒绝、没有指纹时保留常规校验。夹具不包含用户的节点或证书。
 
 ## 针对本机的裁剪
 
-当前基础镜像 overlay 约剩 15.7 MiB。官方完整 ARMv7 sing-box 展开为 41,353,364 字节，独立 64 KiB XZ SquashFS 测量约 11.8 MiB；还未包含界面、规则和依赖，因此不在当前 overlay 上直接散装完整组件。
+当前基础镜像 overlay 约剩 15.7 MiB。最初评估的官方 ARMv7 sing-box 展开约 39.4 MiB、压缩约 11.8 MiB；精简构建约 24.1 / 7.3 MiB。通过指纹测试的官方 Xray ARMv7 为 34,275,452 字节，独立 64 KiB XZ SquashFS 测量约 9.9 MiB；均还未包含界面和依赖，因此不在当前 overlay 上散装完整组件。
 
-本轮将精简内核与应用集成到固件只读文件系统，SquashFS 使用 64 KiB 压缩块。配置、订阅及缓存继续位于持久 overlay；CI 检查 UBI 数据卷空间余量，最终可用容量以首启实机 `df` 为准。
+本轮将单个内核与应用集成到固件只读文件系统，SquashFS 使用 64 KiB 压缩块。配置、订阅及缓存继续位于持久 overlay；CI 检查 UBI 数据卷空间余量，最终可用容量以首启实机 `df` 为准。
 
 为控制依赖，不安装 Geoview、GeoIP/GeoSite 大型数据库、多代理内核、HAProxy、SSR 和额外混淆程序。使用原有 GFW 域名列表迁移分流意图，不原样导入依赖缺失 Geo 数据的默认规则。PassWall2 已提供 dnsmasq ipset 辅助进程，因此不引入新版 ChinaDNS-NG 的额外兼容面。[上游 DNS 辅助实现](https://github.com/Openwrt-Passwall/openwrt-passwall2/blob/d08e7f88fcb5c7f94b870f7281db0045a0477293/luci-app-passwall2/root/usr/share/passwall2/app.sh)
 
 OpenWrt 21.02 的 socket 扩展与 TPROXY 放在同一个包中；移除上游针对新系统单独选择的 `iptables-mod-socket`，检查实际内核仍包含 socket 匹配。保留 legacy iptables，删除会拉入 nft 后端的选择。
 
-sing-box 主服务使用 `GOGC=50`、`GOMEMLIMIT=32MiB`、`GOMAXPROCS=2`；`GOMEMLIMIT` 是 Go 的软目标，不是进程 RSS 的硬上限。加入 32 MiB zram 作为内存压力缓冲，不使用 NAND swap；运行内存、交换量和负载需实测。
+Xray 主服务使用 `GOGC=50`、`GOMEMLIMIT=32MiB`、`GOMAXPROCS=2`；`GOMEMLIMIT` 是 Go 的软目标，不是进程 RSS 的硬上限。加入 32 MiB zram 作为内存压力缓冲，不使用 NAND swap；运行内存、交换量和负载需实测。
 
 公开默认配置不含订阅、节点或设备凭据，代理默认关闭。私有迁移包另行导入，先检查配置和单个节点，再启用流量接管。订阅内容不经过第三方在线转换服务。
 

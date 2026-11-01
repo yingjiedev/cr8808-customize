@@ -10,27 +10,16 @@
       "luci-app-passwall2/root/usr/share/passwall2/app.sh": "39d439a69ef46f84b38cf881584c668adb90fca467cbae0700f5f539a0b27a8d",
       "luci-app-passwall2/root/usr/share/passwall2/0_default_config": "8e3cad5900452278b5a2e773664662faef39a6763f8423f1864584e4d86a87ee",
       "luci-app-passwall2/root/usr/share/passwall2/subscribe.lua": "b2d5c4e9dbfdc98666bbb47e5643550440d680e7e089b0759695af497094e303",
-      "luci-app-passwall2/luasrc/passwall2/util_sing-box.lua": "405c4b4c3f92086f28e5fa5fdbcdb9824d255d27b3be74a6c60befe5e0ba9d99"
+      "luci-app-passwall2/luasrc/passwall2/util_sing-box.lua": "405c4b4c3f92086f28e5fa5fdbcdb9824d255d27b3be74a6c60befe5e0ba9d99",
+      "luci-app-passwall2/luasrc/passwall2/util_xray.lua": "0a05f0751e91087ebdfe678350a797bf64d0bf4678aa27439c3f138092bf0b7e"
     }
   },
-  "sing_box": {
-    "repository": "https://github.com/SagerNet/sing-box.git",
-    "commit": "73bfb99ebce7923c485435e4faf8571b412065a9",
-    "version": "1.12.25",
-    "tags": [
-      "with_quic",
-      "with_utls",
-      "with_clash_api"
-    ],
-    "go_mod_sha256": "02dbbd355ff8db37886a4d292d1c87cf74fdee71c5276b45bbeb180b06196fb1",
-    "go_sum_sha256": "1d6233fe83d9cb39552896dcad0e1ed0c8ec5a07acf2b014b5c7e7e6850dcbeb"
-  },
   "go": {
-    "version": "1.25.8",
-    "url": "https://go.dev/dl/go1.25.8.linux-amd64.tar.gz",
-    "bytes": 59786528,
-    "sha256": "ceb5e041bbc3893846bd1614d76cb4681c91dadee579426cf21a63f2d7e03be6",
-    "basis": "matches toolchain embedded in official sing-box1.12.25 ARMv7 release"
+    "version": "1.27.3",
+    "url": "https://go.dev/dl/go1.27.3.linux-amd64.tar.gz",
+    "bytes": 70588678,
+    "sha256": "65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40",
+    "basis": "matches toolchain embedded in officialXray26.10.31ARMv7release"
   },
   "runtime": {
     "GOOS": "linux",
@@ -50,5 +39,32 @@
     "repository": "https://github.com/Lienol/tcping.git",
     "commit": "db9101834732dac9aaa59dbb7fb9c74612dbf723",
     "mirror_hash": "36776bf64c41d0c2c2aeb79525499532831133f7b5e174fc51e9e2d7202d5776"
+  },
+  "evaluated_sing_box": {
+    "version": "1.12.25",
+    "commit": "73bfb99ebce7923c485435e4faf8571b412065a9",
+    "not_selected_reason": "PassWall2 uses insecure fallback for certificate pins before sing-box1.15; currentstableis1.14.4. ProviderHY2requirespinSHA256. OriginalVLESSworksbutHY2failsstrictSANcheck."
+  },
+  "core": {
+    "name": "xray",
+    "package": "xray-core",
+    "repository": "https://github.com/XTLS/Xray-core.git",
+    "commit": "a4a3dff5b20c2faae567b742c172c7b95e75c083",
+    "version": "26.10.31",
+    "main": "./main",
+    "license": "MPL-2.0",
+    "go_mod_sha256": "ad8701ad59ba44b28c4c8adf924271e0df9c8b0a854662cfda9a61996a42d882",
+    "go_sum_sha256": "4ead70b9e65f181080638e3e40d850336b85b40bb51cdb2115b814489219c4e3",
+    "reviewed_files": {
+      "transport/internet/tls/config.go": "159270ac6ce0bc87f48b29acdddf3676349d3b8c0ec5f183be4397ed8e69d8e8"
+    },
+    "supports_hysteria2_certificate_pins": true,
+    "official_armv7_archive": {
+      "url": "https://github.com/XTLS/Xray-core/releases/download/v26.10.31/Xray-linux-arm32-v7a.zip",
+      "bytes": 15905174,
+      "sha256": "2387f55239ee7799fd67d5382e79f589c1da07a97d993e86b058f2290b8e456b",
+      "elf_sha256": "2a893d5b5f7cf5a33168c102f01771ed69a674abeab0b8fb085b1ddf098cf52c",
+      "purpose": "Officialbinaryusedonlyforisolatedprototype; firmwarecorebuiltfrompinnedsource"
+    }
   }
 }

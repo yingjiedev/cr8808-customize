@@ -29,7 +29,7 @@ class SubscriptionProfileTests(unittest.TestCase):
 
     def test_fw4_and_secondary_cores_are_rejected(self):
         for setting in ['CONFIG_PACKAGE_firewall4=y', 'CONFIG_PACKAGE_iptables-nft=y',
-                        'CONFIG_PACKAGE_xray-core=y', 'CONFIG_PACKAGE_geoview=y',
+                        'CONFIG_PACKAGE_sing-box=y', 'CONFIG_PACKAGE_geoview=y',
                         'CONFIG_PACKAGE_luci-app-passwall2_Basic_Core_All=y']:
             with self.subTest(setting=setting):
                 self.path.write_text(self.seed + '\n' + setting + '\n', encoding='utf-8')
@@ -45,7 +45,8 @@ class SubscriptionProfileTests(unittest.TestCase):
 
     def test_locked_build_retains_required_subscription_protocol_features(self):
         lock = proxy.load_lock()
-        self.assertEqual(lock['sing_box']['tags'], ['with_quic', 'with_utls', 'with_clash_api'])
+        self.assertEqual(lock['core']['name'], 'xray')
+        self.assertTrue(lock['core']['supports_hysteria2_certificate_pins'])
         self.assertFalse(lock['runtime']['private_configuration_included'])
         self.assertFalse(lock['runtime']['geo_datasets_included'])
 

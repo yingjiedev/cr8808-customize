@@ -68,7 +68,7 @@ def verify_config(path):
                  'CONFIG_VERSION_FILENAMES']
     if any(name + '=y' in actual for name in forbidden):
         raise ValueError('Wrong target, memory profile, ABI or application stack')
-    if 'CONFIG_PACKAGE_sing-box=y' in actual and not {
+    if {'CONFIG_PACKAGE_sing-box=y', 'CONFIG_PACKAGE_xray-core=y'} & actual and not {
             'CONFIG_PACKAGE_cr8808-qsdk-proxy-policy=y',
             'CONFIG_PACKAGE_luci-app-passwall2=y'} <= actual:
         raise ValueError('Proxy core requires the reviewed subscription policy')

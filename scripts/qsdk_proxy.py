@@ -19,7 +19,7 @@ POLICY = ROOT / 'firmware/qsdk/proxy'
 
 def load_lock():
     lock = json.loads((POLICY / 'source-lock.json').read_text(encoding='utf-8'))
-    for name in ('passwall2', 'sing_box', 'tcping'):
+    for name in ('passwall2', 'core', 'tcping'):
         item = lock[name]
         if not re.fullmatch(r'[0-9a-f]{40}', item['commit']):
             raise ValueError('Proxy sources require complete commit IDs')
@@ -76,7 +76,7 @@ def verify_config(path):
                 if line.startswith('CONFIG_')]
     missing = [line for line in required if line not in actual]
     forbidden = ['CONFIG_PACKAGE_firewall4', 'CONFIG_PACKAGE_iptables-nft',
-                 'CONFIG_PACKAGE_xray-core', 'CONFIG_PACKAGE_geoview',
+                 'CONFIG_PACKAGE_sing-box', 'CONFIG_PACKAGE_geoview',
                  'CONFIG_PACKAGE_v2ray-geoip', 'CONFIG_PACKAGE_v2ray-geosite',
                  'CONFIG_PACKAGE_chinadns-ng', 'CONFIG_PACKAGE_luci-app-passwall2_Basic_Core_All',
                  'CONFIG_PACKAGE_luci-app-passwall2_Nftables_Transparent_Proxy']
@@ -114,17 +114,17 @@ def prepare(source, output):
     base.write(package / 'root/usr/share/passwall2/0_default_config',
                (POLICY / 'passwall2-default.config').read_bytes())
     base.write(packages / 'tcping/Makefile', (POLICY / 'tcping.Makefile').read_bytes())
-    core_recipe = '''# SPDX-License-Identifier: GPL-3.0-or-later
+    core_recipe = '''# SPDX-License-Identifier: MPL-2.0
 include $(TOPDIR)/rules.mk
-PKG_NAME:=sing-box
+PKG_NAME:=xray-core
 PKG_VERSION:=@VERSION@
 PKG_RELEASE:=1
-PKG_LICENSE:=GPL-3.0-or-later
+PKG_LICENSE:=MPL-2.0
 include $(INCLUDE_DIR)/package.mk
-define Package/sing-box
+define Package/xray-core
   SECTION:=net
   CATEGORY:=Network
-  TITLE:=Pinned static ARM32 sing-box with QUIC, uTLS and Clash API
+  TITLE:=Pinned static ARM32 Xray with VLESS, Hysteria2 and certificate pins
 endef
 define Build/Prepare
 endef
@@ -132,14 +132,14 @@ define Build/Configure
 endef
 define Build/Compile
 endef
-define Package/sing-box/install
-\t$(INSTALL_DIR) $(1)/usr/bin $(1)/usr/share/licenses/sing-box
-\t$(INSTALL_BIN) ./files/sing-box $(1)/usr/bin/sing-box
-\t$(INSTALL_DATA) ./files/LICENSE $(1)/usr/share/licenses/sing-box/LICENSE
+define Package/xray-core/install
+\t$(INSTALL_DIR) $(1)/usr/bin $(1)/usr/share/licenses/xray-core
+\t$(INSTALL_BIN) ./files/xray $(1)/usr/bin/xray
+\t$(INSTALL_DATA) ./files/LICENSE $(1)/usr/share/licenses/xray-core/LICENSE
 endef
-$(eval $(call BuildPackage,sing-box))
-'''.replace('@VERSION@', lock['sing_box']['version'])
-    base.write(packages / 'sing-box/Makefile', core_recipe)
+$(eval $(call BuildPackage,xray-core))
+'''.replace('@VERSION@', lock['core']['version'])
+    base.write(packages / 'xray-core/Makefile', core_recipe)
     policy = packages / 'cr8808-qsdk-proxy-policy'
     base.write(policy / 'files/etc/uci-defaults/zzz-cr8808-qsdk-proxy',
                (POLICY / 'proxy-policy').read_bytes(), True)
@@ -154,7 +154,7 @@ define Package/cr8808-qsdk-proxy-policy
   SECTION:=base
   CATEGORY:=Base system
   TITLE:=CR8808 fw3 subscription policy
-  DEPENDS:=+sing-box +luci-app-passwall2 +flock +zram-swap
+  DEPENDS:=+xray-core +luci-app-passwall2 +flock +zram-swap
 endef
 define Build/Compile
 endef
@@ -185,10 +185,13 @@ def build_core(source, output):
     source, output = base.guarded_directory(source), base.guarded_directory(output)
     lock = load_lock()
     work = ROOT / 'tmp/qsdk-proxy-inputs'
-    core = checkout(lock['sing_box'], work / 'sing-box')
+    core = checkout(lock['core'], work / 'xray')
     for name in ('go.mod', 'go.sum'):
-        if base.sha256(core / name) != lock['sing_box'][name.replace('.', '_') + '_sha256']:
+        if base.sha256(core / name) != lock['core'][name.replace('.', '_') + '_sha256']:
             raise ValueError('Go module graph mismatch')
+    for name, digest in lock['core']['reviewed_files'].items():
+        if base.sha256(core / name) != digest:
+            raise ValueError('Reviewed certificate verifier source mismatch')
     archive = work / ('go' + lock['go']['version'] + '.tar.gz')
     if not archive.exists():
         part = archive.with_suffix('.part')
@@ -203,22 +206,31 @@ def build_core(source, output):
         with tarfile.open(archive, 'r:gz') as tar:
             tar.extractall(toolchain, filter='data')
     go = (toolchain / 'go/bin/go').resolve()
-    destination = source / 'package/cr8808-proxy/sing-box/files'
+    destination = source / 'package/cr8808-proxy/xray-core/files'
     destination.mkdir(parents=True, exist_ok=True)
-    binary = (destination / 'sing-box').resolve()
+    binary = (destination / 'xray').resolve()
     env = dict(os.environ, GOOS='linux', GOARCH='arm', GOARM='7', CGO_ENABLED='0',
-               GOTOOLCHAIN='local', GOSUMDB='sum.golang.org', GOPROXY='https://proxy.golang.org,direct')
-    tags = ','.join(lock['sing_box']['tags'])
-    ldflags = '-s -w -buildid= -X github.com/sagernet/sing-box/constant.Version=' + lock['sing_box']['version']
-    subprocess.run([str(go), 'build', '-mod=readonly', '-trimpath', '-tags', tags,
-                    '-ldflags', ldflags, '-o', str(binary), './cmd/sing-box'], cwd=core, env=env, check=True)
+               GOTOOLCHAIN='local', GOWORK='off', GOSUMDB='sum.golang.org', GOPROXY='https://proxy.golang.org,direct')
+    ldflags = '-s -w -buildid= -X github.com/xtls/xray-core/core.build=' + lock['core']['commit'][:7]
+    subprocess.run([str(go), 'build', '-mod=readonly', '-trimpath',
+                    '-ldflags', ldflags, '-o', str(binary), lock['core']['main']], cwd=core, env=env, check=True)
     shutil.copyfile(core / 'LICENSE', destination / 'LICENSE')
-    version = subprocess.check_output(['qemu-arm', str(binary), 'version'], text=True)
-    if lock['sing_box']['version'] not in version or not all(tag in version for tag in lock['sing_box']['tags']):
-        raise ValueError('Built core version/tags mismatch')
+    version = subprocess.check_output(['qemu-arm', str(binary), 'version'], text=True, timeout=30)
+    if lock['core']['version'] not in version or 'go' + lock['go']['version'] not in version:
+        raise ValueError('Built core version/toolchain mismatch')
+    output.mkdir(parents=True, exist_ok=True)
+    overlay = output / 'proxy-pin-test-overlay.json'
+    base.write_json(overlay, {'Replace': {
+        str((core / 'transport/internet/tls/cr8808_profile_test.go').resolve()):
+        str((POLICY / 'tests/pinning_profile_test.go').resolve())}})
+    subprocess.run([str(go), 'test', '-mod=readonly', '-overlay', str(overlay.resolve()),
+                    '-exec', 'qemu-arm', '-run', '^TestCR8808CertificatePinning$',
+                    './transport/internet/tls'], cwd=core, env=env, check=True, timeout=240)
+    overlay.unlink()
     report = {'status': 'core-built-qemu-version-verified', 'source_lock': lock,
               'bytes': binary.stat().st_size, 'sha256': base.sha256(binary),
-              'qemu_version': version, 'private_configuration_included': False}
+              'qemu_version': version, 'certificate_pin_positive_negative_test_passed': True,
+              'private_configuration_included': False}
     output.mkdir(parents=True, exist_ok=True)
     base.write_json(output / 'proxy-core-build.json', report)
     return report
@@ -239,11 +251,11 @@ def verify_image(source, output):
     def data(path):
         return subprocess.check_output([str(reader), '-cat', str(rootfs), path])
     manifest = (target / 'openwrt-ipq50xx-arm-redmi_ax3000.manifest').read_text()
-    for name in ['sing-box', 'luci-app-passwall2', 'luci-i18n-passwall2-zh-cn',
+    for name in ['xray-core', 'luci-app-passwall2', 'luci-i18n-passwall2-zh-cn',
                  'iptables-mod-tproxy', 'kmod-ipt-tproxy', 'zram-swap']:
         if not re.search(r'^' + re.escape(name) + r' - ', manifest, re.M):
             raise ValueError('Compiled proxy package missing: ' + name)
-    blob = data('usr/bin/sing-box')
+    blob = data('usr/bin/xray')
     if not image.arm32_elf(blob):
         raise ValueError('Wrong proxy core architecture')
     built = json.loads((output / 'proxy-core-build.json').read_text())
@@ -259,7 +271,7 @@ def verify_image(source, output):
     for symbol in ['CONFIG_NETFILTER_XT_TARGET_TPROXY', 'CONFIG_NETFILTER_XT_MATCH_SOCKET', 'CONFIG_ZRAM']:
         if not re.search(r'^' + symbol + r'=[ym]$', kernel, re.M):
             raise ValueError('Required proxy kernel feature absent: ' + symbol)
-    for path in ['usr/share/passwall2/subscribe.lua', 'usr/lib/lua/luci/passwall2/util_sing-box.lua']:
+    for path in ['usr/share/passwall2/subscribe.lua', 'usr/lib/lua/luci/passwall2/util_xray.lua']:
         fixture = output / (Path(path).name + '.check.lua')
         fixture.write_bytes(data(path))
         subprocess.run(['luac5.1', '-p', str(fixture)], check=True)

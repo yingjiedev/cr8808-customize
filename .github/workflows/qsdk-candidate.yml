@@ -80,14 +80,14 @@ jobs:
           python ../../scripts/qsdk_candidate.py verify-config .config
           python ../../scripts/qsdk_proxy.py verify-config --config .config
           ./scripts/feeds list -fs > feeds.pinned.buildinfo
-      - name: Build and emulate pinned lean ARM32 subscription core
+      - name: Build and emulate pinned ARM32 Xray subscription core
         run: python scripts/qsdk_proxy.py build-core --source tmp/qsdk-source --output tmp/qsdk-artifacts
       - name: Upload tested core for isolated device checks during firmware compilation
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: cr8808-qsdk-proxy-core-${{ github.sha }}
           path: |
-            tmp/qsdk-source/package/cr8808-proxy/sing-box/files/
+            tmp/qsdk-source/package/cr8808-proxy/xray-core/files/
             tmp/qsdk-artifacts/proxy-core-build.json
             firmware/qsdk/proxy/source-lock.json
           retention-days: 30
