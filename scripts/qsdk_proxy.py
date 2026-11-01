@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import struct
 import subprocess
 import tarfile
 import urllib.request
@@ -50,6 +51,24 @@ def replace_exact(text, before, after, count=1):
     return text.replace(before, after)
 
 
+def normalise_translations(package):
+    # Upstream publishes legacy directories and modern-name symlinks. Old
+    # luci.mk aliases both to the same package. Keep one canonical input.
+    root = (Path(package) / 'po').resolve()
+    for legacy, modern in [('zh-cn', 'zh_Hans'), ('zh-tw', 'zh_Hant')]:
+        old, new = root / legacy, root / modern
+        if not old.is_dir():
+            raise ValueError('Expected legacy translation directory missing')
+        if not new.is_dir():
+            if not new.is_file() or new.read_text().strip() != legacy:
+                raise ValueError('Unexpected translation alias')
+            new.unlink()
+            shutil.copytree(old, new)
+        if not old.resolve().is_relative_to(root) or old.resolve() == root:
+            raise ValueError('Translation cleanup outside staged package')
+        shutil.rmtree(old)
+
+
 def verify_config(path):
     base.verify_config(path)
     actual = set(Path(path).read_text(encoding='utf-8').splitlines())
@@ -79,6 +98,7 @@ def prepare(source, output):
         raise ValueError('Refusing to overwrite staged proxy packages')
     package = packages / 'luci-app-passwall2'
     shutil.copytree(upstream / 'luci-app-passwall2', package)
+    normalise_translations(package)
     recipe = (package / 'Makefile').read_text(encoding='utf-8')
     recipe = replace_exact(recipe, '\t+geoview +v2ray-geoip +v2ray-geosite \\\n', '')
     recipe = replace_exact(recipe, '\tselect PACKAGE_chinadns-ng\n', '', 2)
@@ -211,13 +231,16 @@ def verify_image(source, output):
     target = source / 'bin/targets/ipq50xx/arm'
     factory = next(target.glob('*-squashfs-nand-factory.ubi'))
     volumes, ubi = image.read_ubi(factory.read_bytes())
+    if struct.unpack_from('<I', volumes['rootfs'], 12)[0] != 65536:
+        raise ValueError('Compiled proxy filesystem must use64KiB blocks')
     rootfs = output / 'proxy-rootfs-check.squashfs'
     rootfs.write_bytes(volumes['rootfs'])
     reader = source / 'staging_dir/host/bin/unsquashfs4'
     def data(path):
         return subprocess.check_output([str(reader), '-cat', str(rootfs), path])
     manifest = (target / 'openwrt-ipq50xx-arm-redmi_ax3000.manifest').read_text()
-    for name in ['sing-box', 'luci-app-passwall2', 'iptables-mod-tproxy', 'kmod-ipt-tproxy', 'zram-swap']:
+    for name in ['sing-box', 'luci-app-passwall2', 'luci-i18n-passwall2-zh-cn',
+                 'iptables-mod-tproxy', 'kmod-ipt-tproxy', 'zram-swap']:
         if not re.search(r'^' + re.escape(name) + r' - ', manifest, re.M):
             raise ValueError('Compiled proxy package missing: ' + name)
     blob = data('usr/bin/sing-box')

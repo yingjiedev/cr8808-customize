@@ -38,9 +38,9 @@ sing-box 主服务使用 `GOGC=50`、`GOMEMLIMIT=32MiB`、`GOMAXPROCS=2`；`GOME
 | HomeProxy | 满足 fw4、nft TPROXY、ucode digest 和相应 LuCI/rpcd API 后，可评估其 ARM32 适配；界面不是 ARM64 二进制，但原 ARM64 sing-box 无法复用。也不能将旧 nft 规则整套直接搬到 fw3 |
 | 资源与恢复 | 需要重新测量空间、内存、DNS 和断网恢复，并保留现有工作系统；避免长期同时维护两套流量接管规则 |
 
-fw4 共享 UCI 配置格式及其依赖见 [OpenWrt 官方配方](https://github.com/openwrt/openwrt/blob/main/package/network/config/firewall4/Makefile)；HomeProxy 依赖见 [项目配方](https://github.com/immortalwrt/homeproxy/blob/master/Makefile)。本机固定 QSDK 的 [ECM 配方](https://github.com/hzyitc/openwrt-redmi-ax3000/blob/ab1f9ffa5b5b62f252a5e87eb23f51f4e2544511/package/kernel/qca/qca-nss-ecm/Makefile) 仍依赖 iptables。这些是源代码依据，不是 fw4 在本机已通过的实测结论。
+fw4 共享 UCI 配置格式及其依赖见 [OpenWrt 官方配方](https://github.com/openwrt/openwrt/blob/main/package/network/config/firewall4/Makefile)；HomeProxy 依赖见 [项目配方](https://github.com/immortalwrt/homeproxy/blob/master/Makefile)。本机固定 QSDK 的 [ECM 配方](https://github.com/hzyitc/openwrt-redmi-ax3000/blob/ab1f9ffa5b5b62f252a5e87eb23f51f4e2544511/package/kernel/qca/qca-nss-ecm/Makefile) 仍依赖 iptables。该依赖也不意味着装有 iptables 就必然与 fw4 冲突；关键是实际生效规则与加速路径。上述均是源代码依据，不是 fw4 在本机已通过的实测结论。
 
-当前选择继续完成 fw3 订阅迁移，保留刚通过基础验收的 NSS 路线。fw4/HomeProxy 属于独立的后续移植候选；不会仅为恢复一个界面而在运行中的系统上直接切换防火墙栈。
+两条路线都需要为当前基础镜像补齐透明代理内核模块，不能只以“需要重编译”为理由排除 fw4。fw4 的优势是与现代 OpenWrt 和 HomeProxy 使用相同的规则体系，可复用部分原应用配置与维护经验；额外工作主要是防火墙依赖回移、规则转换及 NSS 协作验证。当前继续完成 fw3 订阅迁移，缩小本轮变化范围；fw4/HomeProxy 可作为独立候选验证。
 
 ## 部署边界与待验收项目
 

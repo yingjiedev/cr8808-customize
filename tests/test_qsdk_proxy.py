@@ -49,6 +49,17 @@ class SubscriptionProfileTests(unittest.TestCase):
         self.assertFalse(lock['runtime']['private_configuration_included'])
         self.assertFalse(lock['runtime']['geo_datasets_included'])
 
+    def test_translation_aliases_keep_only_one_canonical_package_input(self):
+        package = Path(self.directory.name) / 'package'
+        for old, new in [('zh-cn', 'zh_Hans'), ('zh-tw', 'zh_Hant')]:
+            source = package / 'po' / old
+            source.mkdir(parents=True)
+            (source / 'passwall2.po').write_text('translation fixture', encoding='utf-8')
+            (package / 'po' / new).write_text(old, encoding='utf-8')
+        proxy.normalise_translations(package)
+        self.assertEqual(sorted(p.name for p in (package / 'po').iterdir()), ['zh_Hans', 'zh_Hant'])
+        self.assertEqual((package / 'po/zh_Hans/passwall2.po').read_text(), 'translation fixture')
+
 
 if __name__ == '__main__':
     unittest.main()
