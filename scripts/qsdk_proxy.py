@@ -260,8 +260,14 @@ def verify_image(source, output):
     rootfs = output / 'proxy-rootfs-check.squashfs'
     rootfs.write_bytes(volumes['rootfs'])
     reader = source / 'staging_dir/host/bin/unsquashfs4'
+    extracted = output / 'proxy-rootfs-files'
+    if extracted.exists():
+        raise ValueError('Refusing to overwrite an existing proxy image inspection')
+    subprocess.run([str(reader), '-no-progress', '-d', str(extracted), str(rootfs),
+                    'usr/bin/xray', 'etc/init.d/passwall2', 'usr/share/passwall2',
+                    'usr/lib/lua/luci/passwall2'], check=True)
     def data(path):
-        return subprocess.check_output([str(reader), '-cat', str(rootfs), path])
+        return (extracted / path).read_bytes()
     manifest = (target / 'openwrt-ipq50xx-arm-redmi_ax3000.manifest').read_text()
     for name in ['xray-core', 'luci-app-passwall2', 'luci-i18n-passwall2-zh-cn',
                  'iptables-mod-tproxy', 'kmod-ipt-tproxy', 'zram-swap']:
@@ -291,6 +297,9 @@ def verify_image(source, output):
     if b'"-fskL"' in data('usr/share/passwall2/subscribe.lua') or b'"-skfL"' in data('usr/lib/lua/luci/passwall2/api.lua'):
         raise ValueError('HTTPS downloads must retain certificate verification')
     rootfs.unlink()
+    if not extracted.resolve().is_relative_to(output.resolve()) or extracted.resolve() == output.resolve():
+        raise ValueError('Image inspection cleanup outside output directory')
+    shutil.rmtree(extracted)
     readonly_lebs = sum(len(volumes[name]) // 126976 for name in ('kernel', 'rootfs'))
     estimated_data_lebs = 288 - 2 - 20 - 2 - readonly_lebs
     if estimated_data_lebs < 48:
