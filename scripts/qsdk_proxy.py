@@ -133,6 +133,8 @@ PKG_VERSION:=@VERSION@
 PKG_RELEASE:=1
 PKG_LICENSE:=MPL-2.0
 include $(INCLUDE_DIR)/package.mk
+# Go already removes debug symbols. Preserve the exact emulated ELF bytes.
+RSTRIP:=:
 define Package/xray-core
   SECTION:=net
   CATEGORY:=Network
