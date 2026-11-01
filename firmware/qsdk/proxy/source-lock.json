@@ -5,6 +5,7 @@
     "commit": "d08e7f88fcb5c7f94b870f7281db0045a0477293",
     "version": "26.10.29",
     "reviewed_files": {
+      "luci-app-passwall2/luasrc/controller/passwall2.lua": "0a1f0ea1735a4fe4ffa2a29d2c3da142c4f3898581b572c6713308fbd788aba3",
       "luci-app-passwall2/Makefile": "9a034c955e943b5f8683961b43f2c290170a0f6f40db0040d32d99a3cacdd32f",
       "luci-app-passwall2/root/etc/init.d/passwall2": "187d4167fe87dfeb23894abfa2c942b8f5519197a993e05939eceafa0ed0646e",
       "luci-app-passwall2/root/usr/share/passwall2/app.sh": "39d439a69ef46f84b38cf881584c668adb90fca467cbae0700f5f539a0b27a8d",

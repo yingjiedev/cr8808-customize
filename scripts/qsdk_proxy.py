@@ -119,6 +119,12 @@ def prepare(source, output):
         if text.count(flag) != 1:
             raise ValueError('Reviewed HTTPS download flags changed')
         base.write(path, verified_https(text))
+    # The status page runs curl on the router. A cold DNS lookup plus a
+    # working proxy TLS handshake can exceed upstream's three-second budget.
+    controller = package / 'luasrc/controller/passwall2.lua'
+    base.write(controller, replace_exact(controller.read_text(encoding='utf-8'),
+               'curl --connect-timeout 3 -o /dev/null -I -sk',
+               'curl --connect-timeout 8 --max-time 12 -o /dev/null -I -sk'))
     init = package / 'root/etc/init.d/passwall2'
     text = init.read_text(encoding='utf-8')
     text = replace_exact(text, 'STOP=15\n', 'STOP=15\n\nexport GOGC=50 GOMEMLIMIT=32MiB GOMAXPROCS=2\n')
@@ -267,7 +273,8 @@ def verify_image(source, output):
         raise ValueError('Refusing to overwrite an existing proxy image inspection')
     subprocess.run([str(reader), '-no-progress', '-d', str(extracted), str(rootfs),
                     'usr/bin/xray', 'etc/init.d/passwall2', 'usr/share/passwall2',
-                    'usr/lib/lua/luci/passwall2'], check=True)
+                    'usr/lib/lua/luci/passwall2',
+                    'usr/lib/lua/luci/controller/passwall2.lua'], check=True)
     def data(path):
         return (extracted / path).read_bytes()
     manifest = (target / 'openwrt-ipq50xx-arm-redmi_ax3000.manifest').read_text()
@@ -287,11 +294,17 @@ def verify_image(source, output):
     defaults = data('usr/share/passwall2/0_default_config').decode()
     if "option enabled '0'" not in defaults:
         raise ValueError('Public proxy must start unconfigured and disabled')
+    if "option localhost_proxy '1'" not in defaults:
+        raise ValueError('Router connectivity checks require localhost proxy')
+    controller = data('usr/lib/lua/luci/controller/passwall2.lua').decode()
+    if 'curl --connect-timeout 8 --max-time 12 -o /dev/null -I -sk' not in controller:
+        raise ValueError('Status probes require the reviewed bounded timeout')
     kernel = image.find_built_kernel_config(source).read_text()
     for symbol in ['CONFIG_NETFILTER_XT_TARGET_TPROXY', 'CONFIG_NETFILTER_XT_MATCH_SOCKET', 'CONFIG_ZRAM']:
         if not re.search(r'^' + symbol + r'=[ym]$', kernel, re.M):
             raise ValueError('Required proxy kernel feature absent: ' + symbol)
-    for path in ['usr/share/passwall2/subscribe.lua', 'usr/lib/lua/luci/passwall2/util_xray.lua']:
+    for path in ['usr/share/passwall2/subscribe.lua', 'usr/lib/lua/luci/passwall2/util_xray.lua',
+                 'usr/lib/lua/luci/controller/passwall2.lua']:
         fixture = output / (Path(path).name + '.check.lua')
         fixture.write_bytes(data(path))
         subprocess.run(['luac5.1', '-p', str(fixture)], check=True)
