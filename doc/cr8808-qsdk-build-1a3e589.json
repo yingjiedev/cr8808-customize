@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "status": "build-complete-device-validation-pending",
+  "verified_at_utc": "2026-10-31T16:04:51+00:00",
+  "repository": "https://github.com/yingjiedev/cr8808-customize",
+  "branch": "codex/qsdk-nss-candidate",
+  "build_customization_commit": "1a3e5898bb8fba1f2ff8a086cc78b7dfd9e4b227",
+  "source": {
+    "repository": "https://github.com/hzyitc/openwrt-redmi-ax3000.git",
+    "commit": "ab1f9ffa5b5b62f252a5e87eb23f51f4e2544511"
+  },
+  "feeds": [
+    {
+      "name": "packages",
+      "repository": "https://github.com/openwrt/packages.git",
+      "commit": "48242ee7a190db7740f7b9b3ef1debfa4d5857f6"
+    },
+    {
+      "name": "luci",
+      "repository": "https://github.com/openwrt/luci.git",
+      "commit": "e98243ef9eb838cca80cdd6d1bd0cf69a509d103"
+    },
+    {
+      "name": "routing",
+      "repository": "https://github.com/openwrt/routing.git",
+      "commit": "8071852b4556a02533cacb7a0f6a432df3507302"
+    },
+    {
+      "name": "telephony",
+      "repository": "https://github.com/openwrt/telephony.git",
+      "commit": "920fbc5c0a2e4badf51bceff42e9a1e3eb693462"
+    }
+  ],
+  "kernel": {
+    "release": "5.4.164",
+    "git_commit": "d5fcb18e5420670c8734c6a659873e73adab6dac"
+  },
+  "target": "ipq50xx/arm",
+  "profile": "redmi_ax3000",
+  "build_ci": {
+    "id": 41213838129,
+    "url": "https://github.com/yingjiedev/cr8808-customize/actions/runs/41213838129",
+    "head_sha": "1a3e5898bb8fba1f2ff8a086cc78b7dfd9e4b227",
+    "status": "completed",
+    "conclusion": "success",
+    "updated_at": "2026-10-31T15:59:23Z"
+  },
+  "baseline_ci": {
+    "id": 41213838126,
+    "url": "https://github.com/yingjiedev/cr8808-customize/actions/runs/41213838126",
+    "head_sha": "1a3e5898bb8fba1f2ff8a086cc78b7dfd9e4b227",
+    "status": "completed",
+    "conclusion": "success",
+    "updated_at": "2026-10-31T15:14:07Z"
+  },
+  "artifact": {
+    "id": 13048077792,
+    "name": "cr8808-qsdk-candidate-1a3e5898bb8fba1f2ff8a086cc78b7dfd9e4b227",
+    "url": "https://github.com/yingjiedev/cr8808-customize/actions/runs/41213838129/artifacts/13048077792",
+    "zip_bytes": 262377213,
+    "zip_sha256": "1f2e6a1fc306b777106309f1ec68e618c9849cdea1e05a2bccdfa7094bbe673d",
+    "expires_at": "2026-11-30T15:59:14Z"
+  },
+  "images": [
+    {
+      "path": "bin/targets/ipq50xx/arm/openwrt-ipq50xx-arm-redmi_ax3000-initramfs-fit-uImage.itb",
+      "bytes": 11147644,
+      "sha256": "4c324617181fc9e00b0005b6633015fd5b7c017dd2a8e1bf8d81786aa0bf39da"
+    },
+    {
+      "path": "bin/targets/ipq50xx/arm/openwrt-ipq50xx-arm-redmi_ax3000-squashfs-nand-factory.ubi",
+      "bytes": 13238272,
+      "sha256": "88b7d097e1131c2bd1fbe81b154e4a1c41f42aaf613f680b62ee5627bbcac886"
+    }
+  ],
+  "maintenance_outputs": [
+    {
+      "path": "bin/targets/ipq50xx/arm/openwrt-imagebuilder-ipq50xx-arm.Linux-x86_64.tar.xz",
+      "bytes": 129913444,
+      "sha256": "6628b30b9ba143458015375bea401ba4dd5d4b6657177b6739ab7bd0a1f980e0"
+    },
+    {
+      "path": "bin/targets/ipq50xx/arm/openwrt-sdk-ipq50xx-arm_gcc-8.4.0_musl_eabi.Linux-x86_64.tar.xz",
+      "bytes": 72157208,
+      "sha256": "fb3936e6a534c6f0337f639488a38153337b60f64453c132e2bc7bdf40d9d761"
+    }
+  ],
+  "matching_packages_and_images": {
+    "file": "matching-packages-and-images.tar.zst",
+    "bytes": 237411398,
+    "sha256": "b725f3fdf976e1e2ead5f90256c64e1047df9fe21bebd1c32619a71009e2f8fb"
+  },
+  "slot_bytes": 37748736,
+  "maximum_factory_bytes": 33554432,
+  "factory_bytes": 13238272,
+  "ubi": {
+    "peb_bytes": 131072,
+    "min_io_bytes": 2048,
+    "declared_reserved_pebs": 108,
+    "volume_names": [
+      "kernel",
+      "rootfs",
+      "rootfs_data"
+    ]
+  },
+  "device_tree": {
+    "nand_path": "/soc/qpic-nand@79b0000/nandcs@0",
+    "ecc_strength": 4,
+    "ecc_step_bytes": 512,
+    "cpu_max_hz": 1008000000,
+    "q6_reserved_bytes": 50331648,
+    "nss_reserved_bytes": 8388608,
+    "dataplanes": 2
+  },
+  "kernel_fit": {
+    "arch": "arm",
+    "os": "linux",
+    "type": "kernel",
+    "compression": "lzma",
+    "load": 1092648960,
+    "entry": 1092648960
+  },
+  "module_vermagic": {
+    "qca-nss-dp.ko": "5.4.164 SMP preempt mod_unload ARMv7 p2v8 ",
+    "qca-nss-drv.ko": "5.4.164 SMP preempt mod_unload ARMv7 p2v8 ",
+    "ecm.ko": "5.4.164 SMP preempt mod_unload ARMv7 p2v8 ",
+    "ath11k.ko": "5.4.164 SMP preempt mod_unload ARMv7 p2v8 ",
+    "ath11k_ahb.ko": "5.4.164 SMP preempt mod_unload ARMv7 p2v8 ",
+    "ath11k_pci.ko": "5.4.164 SMP preempt mod_unload ARMv7 p2v8 "
+  },
+  "nss_ecm_boot_links_verified": true,
+  "matching_radio_firmware_present": true,
+  "nss_firmware_sha256": "6ad0fac8aa102de3b414efa6d7ea1145a74022eebf4210623e6c0491a919506b",
+  "online_feeds_disabled": true,
+  "verification": {
+    "requested_settings_verified": 32,
+    "critical_cached_sources_verified": 9,
+    "password_crypt": {
+      "image_libc_emulated": true,
+      "sha256_crypt_verified": true,
+      "sha512_crypt_verified": true,
+      "interpreter": "/lib/ld-musl-armhf.so.1",
+      "device_password_used": false
+    },
+    "kernel_compatibility": {
+      "required_options": [
+        "CONFIG_UBIFS_FS_ZSTD=y",
+        "CONFIG_ZSTD_COMPRESS=y",
+        "CONFIG_ZSTD_DECOMPRESS=y",
+        "CONFIG_IKCONFIG=y",
+        "CONFIG_IKCONFIG_PROC=y"
+      ],
+      "ubifs_zstd_enabled": true
+    },
+    "artifact_zip_digest_matches_github": true,
+    "independent_local_image_review": "offline-image-structure-and-filesystem-checks-passed",
+    "factory_and_initramfs_device_trees_match": true,
+    "fit_header_matches_published_reference": true,
+    "sdk_and_imagebuilder_extracted_and_hash_verified": true
+  },
+  "private_configuration_included": false,
+  "router_contacted": false,
+  "flash_issued": false,
+  "wifi_stability_validated": false,
+  "stable_500_mbps_validated": false,
+  "homeproxy_migration_complete": false
+}
