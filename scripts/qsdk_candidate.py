@@ -64,10 +64,14 @@ def verify_config(path):
     forbidden = ['CONFIG_TARGET_MULTI_PROFILE', 'CONFIG_TARGET_ALL_PROFILES',
                  'CONFIG_ATH11K_MEM_PROFILE_512M', 'CONFIG_ATH11K_MEM_PROFILE_1G',
                  'CONFIG_PACKAGE_dnsmasq', 'CONFIG_PACKAGE_firewall4',
-                 'CONFIG_PACKAGE_luci-app-homeproxy', 'CONFIG_PACKAGE_sing-box',
+                 'CONFIG_PACKAGE_luci-app-homeproxy',
                  'CONFIG_VERSION_FILENAMES']
     if any(name + '=y' in actual for name in forbidden):
         raise ValueError('Wrong target, memory profile, ABI or application stack')
+    if 'CONFIG_PACKAGE_sing-box=y' in actual and not {
+            'CONFIG_PACKAGE_cr8808-qsdk-proxy-policy=y',
+            'CONFIG_PACKAGE_luci-app-passwall2=y'} <= actual:
+        raise ValueError('Proxy core requires the reviewed subscription policy')
     devices = [line for line in actual if line.startswith('CONFIG_TARGET_')
                and '_DEVICE_' in line and line.endswith('=y')]
     if devices != ['CONFIG_TARGET_ipq50xx_arm_DEVICE_redmi_ax3000=y']:

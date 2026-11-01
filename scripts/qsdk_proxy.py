@@ -1,0 +1,275 @@
+"""Stage the pinned fw3 subscription profile and build a static ARM32 core."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import tarfile
+import urllib.request
+
+import qsdk_candidate as base
+
+ROOT = Path(__file__).resolve().parents[1]
+POLICY = ROOT / 'firmware/qsdk/proxy'
+
+
+def load_lock():
+    lock = json.loads((POLICY / 'source-lock.json').read_text(encoding='utf-8'))
+    for name in ('passwall2', 'sing_box', 'tcping'):
+        item = lock[name]
+        if not re.fullmatch(r'[0-9a-f]{40}', item['commit']):
+            raise ValueError('Proxy sources require complete commit IDs')
+        if not re.fullmatch(r'https://github\.com/[\w.-]+/[\w.-]+\.git', item['repository']):
+            raise ValueError('Unexpected proxy source repository')
+    if not re.fullmatch(r'[0-9a-f]{64}', lock['go']['sha256']):
+        raise ValueError('Go requires a fixed SHA256')
+    return lock
+
+
+def checkout(item, path):
+    if not path.exists():
+        path.mkdir(parents=True)
+        for args in [('init',), ('config', 'core.autocrlf', 'false'),
+                     ('remote', 'add', 'origin', item['repository']),
+                     ('fetch', '--depth', '1', 'origin', item['commit']),
+                     ('checkout', '--detach', 'FETCH_HEAD')]:
+            subprocess.run(['git', '-C', str(path), *args], check=True)
+    head = subprocess.check_output(['git', '-C', str(path), 'rev-parse', 'HEAD'], text=True).strip()
+    if head != item['commit']:
+        raise ValueError('Proxy source commit mismatch')
+    subprocess.run(['git', '-C', str(path), 'diff', '--quiet', 'HEAD', '--'], check=True)
+    return path
+
+
+def replace_exact(text, before, after, count=1):
+    if text.count(before) != count:
+        raise ValueError('Upstream changed at reviewed patch: ' + before[:90])
+    return text.replace(before, after)
+
+
+def verify_config(path):
+    base.verify_config(path)
+    actual = set(Path(path).read_text(encoding='utf-8').splitlines())
+    required = [line for line in (POLICY / 'proxy.config').read_text().splitlines()
+                if line.startswith('CONFIG_')]
+    missing = [line for line in required if line not in actual]
+    forbidden = ['CONFIG_PACKAGE_firewall4', 'CONFIG_PACKAGE_iptables-nft',
+                 'CONFIG_PACKAGE_xray-core', 'CONFIG_PACKAGE_geoview',
+                 'CONFIG_PACKAGE_v2ray-geoip', 'CONFIG_PACKAGE_v2ray-geosite',
+                 'CONFIG_PACKAGE_chinadns-ng', 'CONFIG_PACKAGE_luci-app-passwall2_Basic_Core_All',
+                 'CONFIG_PACKAGE_luci-app-passwall2_Nftables_Transparent_Proxy']
+    if missing or any(name + '=y' in actual for name in forbidden):
+        raise ValueError('Subscription profile lost settings or selected extra cores/firewall: ' + ','.join(missing))
+    return {'proxy_required_settings': len(required), 'one_core': True, 'firewall': 'fw3'}
+
+
+def prepare(source, output):
+    source, output = base.guarded_directory(source), base.guarded_directory(output)
+    lock = load_lock()
+    work = ROOT / 'tmp/qsdk-proxy-inputs'
+    upstream = checkout(lock['passwall2'], work / 'passwall2')
+    for name, digest in lock['passwall2']['reviewed_files'].items():
+        if base.sha256(upstream / name) != digest:
+            raise ValueError('Reviewed PassWall2 file mismatch: ' + name)
+    packages = source / 'package/cr8808-proxy'
+    if packages.exists():
+        raise ValueError('Refusing to overwrite staged proxy packages')
+    package = packages / 'luci-app-passwall2'
+    shutil.copytree(upstream / 'luci-app-passwall2', package)
+    recipe = (package / 'Makefile').read_text(encoding='utf-8')
+    recipe = replace_exact(recipe, '\t+geoview +v2ray-geoip +v2ray-geosite \\\n', '')
+    recipe = replace_exact(recipe, '\tselect PACKAGE_chinadns-ng\n', '', 2)
+    recipe = replace_exact(recipe, '\tselect PACKAGE_iptables-nft\n', '')
+    recipe = replace_exact(recipe, '\tselect PACKAGE_iptables-zz-legacy\n', '')
+    # OpenWrt21.02 bundles the socket extension in iptables-mod-tproxy.
+    recipe = replace_exact(recipe, '\tselect PACKAGE_iptables-mod-socket\n', '')
+    base.write(package / 'Makefile', recipe)
+    init = package / 'root/etc/init.d/passwall2'
+    text = init.read_text(encoding='utf-8')
+    text = replace_exact(text, 'STOP=15\n', 'STOP=15\n\nexport GOGC=50 GOMEMLIMIT=32MiB GOMAXPROCS=2\n')
+    base.write(init, text, True)
+    base.write(package / 'root/usr/share/passwall2/0_default_config',
+               (POLICY / 'passwall2-default.config').read_bytes())
+    base.write(packages / 'tcping/Makefile', (POLICY / 'tcping.Makefile').read_bytes())
+    core_recipe = '''# SPDX-License-Identifier: GPL-3.0-or-later
+include $(TOPDIR)/rules.mk
+PKG_NAME:=sing-box
+PKG_VERSION:=@VERSION@
+PKG_RELEASE:=1
+PKG_LICENSE:=GPL-3.0-or-later
+include $(INCLUDE_DIR)/package.mk
+define Package/sing-box
+  SECTION:=net
+  CATEGORY:=Network
+  TITLE:=Pinned static ARM32 sing-box with QUIC, uTLS and Clash API
+endef
+define Build/Prepare
+endef
+define Build/Configure
+endef
+define Build/Compile
+endef
+define Package/sing-box/install
+\t$(INSTALL_DIR) $(1)/usr/bin $(1)/usr/share/licenses/sing-box
+\t$(INSTALL_BIN) ./files/sing-box $(1)/usr/bin/sing-box
+\t$(INSTALL_DATA) ./files/LICENSE $(1)/usr/share/licenses/sing-box/LICENSE
+endef
+$(eval $(call BuildPackage,sing-box))
+'''.replace('@VERSION@', lock['sing_box']['version'])
+    base.write(packages / 'sing-box/Makefile', core_recipe)
+    policy = packages / 'cr8808-qsdk-proxy-policy'
+    base.write(policy / 'files/etc/uci-defaults/zzz-cr8808-qsdk-proxy',
+               (POLICY / 'proxy-policy').read_bytes(), True)
+    base.write_json(policy / 'files/etc/cr8808-qsdk/proxy-sources.json', lock)
+    policy_recipe = '''# SPDX-License-Identifier: GPL-2.0-or-later
+include $(TOPDIR)/rules.mk
+PKG_NAME:=cr8808-qsdk-proxy-policy
+PKG_VERSION:=2026.11.01
+PKG_RELEASE:=1
+include $(INCLUDE_DIR)/package.mk
+define Package/cr8808-qsdk-proxy-policy
+  SECTION:=base
+  CATEGORY:=Base system
+  TITLE:=CR8808 fw3 subscription policy
+  DEPENDS:=+sing-box +luci-app-passwall2 +flock +zram-swap
+endef
+define Build/Compile
+endef
+define Package/cr8808-qsdk-proxy-policy/install
+\t$(CP) ./files/. $(1)/
+endef
+$(eval $(call BuildPackage,cr8808-qsdk-proxy-policy))
+'''
+    base.write(policy / 'Makefile', policy_recipe)
+    output.mkdir(parents=True, exist_ok=True)
+    report = {'status': 'staged-not-built', 'source_lock': lock,
+              'changes': ['single static ARM32 core', 'fw3 legacy iptables',
+                          'no geodata or geoview', 'dnsmasq ipset fallback',
+                          'bounded Go heap target and32MiB zram', 'disabled until privately configured'],
+              'private_configuration_included': False}
+    base.write_json(output / 'proxy-preparation-report.json', report)
+    return report
+
+
+def configure(source):
+    source = base.guarded_directory(source)
+    seed = (base.POLICY / 'cr8808.config').read_text(encoding='utf-8')
+    seed += '\n' + (POLICY / 'proxy.config').read_text(encoding='utf-8')
+    base.write(source / '.config', seed)
+
+
+def build_core(source, output):
+    source, output = base.guarded_directory(source), base.guarded_directory(output)
+    lock = load_lock()
+    work = ROOT / 'tmp/qsdk-proxy-inputs'
+    core = checkout(lock['sing_box'], work / 'sing-box')
+    for name in ('go.mod', 'go.sum'):
+        if base.sha256(core / name) != lock['sing_box'][name.replace('.', '_') + '_sha256']:
+            raise ValueError('Go module graph mismatch')
+    archive = work / ('go' + lock['go']['version'] + '.tar.gz')
+    if not archive.exists():
+        part = archive.with_suffix('.part')
+        with urllib.request.urlopen(lock['go']['url'], timeout=90) as stream, part.open('wb') as out:
+            shutil.copyfileobj(stream, out)
+        part.replace(archive)
+    if archive.stat().st_size != lock['go']['bytes'] or base.sha256(archive) != lock['go']['sha256']:
+        raise ValueError('Go toolchain download mismatch')
+    toolchain = work / ('toolchain-' + lock['go']['version'])
+    if not (toolchain / 'go/bin/go').exists():
+        toolchain.mkdir(parents=True, exist_ok=True)
+        with tarfile.open(archive, 'r:gz') as tar:
+            tar.extractall(toolchain, filter='data')
+    go = (toolchain / 'go/bin/go').resolve()
+    destination = source / 'package/cr8808-proxy/sing-box/files'
+    destination.mkdir(parents=True, exist_ok=True)
+    binary = (destination / 'sing-box').resolve()
+    env = dict(os.environ, GOOS='linux', GOARCH='arm', GOARM='7', CGO_ENABLED='0',
+               GOTOOLCHAIN='local', GOSUMDB='sum.golang.org', GOPROXY='https://proxy.golang.org,direct')
+    tags = ','.join(lock['sing_box']['tags'])
+    ldflags = '-s -w -buildid= -X github.com/sagernet/sing-box/constant.Version=' + lock['sing_box']['version']
+    subprocess.run([str(go), 'build', '-mod=readonly', '-trimpath', '-tags', tags,
+                    '-ldflags', ldflags, '-o', str(binary), './cmd/sing-box'], cwd=core, env=env, check=True)
+    shutil.copyfile(core / 'LICENSE', destination / 'LICENSE')
+    version = subprocess.check_output(['qemu-arm', str(binary), 'version'], text=True)
+    if lock['sing_box']['version'] not in version or not all(tag in version for tag in lock['sing_box']['tags']):
+        raise ValueError('Built core version/tags mismatch')
+    report = {'status': 'core-built-qemu-version-verified', 'source_lock': lock,
+              'bytes': binary.stat().st_size, 'sha256': base.sha256(binary),
+              'qemu_version': version, 'private_configuration_included': False}
+    output.mkdir(parents=True, exist_ok=True)
+    base.write_json(output / 'proxy-core-build.json', report)
+    return report
+
+
+def verify_image(source, output):
+    import qsdk_candidate_image as image
+    source, output = base.guarded_directory(source), base.guarded_directory(output)
+    verify_config(source / '.config')
+    target = source / 'bin/targets/ipq50xx/arm'
+    factory = next(target.glob('*-squashfs-nand-factory.ubi'))
+    volumes, ubi = image.read_ubi(factory.read_bytes())
+    rootfs = output / 'proxy-rootfs-check.squashfs'
+    rootfs.write_bytes(volumes['rootfs'])
+    reader = source / 'staging_dir/host/bin/unsquashfs4'
+    def data(path):
+        return subprocess.check_output([str(reader), '-cat', str(rootfs), path])
+    manifest = (target / 'openwrt-ipq50xx-arm-redmi_ax3000.manifest').read_text()
+    for name in ['sing-box', 'luci-app-passwall2', 'iptables-mod-tproxy', 'kmod-ipt-tproxy', 'zram-swap']:
+        if not re.search(r'^' + re.escape(name) + r' - ', manifest, re.M):
+            raise ValueError('Compiled proxy package missing: ' + name)
+    blob = data('usr/bin/sing-box')
+    if not image.arm32_elf(blob):
+        raise ValueError('Wrong proxy core architecture')
+    built = json.loads((output / 'proxy-core-build.json').read_text())
+    if hashlib.sha256(blob).hexdigest() != built['sha256']:
+        raise ValueError('Image core differs from tested core')
+    init = data('etc/init.d/passwall2').decode()
+    if 'GOMEMLIMIT=32MiB' not in init:
+        raise ValueError('Runtime heap target missing')
+    defaults = data('usr/share/passwall2/0_default_config').decode()
+    if "option enabled '0'" not in defaults:
+        raise ValueError('Public proxy must start unconfigured and disabled')
+    kernel = image.find_built_kernel_config(source).read_text()
+    for symbol in ['CONFIG_NETFILTER_XT_TARGET_TPROXY', 'CONFIG_NETFILTER_XT_MATCH_SOCKET', 'CONFIG_ZRAM']:
+        if not re.search(r'^' + symbol + r'=[ym]$', kernel, re.M):
+            raise ValueError('Required proxy kernel feature absent: ' + symbol)
+    for path in ['usr/share/passwall2/subscribe.lua', 'usr/lib/lua/luci/passwall2/util_sing-box.lua']:
+        fixture = output / (Path(path).name + '.check.lua')
+        fixture.write_bytes(data(path))
+        subprocess.run(['luac5.1', '-p', str(fixture)], check=True)
+        fixture.unlink()
+    rootfs.unlink()
+    readonly_lebs = sum(len(volumes[name]) // 126976 for name in ('kernel', 'rootfs'))
+    estimated_data_lebs = 288 - 2 - 20 - 2 - readonly_lebs
+    if estimated_data_lebs < 48:
+        raise ValueError('Proxy image leaves insufficient UBI data volume headroom')
+    report = {'status': 'proxy-image-checks-passed-device-validation-pending',
+              'factory_bytes': factory.stat().st_size, 'estimated_rootfs_data_lebs': estimated_data_lebs,
+              'core_sha256': built['sha256'], 'single_core': True, 'firewall': 'fw3',
+              'private_configuration_included': False, 'automatic_flash': False}
+    base.write_json(output / 'proxy-image-report.json', report)
+    return report
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('command', choices=['prepare', 'configure', 'verify-config', 'build-core', 'verify-image'])
+    parser.add_argument('--source', type=Path)
+    parser.add_argument('--output', type=Path)
+    parser.add_argument('--config', type=Path)
+    args = parser.parse_args()
+    if args.command == 'verify-config':
+        result = verify_config(args.config)
+    elif args.command == 'configure':
+        result = configure(args.source)
+    else:
+        function = {'prepare': prepare, 'build-core': build_core, 'verify-image': verify_image}[args.command]
+        result = function(args.source, args.output)
+    print(json.dumps(result, indent=2))
+
+
+if __name__ == '__main__':
+    main()

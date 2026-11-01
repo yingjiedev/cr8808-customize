@@ -43,7 +43,7 @@ jobs:
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
           sudo apt-get update
-          sudo apt-get install -y build-essential clang flex bison g++ gawk gcc-multilib gettext git libncurses-dev libssl-dev libelf-dev python3-distutils python3-setuptools rsync swig unzip zlib1g-dev file wget curl bc zstd coccinelle qemu-user
+          sudo apt-get install -y build-essential clang flex bison g++ gawk gcc-multilib gettext git libncurses-dev libssl-dev libelf-dev python3-distutils python3-setuptools rsync swig unzip zlib1g-dev file wget curl bc zstd coccinelle qemu-user lua5.1
           df -h /
       - name: Read pinned QSDK inputs
         id: lock
@@ -66,6 +66,8 @@ jobs:
           persist-credentials: false
       - name: Stage source pins, public policy and original partition profile
         run: python scripts/qsdk_candidate.py prepare --source tmp/qsdk-source --output tmp/qsdk-preparation
+      - name: Stage pinned fw3 subscription profile
+        run: python scripts/qsdk_proxy.py prepare --source tmp/qsdk-source --output tmp/qsdk-artifacts
       - name: Checkout exact feeds and resolve configuration
         run: |
           python scripts/qsdk_candidate.py feeds --source tmp/qsdk-source
@@ -73,10 +75,24 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           # Old feeds refresh .config while symbols are still being installed.
-          cp ../../firmware/qsdk/cr8808.config .config
+          python ../../scripts/qsdk_proxy.py configure --source .
           make defconfig
           python ../../scripts/qsdk_candidate.py verify-config .config
+          python ../../scripts/qsdk_proxy.py verify-config --config .config
           ./scripts/feeds list -fs > feeds.pinned.buildinfo
+      - name: Build and emulate pinned lean ARM32 subscription core
+        run: python scripts/qsdk_proxy.py build-core --source tmp/qsdk-source --output tmp/qsdk-artifacts
+      - name: Upload tested core for isolated device checks during firmware compilation
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cr8808-qsdk-proxy-core-${{ github.sha }}
+          path: |
+            tmp/qsdk-source/package/cr8808-proxy/sing-box/files/
+            tmp/qsdk-artifacts/proxy-core-build.json
+            firmware/qsdk/proxy/source-lock.json
+          retention-days: 30
+          if-no-files-found: error
+          compression-level: 6
       - name: Restore pinned source archive and compiler cache
         id: cache
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
@@ -140,6 +156,8 @@ jobs:
           tar -C tmp/qsdk-source -I 'zstd -T2 -6' -cf tmp/qsdk-artifacts/matching-packages-and-images.tar.zst bin/targets/ipq50xx/arm bin/packages
       - name: Verify compiled NAND, memory, firmware, startup links and slot size
         run: python scripts/qsdk_candidate.py finish --source tmp/qsdk-source --output tmp/qsdk-artifacts
+      - name: Verify compiled subscription stack and remaining UBI capacity
+        run: python scripts/qsdk_proxy.py verify-image --source tmp/qsdk-source --output tmp/qsdk-artifacts
       - name: Save source archive and compiler cache
         if: always() && steps.cache.outcome == 'success' && steps.sources.outcome == 'success'
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
@@ -153,6 +171,8 @@ jobs:
         run: |
           mkdir -p tmp/qsdk-artifacts
           cp firmware/qsdk/source-lock.json firmware/qsdk/source-cache-manifest.json firmware/qsdk/cr8808.config tmp/qsdk-artifacts/
+          cp firmware/qsdk/proxy/source-lock.json tmp/qsdk-artifacts/proxy-source-lock.json
+          cp firmware/qsdk/proxy/proxy.config tmp/qsdk-artifacts/proxy.config
           if [ -f tmp/qsdk-source/.config ]; then cp tmp/qsdk-source/.config tmp/qsdk-artifacts/resolved.config; fi
           for path in tmp/qsdk-source/feeds.pinned.buildinfo tmp/qsdk-preparation/preparation-report.json; do
             if [ -f "$path" ]; then cp "$path" tmp/qsdk-artifacts/; fi

@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "passwall2": {
+    "repository": "https://github.com/Openwrt-Passwall/openwrt-passwall2.git",
+    "commit": "d08e7f88fcb5c7f94b870f7281db0045a0477293",
+    "version": "26.10.29",
+    "reviewed_files": {
+      "luci-app-passwall2/Makefile": "9a034c955e943b5f8683961b43f2c290170a0f6f40db0040d32d99a3cacdd32f",
+      "luci-app-passwall2/root/etc/init.d/passwall2": "187d4167fe87dfeb23894abfa2c942b8f5519197a993e05939eceafa0ed0646e",
+      "luci-app-passwall2/root/usr/share/passwall2/app.sh": "39d439a69ef46f84b38cf881584c668adb90fca467cbae0700f5f539a0b27a8d",
+      "luci-app-passwall2/root/usr/share/passwall2/0_default_config": "8e3cad5900452278b5a2e773664662faef39a6763f8423f1864584e4d86a87ee",
+      "luci-app-passwall2/root/usr/share/passwall2/subscribe.lua": "b2d5c4e9dbfdc98666bbb47e5643550440d680e7e089b0759695af497094e303",
+      "luci-app-passwall2/luasrc/passwall2/util_sing-box.lua": "405c4b4c3f92086f28e5fa5fdbcdb9824d255d27b3be74a6c60befe5e0ba9d99"
+    }
+  },
+  "sing_box": {
+    "repository": "https://github.com/SagerNet/sing-box.git",
+    "commit": "73bfb99ebce7923c485435e4faf8571b412065a9",
+    "version": "1.12.25",
+    "tags": [
+      "with_quic",
+      "with_utls",
+      "with_clash_api"
+    ],
+    "go_mod_sha256": "02dbbd355ff8db37886a4d292d1c87cf74fdee71c5276b45bbeb180b06196fb1",
+    "go_sum_sha256": "1d6233fe83d9cb39552896dcad0e1ed0c8ec5a07acf2b014b5c7e7e6850dcbeb"
+  },
+  "go": {
+    "version": "1.25.8",
+    "url": "https://go.dev/dl/go1.25.8.linux-amd64.tar.gz",
+    "bytes": 59786528,
+    "sha256": "ceb5e041bbc3893846bd1614d76cb4681c91dadee579426cf21a63f2d7e03be6",
+    "basis": "matches toolchain embedded in official sing-box1.12.25 ARMv7 release"
+  },
+  "runtime": {
+    "GOOS": "linux",
+    "GOARCH": "arm",
+    "GOARM": "7",
+    "CGO_ENABLED": "0",
+    "GOGC": "50",
+    "GOMEMLIMIT": "32MiB",
+    "GOMAXPROCS": "2",
+    "zram_MiB": 32,
+    "geo_datasets_included": false,
+    "dns_ipset_backend": "existing dnsmasq-full fallback",
+    "private_configuration_included": false
+  },
+  "tcping": {
+    "recipe_origin": "https://github.com/Openwrt-Passwall/openwrt-passwall-packages/blob/da712cf06cf4e6fd39e147fb36e6ec936003fcc9/tcping/Makefile",
+    "repository": "https://github.com/Lienol/tcping.git",
+    "commit": "db9101834732dac9aaa59dbb7fb9c74612dbf723",
+    "mirror_hash": "36776bf64c41d0c2c2aeb79525499532831133f7b5e174fc51e9e2d7202d5776"
+  }
+}
