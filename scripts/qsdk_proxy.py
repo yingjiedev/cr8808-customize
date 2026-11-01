@@ -51,6 +51,11 @@ def replace_exact(text, before, after, count=1):
     return text.replace(before, after)
 
 
+def verified_https(text):
+    # Keep curl's CA and hostname checks for subscription/component downloads.
+    return text.replace('"-fskL"', '"-fsL"').replace('"-skfL"', '"-sfL"')
+
+
 def normalise_translations(package):
     # Upstream publishes legacy directories and modern-name symlinks. Old
     # luci.mk aliases both to the same package. Keep one canonical input.
@@ -107,6 +112,13 @@ def prepare(source, output):
     # OpenWrt21.02 bundles the socket extension in iptables-mod-tproxy.
     recipe = replace_exact(recipe, '\tselect PACKAGE_iptables-mod-socket\n', '')
     base.write(package / 'Makefile', recipe)
+    for relative, flag in [('root/usr/share/passwall2/subscribe.lua', '"-fskL"'),
+                           ('luasrc/passwall2/api.lua', '"-skfL"')]:
+        path = package / relative
+        text = path.read_text(encoding='utf-8')
+        if text.count(flag) != 1:
+            raise ValueError('Reviewed HTTPS download flags changed')
+        base.write(path, verified_https(text))
     init = package / 'root/etc/init.d/passwall2'
     text = init.read_text(encoding='utf-8')
     text = replace_exact(text, 'STOP=15\n', 'STOP=15\n\nexport GOGC=50 GOMEMLIMIT=32MiB GOMAXPROCS=2\n')
@@ -276,6 +288,8 @@ def verify_image(source, output):
         fixture.write_bytes(data(path))
         subprocess.run(['luac5.1', '-p', str(fixture)], check=True)
         fixture.unlink()
+    if b'"-fskL"' in data('usr/share/passwall2/subscribe.lua') or b'"-skfL"' in data('usr/lib/lua/luci/passwall2/api.lua'):
+        raise ValueError('HTTPS downloads must retain certificate verification')
     rootfs.unlink()
     readonly_lebs = sum(len(volumes[name]) // 126976 for name in ('kernel', 'rootfs'))
     estimated_data_lebs = 288 - 2 - 20 - 2 - readonly_lebs

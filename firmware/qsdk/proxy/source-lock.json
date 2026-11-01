@@ -11,7 +11,8 @@
       "luci-app-passwall2/root/usr/share/passwall2/0_default_config": "8e3cad5900452278b5a2e773664662faef39a6763f8423f1864584e4d86a87ee",
       "luci-app-passwall2/root/usr/share/passwall2/subscribe.lua": "b2d5c4e9dbfdc98666bbb47e5643550440d680e7e089b0759695af497094e303",
       "luci-app-passwall2/luasrc/passwall2/util_sing-box.lua": "405c4b4c3f92086f28e5fa5fdbcdb9824d255d27b3be74a6c60befe5e0ba9d99",
-      "luci-app-passwall2/luasrc/passwall2/util_xray.lua": "0a05f0751e91087ebdfe678350a797bf64d0bf4678aa27439c3f138092bf0b7e"
+      "luci-app-passwall2/luasrc/passwall2/util_xray.lua": "0a05f0751e91087ebdfe678350a797bf64d0bf4678aa27439c3f138092bf0b7e",
+      "luci-app-passwall2/luasrc/passwall2/api.lua": "62c5ebc6986396a156a95e4d904f2d4757532cc2e96bcbe343caa9691112e93d"
     }
   },
   "go": {

@@ -50,6 +50,11 @@ class SubscriptionProfileTests(unittest.TestCase):
         self.assertFalse(lock['runtime']['private_configuration_included'])
         self.assertFalse(lock['runtime']['geo_datasets_included'])
 
+    def test_download_flags_keep_ca_checks_and_node_pins_unchanged(self):
+        source = 'args = {"-fskL", "-skfL"}; pinSHA256 = "fixture"'
+        patched = proxy.verified_https(source)
+        self.assertEqual(patched, 'args = {"-fsL", "-sfL"}; pinSHA256 = "fixture"')
+
     def test_translation_aliases_keep_only_one_canonical_package_input(self):
         package = Path(self.directory.name) / 'package'
         for old, new in [('zh-cn', 'zh_Hans'), ('zh-tw', 'zh_Hant')]:
