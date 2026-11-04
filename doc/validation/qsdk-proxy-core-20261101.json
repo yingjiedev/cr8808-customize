@@ -1,0 +1,47 @@
+{
+  "source_commit": "a4a3dff5b20c2faae567b742c172c7b95e75c083",
+  "core_sha256": "0bc83ba8083c7aabc669bb08c78eac68fd8600e515869aa6bcb6093ef848b7cb",
+  "core_bytes": 30474364,
+  "squashfs_bytes": 9203712,
+  "config_test": true,
+  "tests": [
+    {
+      "name": "vless",
+      "http": 204,
+      "exitcode": 0,
+      "passed": true
+    },
+    {
+      "name": "hy2",
+      "http": 204,
+      "exitcode": 0,
+      "passed": true
+    },
+    {
+      "name": "hy2-bad-pin",
+      "http": 0,
+      "exitcode": 35,
+      "passed": true
+    },
+    {
+      "name": "hy2-no-pin",
+      "http": 0,
+      "exitcode": 35,
+      "passed": true
+    }
+  ],
+  "firewall_changed": false,
+  "negative_logs_confirmed": {
+    "fingerprint_rejected": true,
+    "ordinary_cert_rejected": true
+  },
+  "cleaned_up": true,
+  "image_customization_commit": "14badda34b97a3266a9d2f5d1fd9e030b57c9c2e",
+  "recorded_at_local": "2026-11-01T12:57:32",
+  "core_rss_kib_after_four_https_tests": 30084,
+  "router_mem_available_kib_after_tests": 38888,
+  "new_firmware_deployed": false,
+  "transparent_proxy_validated": false,
+  "proxy_throughput_validated": false,
+  "build_run": "https://github.com/yingjiedev/cr8808-customize/actions/runs/41274667392"
+}

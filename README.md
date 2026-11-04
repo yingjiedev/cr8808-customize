@@ -2,10 +2,15 @@
 
 CR8808 定制项目。
 
+当前实机使用本仓库构建的 QSDK NSS / OpenWrt 21.02.7，保留 fw3、双频 Wi-Fi 和单个 Xray / PassWall2；原 ImmortalWrt 系统保留在 `rootfs_1`。已验证现有 300 Mbps 宽带下载和约 916–923 Mbps NAS 有线传输，具体范围见 [订阅迁移实机验收](doc/cr8808-qsdk-subscription-migration.md)。双节点、30 分钟探测配置已部署，见 [节点故障切换记录](doc/cr8808-qsdk-node-failover-research.md#用户选定方案的部署结果)。公开固件不包含个人订阅、节点或密码；尚未验证持续 500 Mbps WAN 和长期故障切换稳定性。
+
 [下载 v0.1.0 维护基线](https://github.com/yingjiedev/cr8808-customize/releases/tag/v0.1.0)：含应用包、SDK、ImageBuilder、工具链、原始镜像及校验清单。仓库原创部分采用 [GPL-2.0-or-later](LICENSE)，第三方组件许可见 [LICENSING.md](LICENSING.md)。
 
 ## 文档
 
+- [QSDK NSS 候选：固定来源、原分区构建与验收范围](doc/cr8808-qsdk-candidate.md)
+- [QSDK 订阅迁移实机验收与 firewall4 影响评估](doc/cr8808-qsdk-subscription-migration.md)
+- [QSDK PassWall2 双节点自动切换与资源开销](doc/cr8808-qsdk-node-failover-research.md)
 - [依赖归档、离线构建与持续维护](doc/cr8808-dependency-maintenance.md)
 - [主路由、双频 Wi-Fi 与订阅配置手册（已联网，含页面超时修复）](doc/cr8808-main-router-configuration-manual.md)
 - [当前资源优化、GFWList 网站分流与节点页逐个测速](doc/cr8808-low-memory-homeproxy.md)
@@ -22,7 +27,7 @@ CR8808 定制项目。
 
 用户授权整理的历史候选引导包另存于 [firmware/webuboot](firmware/webuboot/cr880x-20221214/README.md)，明确标记为待验证；只修正说明，未修改二进制。设备备份和身份数据不纳入该目录。
 
-本机已安装 ImmortalWrt 24.10-SNAPSHOT，并通过管理员登录和额外重启验证。新手教程只覆盖文中已核对的原厂 CR8808/xpa/ap-mp02.1 双槽位路线；其他硬件或改过引导/分区的机器需要独立核查。
+早期实机使用 ImmortalWrt 24.10-SNAPSHOT，并通过管理员登录和额外重启验证；该系统现保留在原有另一槽位。新手教程只覆盖文中已核对的原厂 CR8808/xpa/ap-mp02.1 双槽位路线；其他硬件或改过引导/分区的机器需要独立核查。
 
 2026-10-27 已在现有系统完成 DHCP 主路由、双频加密 Wi-Fi 和 HomeProxy/sing-box 配置，采用压缩只读应用镜像容纳代理内核。主路由接线已修正，WAN DHCP、电脑基本外网访问和 HomeProxy 页面加载接口已验证；页面功能查询已适配，避免额外启动 sing-box 版本查询进程。具体设置、验收范围、接线排障、操作和恢复方法见配置手册。
 
@@ -30,6 +35,6 @@ CR8808 定制项目。
 
 服务状态页的 `PermissionError: Download permission denied` 已补充日志下载 ACL 并完成实机验证；离线构建同时包含该修复。GFW 列表更新查询还受 GitHub 匿名 API 额度影响，见[日志权限修复记录](doc/cr8808-low-memory-homeproxy.md#服务状态页日志权限修复)。
 
-当前固件分支已归档。本仓库保存该基线的公开固件、运行增量依赖、源码与定制构建流程；`python scripts/manage-dependencies.py verify` 可离线校验，`build --output tmp/builds/baseline-1` 可重新生成应用补丁与公开包。固件内核/驱动更新仍需单独适配和实机验收。
+早期 ImmortalWrt 固件基线已归档。本仓库保存该基线的公开固件、运行增量依赖、源码与定制构建流程；`python scripts/manage-dependencies.py verify` 可离线校验，`build --output tmp/builds/baseline-1` 可重新生成应用补丁与公开包。QSDK 固件由主分支的相关文件变更自动触发构建，也可手动触发；固定来源及同批维护产物见 QSDK 构建文档。固件内核/驱动更新仍需单独适配和实机验收。
 
 `scripts/prepare-cr8808-flash.ps1` 只检查本地备份并生成设备专用脚本；生成脚本默认只检查，实际写入需要显式传入 `--flash`。当前已刷好的设备无需重复刷写。

@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "validated_at_local": "2026-11-02T20:34:15+08:00",
+  "device": "Redmi AX3000 / CR8808",
+  "scope": "Live PassWall2 configuration; no firmware flash or router reboot",
+  "passwall2_version": "26.10.29",
+  "xray_version": "26.10.31",
+  "configuration": {
+    "proxy_core_process_count": 1,
+    "native_protocols": [
+      "Hysteria2",
+      "Hysteria2"
+    ],
+    "different_server_addresses": true,
+    "advertised_traffic_multiplier_each": 0.1,
+    "strategy": "leastPing",
+    "probe_interval": "30m",
+    "probe_url": "https://www.gstatic.com/generate_204",
+    "concurrent_probe": true,
+    "fallback_when_all_unavailable": "blackhole",
+    "gfw_proxy_exit_changed": true,
+    "domestic_default_direct_preserved": true,
+    "node_logging": false,
+    "loglevel": "error",
+    "both_subscription_certificate_pins_match_exactly": true,
+    "both_sni_values_preserved": true,
+    "tls_insecure_disabled": true,
+    "standalone_socks_autoswitch_added": false
+  },
+  "validation": {
+    "installed_arm32_xray_config_test_passed": true,
+    "both_final_candidates_startup_probe_passed": true,
+    "native_startup_probe_seconds": [
+      1.821409836,
+      2.085794705
+    ],
+    "trial_client_verified_tls_204_passes": 4,
+    "trial_router_verified_tls_204_passes": 6,
+    "final_client_verified_tls_204_passes": 4,
+    "final_router_verified_tls_204_passes": 4,
+    "client_forced_ethernet_interface": 21,
+    "client_uses_router_dns": true,
+    "boot_id_unchanged": true,
+    "wan_up": true,
+    "both_wifi_aps_up": true,
+    "wan_link_mbps": 1000,
+    "wan_full_duplex": true,
+    "nss_and_ecm_modules_loaded": true,
+    "firewall_config_unchanged": true,
+    "fw3_proxy_nat_rule_count": 24,
+    "pending_uci_changes": false,
+    "trial_configuration_accepted": true,
+    "temporary_rollback_guard_stopped": true
+  },
+  "short_resource_sample": {
+    "sample_count": 7,
+    "duration_seconds": 30.25,
+    "cpu": {
+      "cpu": {
+        "busy_percent": 4.78,
+        "iowait_percent": 0.02
+      },
+      "cpu0": {
+        "busy_percent": 6.6,
+        "iowait_percent": 0.04
+      },
+      "cpu1": {
+        "busy_percent": 3.12,
+        "iowait_percent": 0.03
+      }
+    },
+    "memory_kib": {
+      "MemAvailable": {
+        "minimum": 31304,
+        "maximum": 32344,
+        "last": 31304
+      },
+      "SwapFree": {
+        "minimum": 29692,
+        "maximum": 29692,
+        "last": 29692
+      },
+      "VmRSS": {
+        "minimum": 36352,
+        "maximum": 36916,
+        "last": 36916
+      },
+      "VmSwap": {
+        "minimum": 0,
+        "maximum": 0,
+        "last": 0
+      }
+    },
+    "vm_counter_delta": {
+      "pswpin": 13,
+      "pswpout": 0,
+      "oom_kill": 0,
+      "pgmajfault": 17
+    }
+  },
+  "rejected_candidates": [
+    {
+      "protocol": "VLESS",
+      "reason": "Initial small native probe passed but subsequent real HTTPS checks included timeouts; restored the known-good configuration before trying another candidate."
+    },
+    {
+      "protocol": "Hysteria2",
+      "reason": "Native HTTPS startup probe returned EOF; the remaining healthy candidate kept client and router HTTPS usable."
+    }
+  ],
+  "private_backups": {
+    "before_etc_sha256": "724619ec38ed04c7c961e5f139398dcd01fa76c3633217e5240df6788d6bc1c6",
+    "final_etc_sha256": "63b1be6918529a705ad9f85e2062de52f73146c31f1aba75a0898de587ffb618",
+    "final_passwall2_config_sha256": "7a2e9ef0d8a86fed3e6f9be8161eae1883f7c0644ca751f74d0eb1990568ad53"
+  },
+  "limitations": [
+    "No full 30-minute scheduled probe cycle was observed.",
+    "No deliberate fault injection or bidirectional failover of the final pair was performed.",
+    "The pinned ordinary observatory timeout remains five seconds with no consecutive-failure or cooldown setting.",
+    "Startup probe and short HTTPS results do not prove long-term node stability or encrypted throughput.",
+    "RSS figures are current short-window samples, not incremental overhead versus a controlled single-node baseline.",
+    "The sample recorded 13 swap-in pages, zero swap-out pages, and no OOM; it is not a zero-swap-activity claim.",
+    "Existing TCP connections require reconnecting after a failed outbound."
+  ],
+  "private_credentials_included": false
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "validated_at_local": "2026-11-01T20:02:44+08:00",
+  "device": "Redmi AX3000 / CR8808",
+  "running_image_commit": "bbcfdb2a296e62bbe709fab65c9114e6f6e0454b",
+  "scope": "Live application/configuration correction; no firmware flash or router reboot",
+  "observed_before": {
+    "client_https_google_204": true,
+    "localhost_proxy": false,
+    "router_google_curl_exit": 28,
+    "original_vless_node_retest": "Variable handshake times, successful requests above three seconds, and an observed TLS EOF",
+    "upstream_homepage_connect_timeout_seconds": 3,
+    "native_firewall_include_missing_after_config_restore": true
+  },
+  "changes": {
+    "localhost_proxy": true,
+    "client_proxy": true,
+    "homepage_connect_timeout_seconds": 8,
+    "homepage_total_timeout_seconds": 12,
+    "controller_before_sha256": "0a1f0ea1735a4fe4ffa2a29d2c3da142c4f3898581b572c6713308fbd788aba3",
+    "controller_after_sha256": "ac3e1227da9946ef11f0718adbc29f445407c6c6f7f538becae55b27b9b4087e",
+    "selected_private_node_protocol": "Hysteria2",
+    "selected_private_node_region": "Japan",
+    "old_and_new_advertised_traffic_multiplier": "0.1",
+    "node_certificate_pin_preserved": true,
+    "firewall_include": "/var/etc/passwall2.include",
+    "firewall_include_type": "script",
+    "firewall_include_reload": 1,
+    "public_image_proxy_enabled_default": false,
+    "public_image_localhost_proxy_default": true
+  },
+  "validation": {
+    "authenticated_native_google_homepage_passes": 5,
+    "homepage_reported_tls_times_ms": [
+      1740.55,
+      703.46,
+      1807.39,
+      1562.21,
+      697.37
+    ],
+    "unreachable_endpoint_still_reports_failure": true,
+    "forced_ethernet_client_https_204_passes": 12,
+    "client_targets": [
+      "https://www.google.com/generate_204",
+      "https://www.gstatic.com/generate_204"
+    ],
+    "client_dns_server": "router LAN address",
+    "client_tls_certificate_verification": true,
+    "firewall_reload_keeps_proxy_rules_and_same_running_core": true,
+    "post_firewall_reload_client_and_homepage_tests_passed": true,
+    "wan_up": true,
+    "both_wifi_aps_up": true,
+    "nss_modules_loaded": true,
+    "nand_ecc_failures": 0,
+    "new_kernel_panic_or_oom_observed": false,
+    "private_configuration_backup_sha256_verified": true,
+    "local_python_tests_passed": 52,
+    "real_pinned_source_staging_passed": true,
+    "native_lua_syntax_check_passed": true,
+    "long_term_node_stability_proven": false,
+    "new_firmware_image_compiled_in_this_check": false
+  },
+  "private_configuration_included": false
+}

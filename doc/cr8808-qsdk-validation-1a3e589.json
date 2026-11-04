@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "status": "baseline-accepted-controlled-reboot-verified",
+  "verified_at_local": "2026-11-01T11:52:32.462538+08:00",
+  "build_customization_commit": "1a3e5898bb8fba1f2ff8a086cc78b7dfd9e4b227",
+  "build_record": "cr8808-qsdk-build-1a3e589.json",
+  "factory_sha256": "88b7d097e1131c2bd1fbe81b154e4a1c41f42aaf613f680b62ee5627bbcac886",
+  "runtime": {
+    "kernel": "5.4.164",
+    "board": "redmi,ax3000",
+    "userspace": "ARM32"
+  },
+  "reused_existing_candidate_without_reflash": true,
+  "partition_table_changed": false,
+  "default_slot": "rootfs",
+  "retained_slot": "rootfs_1",
+  "boot_flags": {
+    "flag_last_success": 0,
+    "flag_ota_reboot": 0,
+    "flag_boot_success": 1
+  },
+  "trial_guard": {
+    "private_only_not_public_image_feature": true,
+    "resumed_trial_timeout_seconds": 3600,
+    "deadline_basis": "monotonic kernel uptime",
+    "accepted_marker_persisted_after_reboot": true,
+    "native_uboot_env_restored": true,
+    "native_uboot_env_sha256": "c9704b089dbc84ef2a5f6352ec4e95fb4f0e66b5ace63929dc99baae935de98c",
+    "timer_process_absent_after_reboot": true,
+    "deadline_file_absent_after_reboot": true
+  },
+  "persistence": {
+    "all_compared_files_unchanged": true,
+    "file_count": 7,
+    "configuration_files": [
+      "/etc/config/network",
+      "/etc/config/wireless",
+      "/etc/config/dhcp"
+    ],
+    "password_hash_file_unchanged": true,
+    "ssh_host_keys_unchanged": true,
+    "original_password_authentication_after_reboot": true,
+    "nand_ubifs_overlay": true,
+    "overlay_total_MiB_approx": 16.7,
+    "overlay_available_MiB_approx": 15.7
+  },
+  "wifi": {
+    "both_APs_enabled_after_reboot": true,
+    "both_bands_have_associated_clients_after_reboot": true
+  },
+  "nas_single_queue": {
+    "elapsed_seconds": 34.355,
+    "read_bytes": 3615490048,
+    "average_mbps": 841.91,
+    "average_MBps": 105.24,
+    "minimum_sample_mbps": 724.25,
+    "median_sample_mbps": 848.23,
+    "queue_depth": 1,
+    "read_only": true,
+    "windows_file_cache_bypassed": true,
+    "nic_rx_to_payload_ratio": 1.0372,
+    "windows_nic_error_and_discard_delta": 0,
+    "file_size_unchanged": true
+  },
+  "nas_two_queue_120_seconds": {
+    "elapsed_seconds": 120.082,
+    "read_bytes": 13920894976,
+    "average_mbps": 927.42,
+    "average_MBps": 115.93,
+    "minimum_sample_mbps": 877.76,
+    "median_sample_mbps": 932.62,
+    "queue_depth": 2,
+    "read_only": true,
+    "windows_file_cache_bypassed": true,
+    "nic_rx_to_payload_ratio": 1.0378,
+    "windows_nic_error_and_discard_delta": 0,
+    "file_size_unchanged": true
+  },
+  "nas_after_reboot_60_seconds": {
+    "elapsed_seconds": 60.111,
+    "read_bytes": 6908018688,
+    "average_mbps": 919.37,
+    "average_MBps": 114.92,
+    "minimum_sample_mbps": 849.57,
+    "median_sample_mbps": 926.71,
+    "queue_depth": 2,
+    "read_only": true,
+    "windows_file_cache_bypassed": true,
+    "nic_rx_to_payload_ratio": 1.0383,
+    "windows_nic_error_and_discard_delta": 0,
+    "file_size_unchanged": true
+  },
+  "wan_60_seconds": {
+    "elapsed_seconds": 60.261,
+    "connections": 4,
+    "downloaded_bytes": 2214001324,
+    "average_mbps": 293.92,
+    "mean_cpu_busy_percent_both_cores": 5.37,
+    "mean_softirq_percent_both_cores": 2.9,
+    "minimum_mem_available_kib": 31832,
+    "source": "wired LAN computer, curl bound to Ethernet, no application proxy",
+    "sink": "computer null device",
+    "access_line_limit_mbps": "300 nominal, approximately350 peak as reported by user"
+  },
+  "wan_after_reboot_30_seconds": {
+    "elapsed_seconds": 30.143,
+    "connections": 4,
+    "downloaded_bytes": 1112373932,
+    "average_mbps": 295.22,
+    "mean_cpu_busy_percent_both_cores": 6.04,
+    "mean_softirq_percent_both_cores": 3.22,
+    "minimum_mem_available_kib": 63840,
+    "source": "wired LAN computer, curl bound to Ethernet, no application proxy",
+    "sink": "computer null device",
+    "access_line_limit_mbps": "300 nominal, approximately350 peak as reported by user"
+  },
+  "nss_ipv4_during_60_second_wan_test": {
+    "rx_bytes_delta": 2417952952,
+    "tx_bytes_delta": 2462454892,
+    "hash_hits_delta": 3179307,
+    "drop_counter_delta": {
+      "ipv4_by_rule_drops": 0
+    },
+    "may_include_background_household_traffic": true
+  },
+  "observed_health": {
+    "kernel_crash_not_observed_in_captured_trial_logs": true,
+    "nand_ecc_failures": 0,
+    "nand_bad_blocks": 0
+  },
+  "not_validated": [
+    "long-term stability",
+    "sustained WAN-to-LAN NAT at 500 Mbps or above",
+    "HomeProxy and ARM64 sing-box migration"
+  ],
+  "notes": [
+    "NAS LAN throughput is separate from WAN NAT capacity.",
+    "CPU headroom under the present ISP load does not prove a higher NAT ceiling.",
+    "No private credentials, SSIDs, host keys or raw device backups are included."
+  ]
+}

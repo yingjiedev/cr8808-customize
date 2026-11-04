@@ -1,0 +1,13 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+. /lib/functions.sh
+[ "$(board_name)" = 'redmi,ax3000' ] || exit 1
+
+uci -q batch <<'EOF'
+set ecm.global.acceleration_engine='nss'
+set firewall.@defaults[0].flow_offloading='0'
+set firewall.@defaults[0].flow_offloading_hw='0'
+commit ecm
+commit firewall
+EOF

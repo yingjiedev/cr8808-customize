@@ -11,6 +11,7 @@ HomeProxy 及基于其原有代码产生的修改保留 **GPL-2.0-only** 约束�
 | ucode 与 digest 模块 | 保留 ISC 许可 |
 | squashfs-tools-ng 和附带库 | GPL、LGPL、BSD、MIT 等，按发行包与源码内许可分项处理 |
 | ImmortalWrt 固件、SDK、ImageBuilder、工具链及 feeds | 多个组件的集合，保留各组件自己的许可；不统一改为本仓库默认许可 |
+| QSDK 候选的上游 OpenWrt/Linux、驱动、固件归档和生成的 SDK/ImageBuilder | 保留各组件的上游许可与声明；来源和内容摘要见 `firmware/qsdk/source-lock.json`，固件归档的内容锁定不构成重新授权 |
 | 历史候选 WebUBoot 二进制 | 作为历史归档保留上游权利与来源说明，不因本文件取得新的授权 |
 
 第三方声明、许可文本和来源记录位于 `dependencies/licenses/`、`dependencies/lock.json`、各源码快照及官方发行包。Release 原样镜像上游构建产物，同时提供本仓库的对应公开源码快照、构建记录与校验表。

@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "status": "subscription-migrated-default-boot-and-controlled-reboot-verified",
+  "verified_at_local": "2026-11-01T19:27:51.432684+08:00",
+  "build_customization_commit": "bbcfdb2a296e62bbe709fab65c9114e6f6e0454b",
+  "build_run": "https://github.com/yingjiedev/cr8808-customize/actions/runs/41289823028",
+  "build_job_conclusion": "success",
+  "factory_bytes": 23855104,
+  "factory_sha256": "2595c264f0fbbd38f9f5fd32781cefa24bf88648e81e88ffee694f30a3f84ef2",
+  "core_sha256": "0bc83ba8083c7aabc669bb08c78eac68fd8600e515869aa6bcb6093ef848b7cb",
+  "runtime": {
+    "kernel": "5.4.164",
+    "userspace": "ARM32",
+    "firewall": "fw3 legacy iptables",
+    "NSS_enabled": true,
+    "passwall2_version": "26.10.29",
+    "xray_version": "26.10.31",
+    "zram_MiB": 32,
+    "overlay_available_kib_final": 7040,
+    "uhttpd_max_requests": 3
+  },
+  "migration": {
+    "native_subscription_entries": 49,
+    "vless_entries": 29,
+    "hysteria2_entries": 20,
+    "hysteria2_certificate_pins_preserved": 20,
+    "generic_insecure_enabled": false,
+    "single_proxy_core": true,
+    "gfw_domain_rules": 4443,
+    "default_route": "direct",
+    "original_preferred_vless_preserved": true,
+    "manual_update_verified": true,
+    "failed_update_preserved_configuration": true,
+    "automatic_subscription_update_enabled": false,
+    "native_hysteria2_selection_https_verified": true,
+    "original_preferred_restored": true,
+    "authenticated_settings_node_and_subscription_pages_http": 200
+  },
+  "persistence": {
+    "controlled_reboot_verified": true,
+    "selected_default_slot": "rootfs",
+    "trial_reboot_timer_active_after_acceptance": false,
+    "network_wifi_proxy_password_host_keys_unchanged_across_reboot": true,
+    "both_wifi_APs_and_client_associations_verified": true,
+    "retained_slot": "rootfs_1",
+    "retained_kernel_and_rootfs_unchanged": true,
+    "partition_table_changed": false
+  },
+  "wan_before_reboot": {
+    "seconds": 60.255,
+    "average_mbps": 294.23,
+    "downloaded_bytes": 2216082092,
+    "mean_cpu_busy_percent_both_cores": 11.02,
+    "minimum_mem_available_kib": 36920,
+    "connections": 4,
+    "source": "wired computer, curl without application proxy, router GFW interception enabled"
+  },
+  "wan_after_reboot": {
+    "seconds": 30.16,
+    "average_mbps": 291.01,
+    "downloaded_bytes": 1097136812,
+    "mean_cpu_busy_percent_both_cores": 8.36,
+    "minimum_mem_available_kib": 39136,
+    "connections": 4,
+    "source": "wired computer, curl without application proxy, router GFW interception enabled"
+  },
+  "nss_after_reboot_test": {
+    "counter": "ipv4_rx_bytes special",
+    "delta_bytes": 1211845248,
+    "full_download_test_interval_bracketed": true
+  },
+  "nas_before_reboot": {
+    "seconds": 60.149,
+    "average_mbps": 922.69,
+    "average_MBps": 115.34,
+    "read_only": true,
+    "client_file_cache_bypassed": true,
+    "nic_rx_to_payload_ratio": 1.0386,
+    "client_nic_error_and_discard_delta": 0
+  },
+  "nas_after_reboot": {
+    "seconds": 30.081,
+    "average_mbps": 915.81,
+    "average_MBps": 114.48,
+    "read_only": true,
+    "client_file_cache_bypassed": true,
+    "nic_rx_to_payload_ratio": 1.0508,
+    "client_nic_error_and_discard_delta": 0,
+    "measurement_note": "A 37,748,736-byte router NAND backup was read over the same computer NIC during the beginning of this30-secondcheck."
+  },
+  "health": {
+    "kernel_panic_oops_oom_or_wifi_firmware_crash_observed": false,
+    "nand_ecc_strength": 4,
+    "nand_ecc_step_bytes": 512,
+    "nand_ecc_failures": 0,
+    "nand_bad_blocks": 0,
+    "final_private_etc_and_boot_environment_backups_downloaded_and_sha_verified": true
+  },
+  "limitations": {
+    "access_line_nominal_downstream_mbps": 300,
+    "reported_peak_mbps": 350,
+    "sustained_500_mbps_WAN_validated": false,
+    "encrypted_proxy_throughput_validated": false,
+    "long_term_soak_completed": false
+  },
+  "private_subscription_or_device_credentials_included": false
+}

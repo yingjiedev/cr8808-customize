@@ -1,0 +1,6 @@
+#!/bin/sh
+# Public defaults only. The private migration supplies nodes and subscriptions.
+uci -q set system.@system[0].zram_size_mb='32'
+uci -q set system.@system[0].zram_comp_algo='lzo'
+uci commit system
+exit 0

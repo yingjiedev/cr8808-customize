@@ -6,6 +6,7 @@
 
 | 文件 | 用途 |
 | --- | --- |
+| `qsdk_candidate.py` / `qsdk_candidate_image.py` | 准备固定来源的 ARM32 QSDK 源码、核验下载和实际 UBI/FIT/SquashFS 产物；见 QSDK 候选手册 |
 | `manage-dependencies.py` / `dependency_lib.py` | 离线核对公开依赖、内核 ABI 与源码；构建基线/候选应用包，按需下载锁定 SDK |
 | `check-cr8808-baseline.sh` | 只读检查板名、固件版本、完整内核 ABI 与基础运行条件 |
 | `manage-release.py` / `release_lib.py` | 准备公开 Release 附件，核对本机与 GitHub 附件哈希后发布；支持草稿断点续传 |
