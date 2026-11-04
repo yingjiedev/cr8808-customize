@@ -2,12 +2,13 @@ name: Build pinned QSDK NSS candidate
 
 on:
   push:
-    branches: ['codex/qsdk-nss-candidate']
+    branches: ['main']
     paths:
       - '.github/workflows/qsdk-candidate.yml'
       - 'firmware/qsdk/**'
       - 'scripts/qsdk_*.py'
       - 'tests/test_qsdk_candidate.py'
+      - 'tests/test_qsdk_proxy.py'
   workflow_dispatch:
 
 permissions:

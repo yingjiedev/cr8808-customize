@@ -1,10 +1,10 @@
 # CR8808 QSDK NSS 候选构建
 
-本分支从主分支建立，使用来源可追溯的 hzyitc QSDK 路线重新编译。目标是在现有 36 MiB 系统槽内准备具备 NSS/ECM、双频 Wi-Fi 和 LuCI 的候选，后续分别验收稳定性和普通 NAT 的持续 500 Mbps 性能余量。
+本路线最初在独立候选分支建立，使用来源可追溯的 hzyitc QSDK 重新编译。目标是在现有 36 MiB 系统槽内提供 NSS/ECM、双频 Wi-Fi 和 LuCI，分别验收稳定性和普通 NAT 的持续 500 Mbps 性能余量。
 
 **构建成功不等于本机验收通过。** 构建工作流只构建和检查产物，不连接路由器或执行刷写。实际家庭宽带下行为 300 Mbps、峰值约 350 Mbps；该线路的测速结果不能证明路由器具备 500 Mbps 转发能力。
 
-**当前已将修正构建 `1a3e589` 设为默认启动系统，并通过受控重启和配置持久性验收。** 原 ImmortalWrt 系统仍保留于 `rootfs_1`；首次构建故障与第二次试用超时回退的历史记录保留如下。当前只完成基础网络验收，长期稳定性、持续 500 Mbps NAT 与代理应用迁移仍需分别完成。
+**当前实机已使用后续构建 `bbcfdb2`，完成默认启动、受控重启及 PassWall2 订阅迁移验收。** 代理连通性和首页检测修正见 `01db846`，该提交的 [完整固件构建](https://github.com/yingjiedev/cr8808-customize/actions/runs/41304627055) 与 [Windows / Linux 基线检查](https://github.com/yingjiedev/cr8808-customize/actions/runs/41304627099) 均已通过；实机是在 `bbcfdb2` 基础上应用相应修正，并未重新刷入 `01db846` 镜像。最新范围见 [订阅迁移记录](cr8808-qsdk-subscription-migration.md) 和 [双节点配置验收](cr8808-qsdk-node-failover-research.md#用户选定方案的部署结果)。原 ImmortalWrt 系统仍保留于 `rootfs_1`；首次构建故障、试用超时回退及 `1a3e589` 基础验收的历史记录保留如下。长期稳定性、持续 500 Mbps NAT 与加密代理吞吐仍待分别验证。
 
 ## 来源和固定输入
 
@@ -41,7 +41,7 @@
 
 ## 仓库构建
 
-[QSDK workflow](../.github/workflows/qsdk-candidate.yml) 在 `codex/qsdk-nss-candidate` 的相关文件变更时运行，也支持手动触发。运行环境为 Ubuntu 22.04 / Python 3.10，以配合旧版工具链；Windows 本机可运行 Python 输入核验和测试，完整固件使用 Linux CI 编译。
+[QSDK workflow](../.github/workflows/qsdk-candidate.yml) 在 `main` 的相关文件变更时运行，也支持手动触发其他分支。运行环境为 Ubuntu 22.04 / Python 3.10，以配合旧版工具链；Windows 本机可运行 Python 输入核验和测试，完整固件使用 Linux CI 编译。
 
 主要阶段：
 
@@ -168,7 +168,7 @@ Actions 附件名为 `cr8808-qsdk-candidate-<本仓库提交>`，保留 30 天�
 
 这些结果支持当前千兆 LAN 大文件交换及现有 300 Mbps 宽带的基础使用。NSS 生效与低 CPU 占用表明已有负载下仍有 CPU 余量，但不能将该比例线性外推为 500 Mbps 或千兆 NAT 的实测结论。双频关联、两次启动和短时负载通过也不能代替长期稳定性测试。
 
-当前 QSDK **没有迁移 HomeProxy 或原 ARM64 sing-box**。原系统及其配置仍在保留槽。后续代理适配、独立 WAN 测试和维护补丁应继续以本轮固定来源镜像与同批软件包为基础，避免混入其他 ABI 的模块。
+上述 `1a3e589` 基础验收阶段**没有迁移 HomeProxy 或原 ARM64 sing-box**。后续 `bbcfdb2` 已使用 ARM32 PassWall2 / Xray 完成订阅迁移，见 [单独的迁移与验收记录](cr8808-qsdk-subscription-migration.md)。原系统及其配置仍在保留槽。后续适配、独立 WAN 测试和维护补丁应继续使用固定来源镜像与同批软件包，避免混入其他 ABI 的模块。
 
 ## 待完成的设备验收
 
@@ -177,4 +177,4 @@ Actions 附件名为 `cr8808-qsdk-candidate-<本仓库提交>`，保留 30 天�
 - 在千兆隔离上游测试网中，用另一台主机作为 WAN 端流量源，电脑位于 LAN 侧，测量真实 NAT 转发；普通 LAN 内 iperf 或在路由器自身发流不能替代这项测试。
 - 持续 NAT 不低于 500 Mbps，同时采样 CPU、softirq、内存、丢包、ECM 流和 NSS 计数，确认流量实际被加速。
 - NAS 纯 LAN 已通过本页的两分钟千兆级只读测试；后续写入测试须另选明确允许创建测试文件的位置，再检查实际存储和多客户端负载。
-- 补齐代理应用后，复验国内直连、代理流量、DNS 和 NSS 兼容性，再决定是否作为日常系统。
+- PassWall2 迁移后已复验国内直连、HTTPS 代理访问及 NSS，用户选择继续日常使用；后续仍需验证加密代理持续吞吐、双节点主动故障切换和长期稳定性。
