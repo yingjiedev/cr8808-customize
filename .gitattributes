@@ -22,3 +22,5 @@ dependencies/licenses/** -text
 firmware/qsdk/** text eol=lf
 firmware/qsdk/reference/** -text
 /scripts/sing-box-squashfs/** text eol=lf
+/firmware/nss/** text eol=lf
+/scripts/nss-migration/** text eol=lf

@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+[ "$(cat /tmp/sysinfo/board_name)" = 'xiaomi,cr8806' ] || exit 1
+# Preserve administrative access even if later wireless mapping needs attention.
+/etc/init.d/homeproxy disable
+uci set homeproxy.config.cr8808_autostart='0'
+uci commit homeproxy
+ucode /etc/cr8808-nss/apply-private.uc --identity-only
+exit 0

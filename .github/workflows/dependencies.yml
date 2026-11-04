@@ -30,6 +30,11 @@ jobs:
         run: python -m unittest discover -s tests -p "test_*.py"
       - name: Frontend queue tests
         run: node --test tests/homeproxy-node-ui.test.cjs
+      - name: Private migration template syntax
+        if: runner.os == 'Linux'
+        run: |
+          dash -n scripts/nss-migration/00-cr8808-private-identity
+          dash -n scripts/nss-migration/zzzz-cr8808-private-migration
       - name: Build approved offline baseline
         run: python scripts/manage-dependencies.py build --output tmp/ci-baseline
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
